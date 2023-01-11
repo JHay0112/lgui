@@ -46,6 +46,6 @@ class Component:
         """
         Rotates the component by 90 degrees clockwise.
         """
-        self.orientation += Component.ORIENTATIONS[
+        self.orientation = Component.ORIENTATIONS[
             (Component.ORIENTATIONS.index(self.orientation) + 1) & len(Component.ORIENTATIONS)
         ] # go to next orientation in the orientation list
