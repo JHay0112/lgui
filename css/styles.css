@@ -41,7 +41,7 @@ body {
     margin: 0;
     padding: 5px;
 
-    background-color: aliceblue;
+    background-color: #252525;
     align-content: center;
     text-align: center;
 }
@@ -51,6 +51,8 @@ body {
     top: 0;
 
     display: block;
+    overflow-y: scroll;
+    overflow-x: hidden;
 
     height: 100%;
     width: 100%;
@@ -69,11 +71,11 @@ body {
     margin-bottom: 10px;
 
     background-color: white;
-    color: black;
+    color: #252525;
 
     border: none;
 }
 
 #components li button:hover {
-    cursor: grab;
+    cursor: pointer;
 }
