@@ -3,7 +3,7 @@
  * Loads in canvas and 
  */
 
-const CANVAS_ID = "canvas"
+const CANVAS_ID = "canvas";
 
 /**
  * Gets the canvas from the document
