@@ -37,8 +37,7 @@ class Component:
         self.type = ctype
         self.value = value
         self.orientation = Component.N
-        self.pos_x = 0
-        self.pos_y = 0
+        self.pos = (0, 0)
         self.id = Component.next_ids[self.type]
         Component.next_ids[self.type] += 1
 
