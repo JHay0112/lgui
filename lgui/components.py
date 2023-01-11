@@ -21,11 +21,14 @@ class Component:
     S = ORIENTATIONS[2]
     W = ORIENTATIONS[3]
 
-    TYPES = ("R", "L", "C")
+    TYPES = ("R", "L", "C", "W", "PWR", "GND")
     """Component types"""
     R = TYPES[0]
     L = TYPES[1]
     C = TYPES[2]
+    WIRE = TYPES[3]
+    PWR = TYPES[4]
+    GND = TYPES[5]
 
     GRID_HEIGHT = 5
     """Height of components on the editor grid"""
@@ -38,6 +41,7 @@ class Component:
         self.value = value
         self.orientation = Component.N
         self.pos = (0, 0)
+        self.ports: list[Component] = []
         self.id = Component.next_ids[self.type]
         Component.next_ids[self.type] += 1
 
