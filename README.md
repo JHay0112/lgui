@@ -1,3 +1,3 @@
 # lgui
 
-lgui is a python application that provides a GUI for control of lcapy.
+lgui is a web application that provides a GUI for control of lcapy.
