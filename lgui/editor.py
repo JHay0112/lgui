@@ -32,7 +32,8 @@ class Editor:
             suffix = ".svg"
         )
         lcapy.Circuit("\n" + netlist).draw(
-            filename = svg_file.name
+            filename = svg_file.name,
+            label_ids = False
         )
         display(SVG(filename = svg_file.name))
         svg_file.close()
