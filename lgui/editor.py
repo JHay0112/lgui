@@ -2,38 +2,21 @@
 Defines the component editor class.
 """
 
-import ipywidgets
 import lcapy
+import ipywidgets as widgets
 
-from IPython.display import SVG, display
-from tempfile import NamedTemporaryFile
+from ipycanvas import Canvas, hold_canvas
 
-from .components import Component
 from .sheet import Sheet
 
-class Editor:
-
+@widgets.register
+class Editor(Canvas):
     """
     The component editor is an ipywidget.
-    It behaves similarly to the 
     """
 
     def __init__(self):
 
         self.sheet: Sheet = Sheet("Untitled", None)
 
-    def display(self):
-        """
-        Displays the editor.
-        """
-        netlist = self.sheet.to_lcapy()
-        svg_file = NamedTemporaryFile(
-            prefix = "lgui_",
-            suffix = ".svg"
-        )
-        lcapy.Circuit("\n" + netlist).draw(
-            filename = svg_file.name,
-            label_ids = False
-        )
-        display(SVG(filename = svg_file.name))
-        svg_file.close()
+        super().__init__(width = 1000, height = 800)
