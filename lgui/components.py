@@ -18,39 +18,44 @@ class Node:
     """
 
     # 0 is reserved for the ground node
-    next_id: int = 1
+    id_assigned: list[bool] = [True]
 
     def __init__(self, is_ground: bool = False):
 
         self.components: set[Component] = set()
-        self.is_ground: bool = is_ground
 
-        if self.is_ground:
-            self._id: int = 0
+        if is_ground:
+            self.id: int = 0
         else:
-            self._id: int = Node.next_id
-            Node.next_id += 1
+            self._assign_id()
 
     def __eq__(self, other: 'Node') -> bool:
         return other.id == self.id
+
+    def _assign_id(self):
+        """Assigns the next free ID to the node."""
+        self.id = len(Node.id_assigned)
+        Node.id_assigned.append(True)
+
+    def _free_id(self):
+        """Frees the ID associated with this node."""
+        if self.id < len(Node.id_assigned):
+            Node.id_assigned[self.id] = False
+            for assigned in Node.id_assigned[::-1]:
+                if assigned:
+                    break
+                else:
+                    Node.id_assigned.pop()
+        self.id = None
             
     @property
-    def id(self):
-        """
-        The id of the node.
-        """
-        if self.is_ground:
-            self._id = 0
-        return self._id
+    def is_ground(self) -> bool:
+        return self.id == 0
 
-    @id.setter
-    def id(self, value: int):
-        """
-        Sets a new id.
-        """
-        self._id = value
-        if self._id == 0:
-            self.is_ground = True
+    @is_ground.setter
+    def is_ground(self, value: bool):
+        if value:
+            self.id = 0
 
     def connect(self, other: Union['Node', 'Component']):
         """
@@ -65,8 +70,14 @@ class Node:
         if isinstance(other, Node):
             self.components |= other.components
             other.components = self.components
-            self.id = min(self.id, other.id)
-            other.id = self.id
+
+            if self.id > other.id:
+                self._free_id()
+                self.id = other.id
+            else:
+                other._free_id()
+                other.id = self.id
+                
         elif isinstance(other, Component):
             self.components.add(other)
 
