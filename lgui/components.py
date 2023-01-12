@@ -170,12 +170,18 @@ class Component:
         """Updates the position of the component on the grid. This is at port 0."""
         self._pos = value
 
-    def rotate(self):
+    def rotate(self, times: int = 1):
         """
         Rotates the component by 90 degrees clockwise.
+
+        Parameters
+        ----------
+
+        times: int
+            Number of times to rotate the component by 90 degrees.
         """
         self.orientation = Component.ORIENTATIONS[
-            (Component.ORIENTATIONS.index(self.orientation) + 1) & len(Component.ORIENTATIONS)
+            (Component.ORIENTATIONS.index(self.orientation) + times) % len(Component.ORIENTATIONS)
         ] # go to next orientation in the orientation list
 
     def to_lcapy(self) -> str:
