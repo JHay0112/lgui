@@ -131,19 +131,37 @@ class Component:
             (Component.ORIENTATIONS.index(self.orientation) + 1) & len(Component.ORIENTATIONS)
         ] # go to next orientation in the orientation list
 
+    def to_lcapy(self) -> str:
+        """
+        Produces the lcapy netlist representation of the component
+        """
+
+        match self.orientation:
+            case Component.N: 
+                direction = "down"
+            case Component.E:
+                direction = "right"
+            case Component.S:
+                direction = "up"
+            case Component.W:
+                direction = "left"
+            case _:
+                direction = None
+
+        out = f"{self.type}{self.id} {self.ports[0].id} {self.ports[1].id}"
+        if self.value is not None:
+            out += f" {self.value}"
+        if self.orientation is not None:
+            out += f"; {direction}"
+        return out
+
     def draw(self, filepath: str):
         """
         Draws the component as the specified file.
         Uses lcapy as a drawing backend, circuitikz must be installed to work.
         See https://lcapy.readthedocs.io/en/latest/install.html
         """
-
-        if self.value is None:
-            cct = lcapy.Circuit(f"\n{self.type}{self.id} 0 1; down")
-        else:
-            cct = lcapy.Circuit(f"\n{self.type}{self.id} 0 1 {{{self.value}}}; down")
-
-        cct.draw(
+        lcapy.Circuit("\n" + self.to_lcapy()).draw(
             filename = filepath, 
             label_ids = False, 
             draw_nodes = False, 
