@@ -6,6 +6,8 @@ import lcapy
 import ipywidgets as widgets
 import ipycanvas as canvas
 
+from time import sleep
+
 from .sheet import Sheet
 from .components import Component
 
@@ -18,7 +20,8 @@ class Editor(canvas.MultiCanvas):
     SCALE = 0.25
     HEIGHT = 1000
     WIDTH = 2000
-    LAYERS = 2
+    LAYERS = 3
+    STEP = 10
 
     # capture user interactions
     output = widgets.Output()
@@ -30,14 +33,18 @@ class Editor(canvas.MultiCanvas):
 
         super().__init__(Editor.LAYERS, width = Editor.WIDTH, height = Editor.HEIGHT)
 
-        self.foreground = self[0]
-        self.background = self[1]
+        self.control_layer = self[0]
+        self.component_layer = self[1]
+        self.grid_layer = self[2]
 
         self.layout.width = "100%"
         self.layout.height = "auto"
 
         super().on_mouse_move(self._on_mouse_move)
         super().on_mouse_down(self._on_mouse_down)
+
+        with canvas.hold_canvas():
+            self.draw_grid()
 
     @output.capture()
     def _on_mouse_move(self, x: int, y: int):
@@ -46,10 +53,11 @@ class Editor(canvas.MultiCanvas):
             Registered with canvas in __init__
         """
         if self.active_component is not None:
-            self.active_component.position = (x, y)
+            self.active_component.position = (x - (x % Editor.STEP), y - (y % Editor.STEP))
             with canvas.hold_canvas():
-                self.clear()
+                self.component_layer.clear()
                 self.draw_components()
+            sleep(0.02)
 
     @output.capture()
     def _on_mouse_down(self, x: int, y: int):
@@ -58,11 +66,18 @@ class Editor(canvas.MultiCanvas):
             Registered with canvas in __init__
         """
         if self.active_component is not None:
-            self.active_component.position = (x, y)
+            self.active_component.position = (x - (x % Editor.STEP), y - (y % Editor.STEP))
             self.active_component = None
             with canvas.hold_canvas():
-                self.clear()
+                self.component_layer.clear()
                 self.draw_components()
+
+    def draw_grid(self):
+        """Draws a grid based upon the step size."""
+        for i in range(Editor.WIDTH // Editor.STEP):
+            for j in range(Editor.HEIGHT // Editor.STEP):
+                self.grid_layer.fill_style = "#252525"
+                self.grid_layer.fill_rect(i * Editor.STEP, j * Editor.STEP, 1)
 
     def draw_components(self):
         """Draws sheet components on canvas"""
@@ -74,7 +89,7 @@ class Editor(canvas.MultiCanvas):
             width = int(component.IMG_WIDTH * Editor.SCALE)
             height = int(component.IMG_HEIGHT * Editor.SCALE)
 
-            self.background.draw_image(image, 
+            self.component_layer.draw_image(image, 
                 component.position[0] - int(width/2), 
                 component.position[1], 
                 width, 
