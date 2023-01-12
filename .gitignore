@@ -1,0 +1,8 @@
+# Python artifacts
+__pycache__/
+*.pyc
+.ipynb_checkpoints/
+
+# Local testing files
+test.py
+test.ipynb

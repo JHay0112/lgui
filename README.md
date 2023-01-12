@@ -1,3 +1,3 @@
 # lgui
 
-lgui is a web application that provides a GUI for control of lcapy.
+lgui is a Jupyter widget that provides a GUI for control of lcapy.
