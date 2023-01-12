@@ -3,8 +3,11 @@ Defines the components that lgui can simulate
 """
 
 import lcapy
+import os
 
 from typing import Union
+
+DIR = os.path.dirname(__file__)
 
 class Node:
     """
@@ -110,8 +113,10 @@ class Component:
     GRID_LENGTH = 2
     """Length of components on the editor grid, wires may say otherwise"""
 
-    SVG_PATH = "symbols/"
-    SVG_EXT = ".svg"
+    IMG_PATH = "symbols/"
+    IMG_EXT = "png"
+    IMG_HEIGHT = 380
+    IMG_WIDTH = 175
 
     next_ids = {ctype: 0 for ctype in TYPES}
 
@@ -225,6 +230,6 @@ class Component:
             label_values = False
         )
 
-    def svg_path(self) -> str:
-        """Gives the path to an SVG representation of the component"""
-        return Component.SVG_PATH + self.type + Component.SVG_EXT
+    def img_path(self) -> str:
+        """Gives the path to an image representation of the component"""
+        return os.path.join(DIR, Component.IMG_PATH + self.type + "." + Component.IMG_EXT)

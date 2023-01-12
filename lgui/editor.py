@@ -14,13 +14,15 @@ class Editor(canvas.Canvas):
     The component editor is an ipywidget.
     """
 
+    SCALE = 0.1
+    HEIGHT = 500
+    WIDTH = 800
+
     def __init__(self):
 
         self.sheet: Sheet = Sheet("Untitled", None)
 
-        super().__init__(width = 500, height = 500)
-
-        self.draw_components()
+        super().__init__(width = Editor.WIDTH, height = Editor.HEIGHT)
 
     def hold(self):
         """
@@ -42,5 +44,11 @@ class Editor(canvas.Canvas):
         """Draws sheet components on canvas"""
         with self.hold():
             for component in self.sheet.components:
-                image = widgets.Image(component.svg_path())
-                self.draw_image(image, component.position[0] + 250, component.position[1] + 250)
+                with open(component.img_path(), "rb") as f:
+                    image = widgets.Image(value = f.read(), format = component.IMG_EXT)
+                self.draw_image(image, 
+                    component.position[0], 
+                    component.position[1], 
+                    int(component.IMG_WIDTH * Editor.SCALE), 
+                    int(component.IMG_HEIGHT * Editor.SCALE)
+                )
