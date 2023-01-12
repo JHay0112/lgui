@@ -31,7 +31,7 @@ class Sheet:
         """
         out = "\n"
         for component in self.components:
-            out += component.to_lcapy()
+            out += component.to_lcapy() + "\n"
         return out
 
     def add_component(self, component: Component):

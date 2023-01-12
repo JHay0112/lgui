@@ -4,6 +4,8 @@ Defines the components that lgui can simulate
 
 import lcapy
 
+from typing import Union
+
 class Node:
     """
     Describes the connection between components.
@@ -20,65 +22,53 @@ class Node:
 
     def __init__(self, is_ground: bool = False):
 
-        self.connected_to: set[Component] = set()
+        self.components: set[Component] = set()
         self.is_ground: bool = is_ground
-        self._id: int = Node.next_id
-        Node.next_id += 1
 
-    def __add__(self, node: 'Node') -> 'Node':
-        """
-        Shorthand for joining nodes.
-        """
-        return self.join(node)
+        if self.is_ground:
+            self._id: int = 0
+        else:
+            self._id: int = Node.next_id
+            Node.next_id += 1
 
+    def __eq__(self, other: 'Node') -> bool:
+        return other.id == self.id
+            
     @property
     def id(self):
         """
         The id of the node.
         """
         if self.is_ground:
-            return 0
-        else:
-            return self._id
+            self._id = 0
+        return self._id
 
-    def connect(self, comp: 'Component'):
+    @id.setter
+    def id(self, value: int):
         """
-        Connects node to a component
+        Sets a new id.
+        """
+        self._id = value
+        if self._id == 0:
+            self.is_ground = True
+
+    def connect(self, other: Union['Node', 'Component']):
+        """
+        Joins two nodes or components together and reassigns ids to lowest if necessary.
 
         Parameters
         ----------
 
-        comp: Component
-            The component to add as a connection
+        other: Node | Component
+            The other node or component to be connected with
         """
-        self.connected_to.add(comp)
-
-    def disconnect(self, comp: 'Component'):
-        """
-        Removes component from node
-
-        Parameters
-        ----------
-
-        comp: Component
-            The component to remove
-        """
-        self.connected_to.discard(comp)
-
-    def join(self, node: 'Node') -> 'Node':
-        """
-        Produces a new node based on the joined nodes,
-        shorthanded with '+'
-
-        Parameters
-        ----------
-
-        node: Node
-            The node to merge with.
-        """
-        new_node = Node(is_ground = self.is_ground or node.is_ground)
-        new_node = self.connected_to | node.connected_to
-        return new_node
+        if isinstance(other, Node):
+            self.components |= other.components
+            other.components = self.components
+            self.id = min(self.id, other.id)
+            other.id = self.id
+        elif isinstance(other, Component):
+            self.components.add(other)
 
 class Component:
 
@@ -164,6 +154,11 @@ class Component:
 
         return pos
 
+    @position.setter
+    def position(self, value: tuple[int, int]):
+        """Updates the position of the component on the grid. This is at port 0."""
+        self._pos = value
+
     def rotate(self):
         """
         Rotates the component by 90 degrees clockwise.
@@ -191,7 +186,7 @@ class Component:
 
         out = f"{self.type}{self.id} {self.ports[0].id} {self.ports[1].id}"
         if self.value is not None:
-            out += f" {self.value}"
+            out += f" {{{self.value}}}"
         if self.orientation is not None:
             out += f"; {direction}"
         return out
