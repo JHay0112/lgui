@@ -3,10 +3,9 @@ Defines the component editor class.
 """
 
 import lcapy
+import threading
 import ipywidgets as widgets
 import ipycanvas as canvas
-
-from time import sleep
 
 from .sheet import Sheet
 from .components import Component
@@ -21,7 +20,8 @@ class Editor(canvas.MultiCanvas):
     HEIGHT = 1000
     WIDTH = 2000
     LAYERS = 3
-    STEP = 10
+    STEP = 12
+    MOVE_DELAY = 0.05
 
     # capture user interactions
     output = widgets.Output()
@@ -40,30 +40,39 @@ class Editor(canvas.MultiCanvas):
         self.layout.width = "100%"
         self.layout.height = "auto"
 
-        super().on_mouse_move(self._on_mouse_move)
-        super().on_mouse_down(self._on_mouse_down)
+        super().on_mouse_move(self._handle_mouse_move)
+        super().on_mouse_down(self._handle_mouse_down)
 
         with canvas.hold_canvas():
             self.draw_grid()
 
-    @output.capture()
-    def _on_mouse_move(self, x: int, y: int):
+        self.mouse_position = (0, 0)
+        self._update_active_component()
+
+    def _update_active_component(self):
         """
-            Handles mouse movements.
-            Registered with canvas in __init__
+        Updates the current active component.
         """
         if self.active_component is not None:
-            self.active_component.position = (x - (x % Editor.STEP), y - (y % Editor.STEP))
+            self.active_component.position = self.mouse_position
             with canvas.hold_canvas():
                 self.component_layer.clear()
                 self.draw_components()
-            sleep(0.02)
+        threading.Timer(Editor.MOVE_DELAY, self._update_active_component).start()
 
     @output.capture()
-    def _on_mouse_down(self, x: int, y: int):
+    def _handle_mouse_move(self, x: int, y: int):
         """
-            Handles mouse movements.
-            Registered with canvas in __init__
+        Handles mouse movements.
+        Registered with canvas in __init__
+        """
+        self.mouse_position = (x, y)
+
+    @output.capture()
+    def _handle_mouse_down(self, x: int, y: int):
+        """
+        Handles mouse movements.
+        Registered with canvas in __init__
         """
         if self.active_component is not None:
             self.active_component.position = (x - (x % Editor.STEP), y - (y % Editor.STEP))
