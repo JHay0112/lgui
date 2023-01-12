@@ -106,8 +106,8 @@ class Component:
     C = TYPES[2]
     WIRE = TYPES[3]
 
-    GRID_HEIGHT = 5
-    """Height of components on the editor grid"""
+    GRID_LENGTH = 2
+    """Length of components on the editor grid, wires may say otherwise"""
 
     next_ids = {ctype: 0 for ctype in TYPES}
 
@@ -115,13 +115,54 @@ class Component:
 
         self.type = ctype
         self.value = value
-        self.orientation = Component.N
-        self.pos = (0, 0)
+        self.orientation = Component.S
+        self._pos = (0, 0)
+        self.length = Component.GRID_LENGTH
         self.ports: list[Node] = [Node(), Node()]
         for port in self.ports:
             port.connect(self)
         self.id = Component.next_ids[self.type]
         Component.next_ids[self.type] += 1
+
+    def __getitem__(self, key: int) -> Node:
+        """
+        Shorthand for accessing ports.
+        """
+        return self.ports[key]
+
+    @property
+    def position(self, port: int = 0):
+        """
+        The position of the component on the grid.
+
+        Parameters
+        ----------
+
+        port: int = 0
+            The port of which to calculate the position from.
+
+        Raises
+        ------
+
+        ValueError:
+            If orientation is not specified.
+        """
+        if port == 0:
+            pos = self._pos
+        else:
+            match self.orientation:
+                case Component.N:
+                    pos = self._pos[0] + self.length, self._pos[1]
+                case Component.E:
+                    pos = self._pos[0], self._pos[1] + self.length
+                case Component.S:
+                    pos = self._pos[0] - self.length, self._pos[1]
+                case Component.W:
+                    pos = self._pos[0], self._pos[1] - self.length
+                case _:
+                    raise ValueError("Component orientation not defined!")
+
+        return pos
 
     def rotate(self):
         """
@@ -138,11 +179,11 @@ class Component:
 
         match self.orientation:
             case Component.N: 
-                direction = "down"
+                direction = "up"
             case Component.E:
                 direction = "right"
             case Component.S:
-                direction = "up"
+                direction = "down"
             case Component.W:
                 direction = "left"
             case _:
