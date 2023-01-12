@@ -3,8 +3,11 @@ Defines the components that lgui can simulate
 """
 
 import lcapy
+import os
 
 from typing import Union
+
+DIR = os.path.dirname(__file__)
 
 class Node:
     """
@@ -110,6 +113,11 @@ class Component:
     GRID_LENGTH = 2
     """Length of components on the editor grid, wires may say otherwise"""
 
+    IMG_PATH = "symbols/"
+    IMG_EXT = "png"
+    IMG_HEIGHT = 380
+    IMG_WIDTH = 175
+
     next_ids = {ctype: 0 for ctype in TYPES}
 
     def __init__(self, ctype: str, value: int | float | str):
@@ -117,7 +125,7 @@ class Component:
         self.type = ctype
         self.value = value
         self.orientation = Component.S
-        self._pos = (0, 0)
+        self._pos = [0, 0]
         self.length = Component.GRID_LENGTH
         self.ports: list[Node] = [Node(), Node()]
         for port in self.ports:
@@ -164,11 +172,6 @@ class Component:
                     raise ValueError("Component orientation not defined!")
 
         return pos
-
-    @position.setter
-    def position(self, value: tuple[int, int]):
-        """Updates the position of the component on the grid. This is at port 0."""
-        self._pos = value
 
     def rotate(self, times: int = 1):
         """
@@ -221,3 +224,7 @@ class Component:
             label_nodes = False, 
             label_values = False
         )
+
+    def img_path(self) -> str:
+        """Gives the path to an image representation of the component"""
+        return os.path.join(DIR, Component.IMG_PATH + self.type + "." + Component.IMG_EXT)

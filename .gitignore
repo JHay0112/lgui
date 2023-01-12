@@ -6,3 +6,6 @@ __pycache__/
 # Local testing files
 test.py
 test.ipynb
+
+# Logging
+*.log
