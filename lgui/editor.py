@@ -7,6 +7,7 @@ import ipywidgets as widgets
 import ipycanvas as canvas
 
 from .sheet import Sheet
+from .components import Component
 
 @widgets.register
 class Editor(canvas.MultiCanvas):
@@ -19,9 +20,13 @@ class Editor(canvas.MultiCanvas):
     WIDTH = 2000
     LAYERS = 2
 
+    # capture user interactions
+    output = widgets.Output()
+
     def __init__(self):
 
         self.sheet: Sheet = Sheet("Untitled", None)
+        self.active_component: Component = None
 
         super().__init__(Editor.LAYERS, width = Editor.WIDTH, height = Editor.HEIGHT)
 
@@ -31,36 +36,47 @@ class Editor(canvas.MultiCanvas):
         self.layout.width = "100%"
         self.layout.height = "auto"
 
-    def hold(self):
-        """
-        Context manager that buffers canvas commands.
-        Canvas commands are executed once hold has passed.
+        super().on_mouse_move(self._on_mouse_move)
+        super().on_mouse_down(self._on_mouse_down)
 
-        Example
-        -------
-        ```
-        >>> editor = Editor()
-        >>> with editor.hold():
-        >>>     ... # canvas commands
-        >>> # canvas commands are executed upon exit of context
-        ```
+    @output.capture()
+    def _on_mouse_move(self, x: int, y: int):
         """
-        return canvas.hold_canvas()
+            Handles mouse movements.
+            Registered with canvas in __init__
+        """
+        if self.active_component is not None:
+            self.active_component.position = (x, y)
+            with canvas.hold_canvas():
+                self.clear()
+                self.draw_components()
+
+    @output.capture()
+    def _on_mouse_down(self, x: int, y: int):
+        """
+            Handles mouse movements.
+            Registered with canvas in __init__
+        """
+        if self.active_component is not None:
+            self.active_component.position = (x, y)
+            self.active_component = None
+            with canvas.hold_canvas():
+                self.clear()
+                self.draw_components()
 
     def draw_components(self):
         """Draws sheet components on canvas"""
-        with self.hold():
-            for component in self.sheet.components:
+        for component in self.sheet.components:
 
-                with open(component.img_path(), "rb") as f:
-                    image = widgets.Image(value = f.read(), format = component.IMG_EXT)
+            with open(component.img_path(), "rb") as f:
+                image = widgets.Image(value = f.read(), format = component.IMG_EXT)
 
-                width = int(component.IMG_WIDTH * Editor.SCALE)
-                height = int(component.IMG_HEIGHT * Editor.SCALE)
+            width = int(component.IMG_WIDTH * Editor.SCALE)
+            height = int(component.IMG_HEIGHT * Editor.SCALE)
 
-                self.background.draw_image(image, 
-                    component.position[0] - int(width/2), 
-                    component.position[1], 
-                    width, 
-                    height
-                )
+            self.background.draw_image(image, 
+                component.position[0] - int(width/2), 
+                component.position[1], 
+                width, 
+                height
+            )
