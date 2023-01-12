@@ -110,6 +110,9 @@ class Component:
     GRID_LENGTH = 2
     """Length of components on the editor grid, wires may say otherwise"""
 
+    SVG_PATH = "symbols/"
+    SVG_EXT = ".svg"
+
     next_ids = {ctype: 0 for ctype in TYPES}
 
     def __init__(self, ctype: str, value: int | float | str):
@@ -221,3 +224,7 @@ class Component:
             label_nodes = False, 
             label_values = False
         )
+
+    def svg_path(self) -> str:
+        """Gives the path to an SVG representation of the component"""
+        return Component.SVG_PATH + self.type + Component.SVG_EXT
