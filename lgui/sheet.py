@@ -29,4 +29,7 @@ class Sheet:
         Produces the contents of the sheet as an lcapy netlist.
         Currently does not provide sufficient styling to be rendered with lcapy.
         """
-        ...
+        out = "\n"
+        for component in self.components:
+            out += component.to_lcapy()
+        return out
