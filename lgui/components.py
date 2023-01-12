@@ -125,7 +125,7 @@ class Component:
         self.type = ctype
         self.value = value
         self.orientation = Component.S
-        self._pos = (0, 0)
+        self._pos = [0, 0]
         self.length = Component.GRID_LENGTH
         self.ports: list[Node] = [Node(), Node()]
         for port in self.ports:
@@ -172,11 +172,6 @@ class Component:
                     raise ValueError("Component orientation not defined!")
 
         return pos
-
-    @position.setter
-    def position(self, value: tuple[int, int]):
-        """Updates the position of the component on the grid. This is at port 0."""
-        self._pos = value
 
     def rotate(self, times: int = 1):
         """

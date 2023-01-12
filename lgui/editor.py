@@ -19,7 +19,7 @@ class Editor(canvas.MultiCanvas):
     SCALE = 0.25
     HEIGHT = 1000
     WIDTH = 2000
-    LAYERS = 3
+    LAYERS = 4
     STEP = 12
     MOVE_DELAY = 0.05
 
@@ -34,8 +34,9 @@ class Editor(canvas.MultiCanvas):
         super().__init__(Editor.LAYERS, width = Editor.WIDTH, height = Editor.HEIGHT)
 
         self.control_layer = self[0]
-        self.component_layer = self[1]
-        self.grid_layer = self[2]
+        self.active_layer = self[1]
+        self.component_layer = self[2]
+        self.grid_layer = self[3]
 
         self.layout.width = "100%"
         self.layout.height = "auto"
@@ -46,7 +47,7 @@ class Editor(canvas.MultiCanvas):
         with canvas.hold_canvas():
             self.draw_grid()
 
-        self.mouse_position = (0, 0)
+        self.mouse_position = [0, 0]
         self._update_active_component()
 
     def _update_active_component(self):
@@ -54,10 +55,12 @@ class Editor(canvas.MultiCanvas):
         Updates the current active component.
         """
         if self.active_component is not None:
-            self.active_component.position = self.mouse_position
+            x, y = self.mouse_position
+            self.active_component.position[0] = x - (x % Editor.STEP)
+            self.active_component.position[1] = y - (y % Editor.STEP)
             with canvas.hold_canvas():
-                self.component_layer.clear()
-                self.draw_components()
+                self.active_layer.clear()
+                self.draw_component(self.active_component, self.active_layer)
         threading.Timer(Editor.MOVE_DELAY, self._update_active_component).start()
 
     @output.capture()
@@ -75,8 +78,10 @@ class Editor(canvas.MultiCanvas):
         Registered with canvas in __init__
         """
         if self.active_component is not None:
-            self.active_component.position = (x - (x % Editor.STEP), y - (y % Editor.STEP))
+            self.active_component.position[0] = x - (x % Editor.STEP)
+            self.active_component.position[1] = y - (y % Editor.STEP)
             self.active_component = None
+            self.sheet.add_component(self.active_component)
             with canvas.hold_canvas():
                 self.component_layer.clear()
                 self.draw_components()
@@ -88,19 +93,52 @@ class Editor(canvas.MultiCanvas):
                 self.grid_layer.fill_style = "#252525"
                 self.grid_layer.fill_rect(i * Editor.STEP, j * Editor.STEP, 1)
 
-    def draw_components(self):
-        """Draws sheet components on canvas"""
+    def draw_component(self, component: Component, layer: canvas.Canvas = None):
+        """
+        Draws a single component on a canvas.
+
+        Paramaters
+        ----------
+
+        component: Component
+            The component to draw.
+
+        layer: Canvas = None
+            Layer to draw component on,
+            if none specified it will draw on the component layer.
+        """
+
+        if layer is None:
+            layer = self.component_layer
+
+        with open(component.img_path(), "rb") as f:
+            image = widgets.Image(value = f.read(), format = component.IMG_EXT)
+
+        width = int(component.IMG_WIDTH * Editor.SCALE)
+        height = int(component.IMG_HEIGHT * Editor.SCALE)
+
+        layer.draw_image(image, 
+            component.position[0], 
+            component.position[1], 
+            width, 
+            height
+        )
+
+    def draw_components(self, layer: canvas.Canvas = None):
+        """
+        Draws sheet components on canvas.
+        
+        Parameters
+        ----------
+        
+        layer: Canvas = None
+            Layer to draw sheet components on,
+            if none specified it will draw on the component layer.
+        """
+
+        if layer is None:
+            layer = self.component_layer
+
         for component in self.sheet.components:
 
-            with open(component.img_path(), "rb") as f:
-                image = widgets.Image(value = f.read(), format = component.IMG_EXT)
-
-            width = int(component.IMG_WIDTH * Editor.SCALE)
-            height = int(component.IMG_HEIGHT * Editor.SCALE)
-
-            self.component_layer.draw_image(image, 
-                component.position[0] - int(width/2), 
-                component.position[1], 
-                width, 
-                height
-            )
+            self.draw_component(component, layer)
