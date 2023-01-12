@@ -2,7 +2,7 @@
 Defines a grid sheet for laying out lgui components on.
 """
 
-from components import Component
+from .components import Component
 
 class Sheet:
 
@@ -33,3 +33,9 @@ class Sheet:
         for component in self.components:
             out += component.to_lcapy()
         return out
+
+    def add_component(self, component: Component):
+        """
+        Adds a component to the sheet
+        """
+        self.components.append(component)
