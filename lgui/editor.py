@@ -10,7 +10,6 @@ import ipycanvas as canvas
 from .sheet import Sheet
 from .components import Component
 
-@widgets.register
 class Editor(canvas.MultiCanvas):
     """
     The component editor is an ipywidget.
@@ -58,9 +57,11 @@ class Editor(canvas.MultiCanvas):
             x, y = self.mouse_position
             self.active_component.position[0] = x - (x % Editor.STEP)
             self.active_component.position[1] = y - (y % Editor.STEP)
+
             with canvas.hold_canvas():
                 self.active_layer.clear()
                 self.draw_component(self.active_component, self.active_layer)
+
         threading.Timer(Editor.MOVE_DELAY, self._update_active_component).start()
 
     @output.capture()
@@ -78,10 +79,13 @@ class Editor(canvas.MultiCanvas):
         Registered with canvas in __init__
         """
         if self.active_component is not None:
+
             self.active_component.position[0] = x - (x % Editor.STEP)
             self.active_component.position[1] = y - (y % Editor.STEP)
-            self.active_component = None
+
             self.sheet.add_component(self.active_component)
+            self.active_component = None
+
             with canvas.hold_canvas():
                 self.component_layer.clear()
                 self.draw_components()
