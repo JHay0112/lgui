@@ -80,8 +80,8 @@ class Editor(canvas.MultiCanvas):
         """
         if self.active_component is not None:
 
-            self.active_component.position[0] = x - (x % Editor.STEP)
-            self.active_component.position[1] = y - (y % Editor.STEP)
+            self.active_component.position[0] = x - (round(x) % Editor.STEP)
+            self.active_component.position[1] = y - (round(y) % Editor.STEP)
 
             self.sheet.add_component(self.active_component)
             self.active_component = None
@@ -122,7 +122,7 @@ class Editor(canvas.MultiCanvas):
         height = int(component.IMG_HEIGHT * Editor.SCALE)
 
         layer.draw_image(image, 
-            component.position[0], 
+            component.position[0] - int(round((Editor.SCALE * component.IMG_WIDTH / 2))), 
             component.position[1], 
             width, 
             height
