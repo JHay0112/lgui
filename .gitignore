@@ -9,3 +9,20 @@ test.ipynb
 
 # Logging
 *.log
+
+# Latex/Latex Workshop
+*.aux
+*.fdb_latexmk
+*.fls
+*.log
+*.out
+*.gz
+*.toc
+*.pdf
+*.synctex*
+
+# Bibtex
+*.bbl
+*.bcf
+*.blg
+*.run.xml
