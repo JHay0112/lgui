@@ -73,10 +73,10 @@ This RLC circuit can be represented as an Lcapy netlist (Listing \ref{lst:rlc-ne
     caption = {Series RLC netlist.},
     label = {lst:rlc-netlist}
 ]
-V1 1 0 {V}; up
-R1 1 2 {R}; left
-L1 2 3 {L}; left
-C1 3 0 {C}; down
+V1 1 0 {V}
+R1 1 2 {R}
+L1 2 3 {L}
+C1 3 0 {C}
 \end{lstlisting}
 
 This can then be loaded into an Lcapy circuit with the Python code (Listing \ref{lst:load-rlc-netlist}).
@@ -87,10 +87,10 @@ This can then be loaded into an Lcapy circuit with the Python code (Listing \ref
 ]
 from lcapy import Circuit 
 cct = Circuit("""
-V1 1 0 {V}; up
-R1 1 2 {R}; left
-L1 2 3 {L}; left
-C1 3 0 {C}; down
+V1 1 0 {V}
+R1 1 2 {R}
+L1 2 3 {L}
+C1 3 0 {C}
 """)
 \end{lstlisting}
 
