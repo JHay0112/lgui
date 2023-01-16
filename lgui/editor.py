@@ -54,9 +54,9 @@ class Editor(canvas.MultiCanvas):
         Updates the current active component.
         """
         if self.active_component is not None:
+
             x, y = self.mouse_position
-            self.active_component.position[0] = x - (x % Editor.STEP)
-            self.active_component.position[1] = y - (y % Editor.STEP)
+            self.active_component[1].position = x - (x % Editor.STEP), y - (y % Editor.STEP)
 
             with canvas.hold_canvas():
                 self.active_layer.clear()
@@ -80,8 +80,7 @@ class Editor(canvas.MultiCanvas):
         """
         if self.active_component is not None:
 
-            self.active_component.position[0] = x - (round(x) % Editor.STEP)
-            self.active_component.position[1] = y - (round(y) % Editor.STEP)
+            self.active_component[0].position = x - (round(x) % Editor.STEP), y - (round(y) % Editor.STEP)
 
             self.sheet.add_component(self.active_component)
             self.active_component = None
@@ -89,6 +88,15 @@ class Editor(canvas.MultiCanvas):
             with canvas.hold_canvas():
                 self.component_layer.clear()
                 self.draw_components()
+
+        else:
+            
+            # no active component
+            # this should give the option of what to place??
+            # starting with a wire drawing system
+
+            self.active_component = Component(Component.W, None)
+            self.active_component[0].position = x - (round(x) % Editor.STEP), y - (round(y) % Editor.STEP)
 
     def draw_grid(self):
         """Draws a grid based upon the step size."""
@@ -115,18 +123,31 @@ class Editor(canvas.MultiCanvas):
         if layer is None:
             layer = self.component_layer
 
-        with open(component.img_path(), "rb") as f:
-            image = widgets.Image(value = f.read(), format = component.IMG_EXT)
+        match component.type:
+            case Component.W: # Wires
 
-        width = int(component.IMG_WIDTH * Editor.SCALE)
-        height = int(component.IMG_HEIGHT * Editor.SCALE)
+                start_x, start_y = component[0]
+                end_x, end_y = component[1]
 
-        layer.draw_image(image, 
-            component.position[0] - int(round((Editor.SCALE * component.IMG_WIDTH / 2))), 
-            component.position[1], 
-            width, 
-            height
-        )
+                with canvas.hold_canvas():
+                    self.active_layer.clear()
+                    self.active_layer.stroke_line(start_x, start_y, end_x, end_y)
+
+            case _: # all others
+
+                with open(component.img_path(), "rb") as f:
+                    image = widgets.Image(value = f.read(), format = component.IMG_EXT)
+
+                width = int(component.IMG_WIDTH * Editor.SCALE)
+                height = int(component.IMG_HEIGHT * Editor.SCALE)
+
+                with canvas.hold_canvas():
+                    layer.draw_image(image, 
+                        component.position[0] - int(round((Editor.SCALE * component.IMG_WIDTH / 2))), 
+                        component.position[1], 
+                        width, 
+                        height
+                    )
 
     def draw_components(self, layer: canvas.Canvas = None):
         """
