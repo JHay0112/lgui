@@ -7,6 +7,7 @@ import threading
 import ipywidgets as widgets
 import ipycanvas as canvas
 import logging
+import math
 
 from .sheet import Sheet
 from .components import Component
@@ -179,6 +180,8 @@ class Editor(canvas.MultiCanvas):
                 with canvas.hold_canvas():
                     layer.stroke_style = "#252525"
                     layer.stroke_line(start_x, start_y, end_x, end_y)
+                    layer.fill_arc(start_x, start_y, Editor.STEP // 5, 0, 2 * math.pi)
+                    layer.fill_arc(end_x, end_y, Editor.STEP // 5, 0, 2 * math.pi)
 
     def draw_components(self, layer: canvas.Canvas = None):
         """
