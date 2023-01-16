@@ -56,12 +56,12 @@ class Editor(canvas.MultiCanvas):
         if self.active_component is not None:
 
             x, y = self.mouse_position
-            dx, dy = (abs(x - self.active_component.ports[0][0]), abs(round(y) - self.active_component.ports[0][1]))
+            dx, dy = (abs(x - self.active_component.ports[0].position[0]), abs(round(y) - self.active_component.ports[0].position[1]))
 
             if dx > dy:
-                self.active_component.ports[1] = (x - (round(x) % Editor.STEP), self.active_component.ports[0][1])
+                self.active_component.ports[1].position = (x - (round(x) % Editor.STEP), self.active_component.ports[0].position[1])
             else:
-                self.active_component.ports[1] = (self.active_component.ports[0][0], y - (y % Editor.STEP))
+                self.active_component.ports[1].position = (self.active_component.ports[0].position[0], y - (y % Editor.STEP))
 
             with canvas.hold_canvas():
                 self.active_layer.clear()
@@ -99,7 +99,7 @@ class Editor(canvas.MultiCanvas):
             # starting with a wire drawing system
 
             self.active_component = Component(Component.W, None)
-            self.active_component.ports[0] = (x - (round(x) % Editor.STEP), y - (round(y) % Editor.STEP))
+            self.active_component.ports[0].position = (x - (round(x) % Editor.STEP), y - (round(y) % Editor.STEP))
 
     def draw_grid(self):
         """Draws a grid based upon the step size."""
@@ -129,8 +129,8 @@ class Editor(canvas.MultiCanvas):
         match component.type:
             case Component.W: # Wires
 
-                start_x, start_y = component.ports[0]
-                end_x, end_y = component.ports[1]
+                start_x, start_y = component.ports[0].position
+                end_x, end_y = component.ports[1].position
 
                 with canvas.hold_canvas():
                     layer.stroke_style = "#252525"
