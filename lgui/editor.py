@@ -19,7 +19,7 @@ class Editor(canvas.MultiCanvas):
     HEIGHT = 1000
     WIDTH = 2000
     LAYERS = 4
-    STEP = 12
+    STEP = 24
     MOVE_DELAY = 0.05
 
     # capture user interactions
@@ -46,7 +46,7 @@ class Editor(canvas.MultiCanvas):
         with canvas.hold_canvas():
             self.draw_grid()
 
-        self.mouse_position = [0, 0]
+        self.mouse_position = (0, 0)
         self._update_active_component()
 
     def _update_active_component(self):
@@ -56,7 +56,7 @@ class Editor(canvas.MultiCanvas):
         if self.active_component is not None:
 
             x, y = self.mouse_position
-            self.active_component[1].position = x - (x % Editor.STEP), y - (y % Editor.STEP)
+            self.active_component.ports[1] = (x - (x % Editor.STEP), y - (y % Editor.STEP))
 
             with canvas.hold_canvas():
                 self.active_layer.clear()
@@ -80,7 +80,7 @@ class Editor(canvas.MultiCanvas):
         """
         if self.active_component is not None:
 
-            self.active_component[0].position = x - (round(x) % Editor.STEP), y - (round(y) % Editor.STEP)
+            self.active_component.ports[1] = (x - (round(x) % Editor.STEP), y - (round(y) % Editor.STEP))
 
             self.sheet.add_component(self.active_component)
             self.active_component = None
@@ -96,7 +96,7 @@ class Editor(canvas.MultiCanvas):
             # starting with a wire drawing system
 
             self.active_component = Component(Component.W, None)
-            self.active_component[0].position = x - (round(x) % Editor.STEP), y - (round(y) % Editor.STEP)
+            self.active_component.ports[0] = (x - (round(x) % Editor.STEP), y - (round(y) % Editor.STEP))
 
     def draw_grid(self):
         """Draws a grid based upon the step size."""
@@ -126,28 +126,12 @@ class Editor(canvas.MultiCanvas):
         match component.type:
             case Component.W: # Wires
 
-                start_x, start_y = component[0]
-                end_x, end_y = component[1]
+                start_x, start_y = component.ports[0]
+                end_x, end_y = component.ports[1]
 
                 with canvas.hold_canvas():
-                    self.active_layer.clear()
-                    self.active_layer.stroke_line(start_x, start_y, end_x, end_y)
-
-            case _: # all others
-
-                with open(component.img_path(), "rb") as f:
-                    image = widgets.Image(value = f.read(), format = component.IMG_EXT)
-
-                width = int(component.IMG_WIDTH * Editor.SCALE)
-                height = int(component.IMG_HEIGHT * Editor.SCALE)
-
-                with canvas.hold_canvas():
-                    layer.draw_image(image, 
-                        component.position[0] - int(round((Editor.SCALE * component.IMG_WIDTH / 2))), 
-                        component.position[1], 
-                        width, 
-                        height
-                    )
+                    layer.stroke_style = "#252525"
+                    layer.stroke_line(start_x, start_y, end_x, end_y)
 
     def draw_components(self, layer: canvas.Canvas = None):
         """
