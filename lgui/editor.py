@@ -6,9 +6,12 @@ import lcapy
 import threading
 import ipywidgets as widgets
 import ipycanvas as canvas
+import logging
 
 from .sheet import Sheet
 from .components import Component
+
+logging.basicConfig(filename = "out.log", level = logging.INFO)
 
 class Editor(canvas.MultiCanvas):
     """
@@ -44,6 +47,7 @@ class Editor(canvas.MultiCanvas):
 
         super().on_mouse_move(self._handle_mouse_move)
         super().on_mouse_down(self._handle_mouse_down)
+        super().on_key_down(self._handle_key)
 
         with canvas.hold_canvas():
             self.draw_grid()
@@ -122,6 +126,18 @@ class Editor(canvas.MultiCanvas):
 
             self.active_component = Component(Component.W, None)
             self.active_component.ports[0].position = (x - (round(x) % Editor.STEP), y - (round(y) % Editor.STEP))
+
+    @output.capture()
+    def _handle_key(self, key, shift_key, ctrl_key, meta_key):
+        """
+        Handles presses of keys
+        """
+
+        logging.info(key)
+        
+        if str(key) == "Escape" and self.active_component is not None:
+            self.active_component = None
+            self.active_layer.clear()
 
     def draw_grid(self):
         """Draws a grid based upon the step size."""
