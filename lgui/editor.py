@@ -56,10 +56,10 @@ class Editor(canvas.MultiCanvas):
         if self.active_component is not None:
 
             x, y = self.mouse_position
-            dx, dy = (abs(x - self.active_component.ports[0][0]), abs(y - self.active_component.ports[0][1]))
+            dx, dy = (abs(x - self.active_component.ports[0][0]), abs(round(y) - self.active_component.ports[0][1]))
 
             if dx > dy:
-                self.active_component.ports[1] = (x - (x % Editor.STEP), self.active_component.ports[0][1])
+                self.active_component.ports[1] = (x - (round(x) % Editor.STEP), self.active_component.ports[0][1])
             else:
                 self.active_component.ports[1] = (self.active_component.ports[0][0], y - (y % Editor.STEP))
 
@@ -84,8 +84,6 @@ class Editor(canvas.MultiCanvas):
         Registered with canvas in __init__
         """
         if self.active_component is not None:
-
-            self.active_component.ports[1] = (x - (round(x) % Editor.STEP), y - (round(y) % Editor.STEP))
 
             self.sheet.add_component(self.active_component)
             self.active_component = None
