@@ -35,11 +35,11 @@ class Editor(canvas.MultiCanvas):
 
         super().__init__(Editor.LAYERS, width = Editor.WIDTH, height = Editor.HEIGHT)
 
-        self.control_layer, \
-        self.cursor_layer, \
-        self.active_layer, \
-        self.component_layer, \
-        self.grid_layer \
+        self.control_layer,    \
+        self.cursor_layer,     \
+        self.active_layer,     \
+        self.component_layer,  \
+        self.grid_layer        \
          = self
 
         self.layout.width = "100%"
@@ -109,6 +109,9 @@ class Editor(canvas.MultiCanvas):
         Handles mouse movements.
         Registered with canvas in __init__
         """
+
+        x, y = round(x), round(y)
+
         if self.active_component is not None:
 
             self.sheet.add_component(self.active_component)

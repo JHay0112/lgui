@@ -10,18 +10,16 @@ class Node:
 
     """
     Describes the node that joins components.
-
-    Parameters
-    ----------
-
-    id: int = 0
-        The id of the node, 0 implies ground.
     """
 
-    def __init__(self, id: int = 0):
+    def __init__(self):
 
-        self.position = [0, 0]
-        self.id = id
+        self.position: list[int, int] = [0, 0]
+        self.is_ground: bool = False
+
+    def __eq__(self, other: 'Node') -> bool:
+
+        return self.position == other.position
 
 class Component:
 
@@ -42,17 +40,15 @@ class Component:
     C = TYPES[2]
     W = TYPES[3]
 
-    next_ids = {ctype: 0 for ctype in TYPES}
-    next_node_id = 0
+    next_ids: dict[str, int] = {ctype: 0 for ctype in TYPES}
 
     def __init__(self, ctype: str, value: int | float | str):
 
         self.type = ctype
         self.value = value
-        self.ports: list[Node] = [Node(Component.next_node_id), Node(Component.next_node_id+1)]
+        self.ports: list[Node] = [Node(), Node()]
         self.id = Component.next_ids[self.type]
-
-        Component.next_node_id += 2
+        Component.next_ids[self.type] += 1
 
     def to_lcapy(self) -> str:
         """
