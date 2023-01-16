@@ -49,14 +49,3 @@ class Component:
         self.ports: list[Node] = [Node(), Node()]
         self.id = Component.next_ids[self.type]
         Component.next_ids[self.type] += 1
-
-    def to_lcapy(self) -> str:
-        """
-        Produces the lcapy netlist representation of the component
-        """
-
-        # TODO: assign port ids based on position
-        out = f"{self.type}{self.id} {self.ports[0].id} {self.ports[1].id}"
-        if self.value is not None:
-            out += f" {{{self.value}}}"
-        return out
