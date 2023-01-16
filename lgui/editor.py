@@ -35,11 +35,14 @@ class Editor(canvas.MultiCanvas):
 
         super().__init__(Editor.LAYERS, width = Editor.WIDTH, height = Editor.HEIGHT)
 
-        self.control_layer,    \
-        self.cursor_layer,     \
-        self.active_layer,     \
+        # layer stackup
+        # this includes an example of my favourite way
+        #   of doing multiple lines :)
+        self.control_layer, \
+        self.cursor_layer,   \
+        self.active_layer,    \
         self.component_layer,  \
-        self.grid_layer        \
+        self.grid_layer         \
          = self
 
         self.layout.width = "100%"
