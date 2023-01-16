@@ -9,6 +9,8 @@ import ipycanvas as canvas
 import logging
 import math
 
+from IPython.display import display
+
 from .sheet import Sheet
 from .components import Component
 
@@ -22,7 +24,7 @@ class Editor(canvas.MultiCanvas):
     SCALE = 0.25
     HEIGHT = 1000
     WIDTH = 2000
-    LAYERS = 5
+    LAYERS = 4
     STEP = 24
     MOVE_DELAY = 0.05
 
@@ -37,9 +39,6 @@ class Editor(canvas.MultiCanvas):
         super().__init__(Editor.LAYERS, width = Editor.WIDTH, height = Editor.HEIGHT)
 
         # layer stackup
-        # this includes an example of my favourite way
-        #   of doing multiple lines :)
-        self.control_layer, \
         self.cursor_layer,   \
         self.active_layer,    \
         self.component_layer,  \
@@ -55,6 +54,13 @@ class Editor(canvas.MultiCanvas):
 
         with canvas.hold_canvas():
             self.draw_grid()
+
+        self.component_selector = widgets.Select(
+            options = Component.TYPES,
+            value = Component.W,
+            description = "Component",
+            disabled = False
+        )
 
         self.mouse_position = (0, 0)
         self._refresh()
@@ -117,21 +123,16 @@ class Editor(canvas.MultiCanvas):
         x, y = round(x), round(y)
 
         if self.active_component is not None:
-
             self.sheet.add_component(self.active_component)
             self.active_component = None
 
             with canvas.hold_canvas():
                 self.component_layer.clear()
                 self.draw_components()
-
         else:
-            
             # no active component
-            # this should give the option of what to place??
-            # starting with a wire drawing system
-
-            self.active_component = Component(Component.W, None)
+            # set component from selector
+            self.active_component = Component(self.component_selector.value, None)
             self.active_component.ports[0].position = (x - (round(x) % Editor.STEP), y - (round(y) % Editor.STEP))
 
     @output.capture()
@@ -156,6 +157,15 @@ class Editor(canvas.MultiCanvas):
             with canvas.hold_canvas():
                 self.component_layer.clear()
                 self.draw_components()
+
+    def display(self):
+        """
+        Displays self in IPython or Jupyter.
+        """
+        # show canvas
+        display(self)
+        # show buttons
+        display(self.component_selector)
 
     def draw_grid(self):
         """Draws a grid based upon the step size."""
