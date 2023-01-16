@@ -108,7 +108,7 @@ class Editor(canvas.MultiCanvas):
 
             with canvas.hold_canvas():
                 self.active_layer.clear()
-                self.draw_component(self.active_component, self.active_layer)
+                self.active_component.draw_on(self, self.active_layer)
 
         # draw a cursor for the user
         with canvas.hold_canvas():
@@ -143,6 +143,7 @@ class Editor(canvas.MultiCanvas):
             self.active_component = None
 
             with canvas.hold_canvas():
+                self.active_layer.clear()
                 self.component_layer.clear()
                 self.draw_components()
         else:
@@ -190,62 +191,6 @@ class Editor(canvas.MultiCanvas):
                 self.grid_layer.fill_style = "#252525"
                 self.grid_layer.fill_rect(i * Editor.STEP, j * Editor.STEP, 1)
 
-    def draw_component(self, component: Component, layer: canvas.Canvas = None):
-        """
-        Draws a single component on a canvas.
-
-        Paramaters
-        ----------
-
-        component: Component
-            The component to draw.
-
-        layer: Canvas = None
-            Layer to draw component on,
-            if none specified it will draw on the component layer.
-        """
-
-        if layer is None:
-            layer = self.component_layer
-
-        start_x, start_y = component.ports[0].position
-        end_x, end_y = component.ports[1].position
-
-        with canvas.hold_canvas():
-
-            layer.stroke_style = "#252525"
-
-            match component.type:
-                case Component.R: # Resistors
-                    ...
-                case Component.L: # Inductors
-                    ...
-                case Component.C: # Capacitors
-
-                    # lead 1
-                    mid = component.along(0.45) + (start_x, start_y)
-                    layer.stroke_line(start_x, start_y, mid[0], mid[1])
-
-                    # plate 1
-                    plate = component.orthog(0.2)
-                    shift = mid - 0.5*plate
-                    layer.stroke_line(shift[0], shift[1], shift[0] + plate[0], shift[1] + plate[1])
-
-                    # lead 2
-                    mid = component.along(0.55) + (start_x, start_y)
-                    layer.stroke_line(mid[0], mid[1], end_x, end_y)
-
-                    # plate 2
-                    plate = component.orthog(0.2)
-                    shift = mid - 0.5*plate
-                    layer.stroke_line(shift[0], shift[1], shift[0] + plate[0], shift[1] + plate[1])
-
-                case Component.W: # Wires
-                    layer.stroke_line(start_x, start_y, end_x, end_y)
-
-            layer.fill_arc(start_x, start_y, Editor.STEP // 5, 0, 2 * math.pi)
-            layer.fill_arc(end_x, end_y, Editor.STEP // 5, 0, 2 * math.pi)
-
     def draw_components(self, layer: canvas.Canvas = None):
         """
         Draws sheet components on canvas.
@@ -262,5 +207,4 @@ class Editor(canvas.MultiCanvas):
             layer = self.component_layer
 
         for component in self.sheet.components:
-
-            self.draw_component(component, layer)
+            component.draw_on(self, layer)
