@@ -56,7 +56,12 @@ class Editor(canvas.MultiCanvas):
         if self.active_component is not None:
 
             x, y = self.mouse_position
-            self.active_component.ports[1] = (x - (x % Editor.STEP), y - (y % Editor.STEP))
+            dx, dy = (abs(x - self.active_component.ports[0][0]), abs(y - self.active_component.ports[0][1]))
+
+            if dx > dy:
+                self.active_component.ports[1] = (x - (x % Editor.STEP), self.active_component.ports[0][1])
+            else:
+                self.active_component.ports[1] = (self.active_component.ports[0][0], y - (y % Editor.STEP))
 
             with canvas.hold_canvas():
                 self.active_layer.clear()
