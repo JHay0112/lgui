@@ -143,8 +143,19 @@ class Editor(canvas.MultiCanvas):
         logging.info(key)
         
         if str(key) == "Escape" and self.active_component is not None:
+            # ESC
+            if self.active_component is not None:
+                self.active_component = None
+                self.active_layer.clear()
+
+        elif ctrl_key and str(key) == "z":
+            # CTRL + Z
             self.active_component = None
             self.active_layer.clear()
+            self.sheet.components.pop()
+            with canvas.hold_canvas():
+                self.component_layer.clear()
+                self.draw_components()
 
     def draw_grid(self):
         """Draws a grid based upon the step size."""
