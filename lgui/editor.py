@@ -8,6 +8,7 @@ import ipywidgets as widgets
 import ipycanvas as canvas
 import logging
 import math
+import numpy as np
 
 from IPython.display import display
 
@@ -55,7 +56,7 @@ class Editor(canvas.MultiCanvas):
         with canvas.hold_canvas():
             self.draw_grid()
 
-        self.component_selector = widgets.Select(
+        self.component_selector = widgets.ToggleButtons(
             options = Component.TYPES,
             value = Component.W,
             description = "Component",
@@ -74,21 +75,36 @@ class Editor(canvas.MultiCanvas):
 
         # deal with active component rendering
         if self.active_component is not None:
+
             dx, dy = (
-                abs(x - self.active_component.ports[0].position[0]),
-                abs(round(y) - self.active_component.ports[0].position[1])
+                x - self.active_component.ports[0].position[0],
+                round(y) - self.active_component.ports[0].position[1]
             )
 
-            if dx > dy:
-                self.active_component.ports[1].position = (
-                    x - (round(x) % Editor.STEP), 
-                    self.active_component.ports[0].position[1]
-                )
+            if self.active_component.type == Component.W:
+                # permit variable wire length
+                if abs(dx) > abs(dy):
+                    self.active_component.ports[1].position = (
+                        x - (round(x) % Editor.STEP), 
+                        self.active_component.ports[0].position[1]
+                    )
+                else:
+                    self.active_component.ports[1].position = (
+                        self.active_component.ports[0].position[0], 
+                        y - (y % Editor.STEP)
+                    )
             else:
-                self.active_component.ports[1].position = (
-                    self.active_component.ports[0].position[0], 
-                    y - (y % Editor.STEP)
-                )
+                # limit other components to set heights
+                if abs(dx) > abs(dy):
+                    self.active_component.ports[1].position = (
+                        self.active_component.ports[0].position[0] + np.sign(dx)*Editor.STEP*Component.HEIGHT,
+                        self.active_component.ports[0].position[1]
+                    )
+                else:
+                    self.active_component.ports[1].position = (
+                        self.active_component.ports[0].position[0],
+                        self.active_component.ports[0].position[1] + np.sign(dx)*Editor.STEP*Component.HEIGHT
+                    )
 
             with canvas.hold_canvas():
                 self.active_layer.clear()
@@ -192,17 +208,28 @@ class Editor(canvas.MultiCanvas):
         if layer is None:
             layer = self.component_layer
 
-        match component.type:
-            case Component.W: # Wires
+        start_x, start_y = component.ports[0].position
+        end_x, end_y = component.ports[1].position
 
-                start_x, start_y = component.ports[0].position
-                end_x, end_y = component.ports[1].position
+        with canvas.hold_canvas():
 
-                with canvas.hold_canvas():
-                    layer.stroke_style = "#252525"
+            layer.stroke_style = "#252525"
+
+            match component.type:
+                case Component.R: # Resistors
+                    ...
+                case Component.L: # Inductors
+                    ...
+                case Component.C: # Capacitors
+                    mid_x, mid_y = component.along(0.4)
+                    layer.stroke_line(start_x, start_y, mid_x, mid_y)
+                    mid_x, mid_y = component.along(0.6)
+                    layer.stroke_line(mid_x, mid_y, end_x, end_y)
+                case Component.W: # Wires
                     layer.stroke_line(start_x, start_y, end_x, end_y)
-                    layer.fill_arc(start_x, start_y, Editor.STEP // 5, 0, 2 * math.pi)
-                    layer.fill_arc(end_x, end_y, Editor.STEP // 5, 0, 2 * math.pi)
+
+            layer.fill_arc(start_x, start_y, Editor.STEP // 5, 0, 2 * math.pi)
+            layer.fill_arc(end_x, end_y, Editor.STEP // 5, 0, 2 * math.pi)
 
     def draw_components(self, layer: canvas.Canvas = None):
         """
