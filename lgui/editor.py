@@ -57,7 +57,7 @@ class Editor(canvas.MultiCanvas):
             self.draw_grid()
 
         self.component_selector = widgets.ToggleButtons(
-            options = Component.TYPES,
+            options = dict(zip(Component.NAMES, Component.TYPES)),
             value = Component.W,
             description = "Component",
             disabled = False

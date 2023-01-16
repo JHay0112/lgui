@@ -33,6 +33,13 @@ class Component:
         The type of the component selected from Component.TYPES
     """
 
+    NAMES = (
+        "Resistor",
+        "Inductor",
+        "Capacitor",
+        "Wire"
+    )
+
     TYPES = ("R", "L", "C", "W")
     """Component types"""
     R = TYPES[0]
