@@ -18,7 +18,7 @@ class Editor(canvas.MultiCanvas):
     SCALE = 0.25
     HEIGHT = 1000
     WIDTH = 2000
-    LAYERS = 4
+    LAYERS = 5
     STEP = 24
     MOVE_DELAY = 0.05
 
@@ -32,10 +32,12 @@ class Editor(canvas.MultiCanvas):
 
         super().__init__(Editor.LAYERS, width = Editor.WIDTH, height = Editor.HEIGHT)
 
-        self.control_layer = self[0]
-        self.active_layer = self[1]
-        self.component_layer = self[2]
-        self.grid_layer = self[3]
+        self.control_layer, \
+        self.cursor_layer, \
+        self.active_layer, \
+        self.component_layer, \
+        self.grid_layer \
+         = self
 
         self.layout.width = "100%"
         self.layout.height = "auto"
@@ -47,27 +49,47 @@ class Editor(canvas.MultiCanvas):
             self.draw_grid()
 
         self.mouse_position = (0, 0)
-        self._update_active_component()
+        self._refresh()
 
-    def _update_active_component(self):
+    def _refresh(self):
         """
-        Updates the current active component.
+        Refreshes the canvas
         """
+
+        x, y = self.mouse_position
+
+        # deal with active component rendering
         if self.active_component is not None:
-
-            x, y = self.mouse_position
-            dx, dy = (abs(x - self.active_component.ports[0].position[0]), abs(round(y) - self.active_component.ports[0].position[1]))
+            dx, dy = (
+                abs(x - self.active_component.ports[0].position[0]),
+                abs(round(y) - self.active_component.ports[0].position[1])
+            )
 
             if dx > dy:
-                self.active_component.ports[1].position = (x - (round(x) % Editor.STEP), self.active_component.ports[0].position[1])
+                self.active_component.ports[1].position = (
+                    x - (round(x) % Editor.STEP), 
+                    self.active_component.ports[0].position[1]
+                )
             else:
-                self.active_component.ports[1].position = (self.active_component.ports[0].position[0], y - (y % Editor.STEP))
+                self.active_component.ports[1].position = (
+                    self.active_component.ports[0].position[0], 
+                    y - (y % Editor.STEP)
+                )
 
             with canvas.hold_canvas():
                 self.active_layer.clear()
                 self.draw_component(self.active_component, self.active_layer)
 
-        threading.Timer(Editor.MOVE_DELAY, self._update_active_component).start()
+        # draw a cursor for the user
+        with canvas.hold_canvas():
+            self.cursor_layer.clear()
+            self.cursor_layer.stroke_rect(
+                (x - (round(x) % Editor.STEP)) - Editor.STEP // 2, 
+                (y - (round(y) % Editor.STEP)) - Editor.STEP // 2,
+                Editor.STEP
+            )
+
+        threading.Timer(Editor.MOVE_DELAY, self._refresh).start()
 
     @output.capture()
     def _handle_mouse_move(self, x: int, y: int):
