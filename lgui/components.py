@@ -2,9 +2,7 @@
 Defines the components that lgui can simulate
 """
 
-import os
-
-DIR = os.path.dirname(__file__)
+import numpy as np
 
 class Node:
 
@@ -14,7 +12,7 @@ class Node:
 
     def __init__(self):
 
-        self.position: list[int, int] = [0, 0]
+        self.position: np.array = np.array([0, 0])
         self.is_ground: bool = False
 
     def __eq__(self, other: 'Node') -> bool:
@@ -59,9 +57,10 @@ class Component:
         self.id = Component.next_ids[self.type]
         Component.next_ids[self.type] += 1
 
-    def along(self, p: float) -> tuple[float, float]:
+    def along(self, p: float) -> np.array:
         """
         Computes the point some proportion along the line of the component.
+        This is relative to the position of the zero-th port.
 
         Parameters
         ----------
@@ -69,11 +68,22 @@ class Component:
         p: float
             Proportion of length along component.
         """
-        start_x, start_y = self.ports[0].position
-        end_x, end_y = self.ports[1].position
+        delta = np.array(self.ports[1].position) - np.array(self.ports[0].position)
+        return p*delta
 
-        dx = end_x - start_x
-        dy = end_y - start_y
+    def orthog(self, p: float) -> np.array:
+        """
+        Computes the point some proportion to the right (anti-clockwise) of the component.
+        This is relative to the position of the zero-th port.
 
-        return p*dx + start_x, p*dy + start_y
+        Parameters
+        ----------
+
+        p: float
+            Proportion of the length of the component.
+        """
+        delta = np.array(self.ports[0].position) - np.array(self.ports[1].position) 
+        theta = np.pi/2
+        rot = np.array([[np.cos(theta), -np.sin(theta)], [np.sin(theta), np.cos(theta)]])
+        return p*np.dot(rot, delta)
         

@@ -221,10 +221,25 @@ class Editor(canvas.MultiCanvas):
                 case Component.L: # Inductors
                     ...
                 case Component.C: # Capacitors
-                    mid_x, mid_y = component.along(0.4)
-                    layer.stroke_line(start_x, start_y, mid_x, mid_y)
-                    mid_x, mid_y = component.along(0.6)
-                    layer.stroke_line(mid_x, mid_y, end_x, end_y)
+
+                    # lead 1
+                    mid = component.along(0.45) + (start_x, start_y)
+                    layer.stroke_line(start_x, start_y, mid[0], mid[1])
+
+                    # plate 1
+                    plate = component.orthog(0.2)
+                    shift = mid - 0.5*plate
+                    layer.stroke_line(shift[0], shift[1], shift[0] + plate[0], shift[1] + plate[1])
+
+                    # lead 2
+                    mid = component.along(0.55) + (start_x, start_y)
+                    layer.stroke_line(mid[0], mid[1], end_x, end_y)
+
+                    # plate 2
+                    plate = component.orthog(0.2)
+                    shift = mid - 0.5*plate
+                    layer.stroke_line(shift[0], shift[1], shift[0] + plate[0], shift[1] + plate[1])
+
                 case Component.W: # Wires
                     layer.stroke_line(start_x, start_y, end_x, end_y)
 
