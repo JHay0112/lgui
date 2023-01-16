@@ -1,0 +1,189 @@
+\documentclass{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage{float}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{appendix}
+\usepackage{hyperref}
+\usepackage{parskip}
+\usepackage[style=ieee]{biblatex}
+\usepackage[a4paper, margin=1in]{geometry}
+\usepackage{fancyhdr}
+\usepackage{titling}
+\usepackage{listings}
+\usepackage{circuitikz}
+
+% References
+\addbibresource{netlists.bib}
+
+% Listing style
+\lstdefinestyle{mystyle}{
+    basicstyle=\ttfamily,
+    breakatwhitespace=false,         
+    breaklines=true,                 
+    captionpos=b,                    
+    keepspaces=true,                 
+    numbers=left,                   
+    showspaces=false,                
+    showstringspaces=false,
+    showtabs=false,                  
+    tabsize=4
+}
+\lstset{style=mystyle}
+
+\title{Writing Lcapy Netlists}
+\author{J. L. Hay}
+\date{Jan. 2023}
+
+\begin{document}
+
+\maketitle
+
+\section*{Introduction}
+
+Lcapy \cite{Lcapy} is a linear circuit analysis tool written in Python. Unlike typical circuit analysis tools the Lcapy backend uses the Python Sympy library to symbolically analyse circuits. This allows Lcapy to find exact solutions to certain (linear and time-invariant) circuits rather than the numerical approximations a SPICE (or similar numerical integrator) may give. 
+
+See the Lcapy documentation \cite{Lcapy-docs} for a comprehensive description of Lcapy's capabilities.
+
+\section*{What are Netlists?}
+
+Netlists are a way of representing component networks in a text form suitable for communicating to a computer through a text-based interface.
+
+Consider the RLC circuit in Figure \ref{fig:rlc-drawing}.
+
+\begin{figure}[h]
+    \begin{center}
+    \begin{circuitikz}[american voltages]
+        \node [sground]{} (0, 0);
+        \draw (0, 2) to [V, l_={V}] (0, 0);
+        \draw (0, 2) to [short, -] (1, 2)
+        to [R, l_={R}] (4, 2)
+        to [L, l_={L}] (8, 2)
+        to [C, l_={C}] (8, 0) node[sground]{} ;
+    \end{circuitikz}
+    \end{center}
+    \caption{A series RLC circuit.}
+    \label{fig:rlc-drawing}
+\end{figure}
+
+This RLC circuit can be represented as an Lcapy netlist (Listing \ref{lst:rlc-netlist}). 
+
+\begin{lstlisting}[
+    caption = {Series RLC netlist.},
+    label = {lst:rlc-netlist}
+]
+V1 1 0 {V}
+R1 1 2 {R}
+L1 2 3 {L}
+C1 3 0 {C}
+\end{lstlisting}
+
+This can then be loaded into an Lcapy circuit with the Python code (Listing \ref{lst:load-rlc-netlist}).
+
+\begin{lstlisting}[
+    caption = {Python code for loading the RLC netlist into Lcapy},
+    label = {lst:load-rlc-netlist}
+]
+from lcapy import Circuit 
+cct = Circuit("""
+V1 1 0 {V}
+R1 1 2 {R}
+L1 2 3 {L}
+C1 3 0 {C}
+""")
+\end{lstlisting}
+
+\subsection*{Netlist Format}
+
+Lcapy netlists are lists of components where each line follows the format
+
+\texttt{
+\ \ \ \ [TYPE][NAME] [POSITIVE NODE] [NEGATIVE NODE] \{[VALUE]\}; [DRAWING HINTS]
+}
+
+where 
+
+\begin{itemize}
+    \item[] \texttt{[TYPE]} is a character denoting the type of component, e.g. \texttt{R} denotes a resistor.
+    \item[] \texttt{[NAME]} is an integer value that identifies the specific component.
+    \item[] \texttt{[POSITIVE NODE]} is an integer value denoting the node the `positive' lead is attached to.
+    \item[] \texttt{[NEGATIVE NODE]} is an integer value denoting the node the `negative' lead is attached to.
+    \item[] \texttt{[VALUE]} is an optional numeric value or a \LaTeX\ mathematical equation describing the component value.
+    \item[] \texttt{[DRAWING HINTS]} is an optional set of \LaTeX\ Circuitikz style modifiers for helping Lcapy draw the netlist.
+\end{itemize}
+    
+It should be noted the node identifier \texttt{0} is reserved for the ground node.
+
+\section*{Writing Netlists}
+
+A general strategy for writing netlists can be described as a simple set of steps 
+
+\begin{enumerate}
+    \item For each node in the circuit.
+    \begin{enumerate}
+        \item If the node is ground give it the label `0'.
+        \item Else give it a unique label.
+    \end{enumerate}
+    \item For each component.
+    \begin{enumerate}
+        \item Give a component type and identifier.
+        \item Note which nodes the component is attached to, making sure to write the positive node first if the component has a polarity.
+        \item Note the component value in curly braces.
+        \item Terminate the line with a semi-colon. If you are using Lcapy to draw the circuit you may add additional notes per the Lcapy documentation \cite{Lcapy-docs}.
+    \end{enumerate}
+\end{enumerate}
+
+\subsection*{Example}
+
+Recall the example RLC circuit (Figure \ref{fig:rlc-example}).
+
+\begin{figure}[H]
+    \begin{center}
+    \begin{circuitikz}[american voltages]
+        \node [sground]{} (0, 0);
+        \draw (0, 2) to [V, l_={V}] (0, 0);
+        \draw (0, 2) to [short, -] (1, 2)
+        to [R, l_={R}] (4, 2)
+        to [L, l_={L}] (8, 2)
+        to [C, l_={C}] (8, 0) node[sground]{} ;
+    \end{circuitikz}
+    \end{center}
+    \caption{A series RLC circuit.}
+    \label{fig:rlc-example}
+\end{figure}
+
+To generate the net list we must first annotate each node, making sure any ground nodes receive the label `0' (Figure \ref{fig:rlc-annotated}). 
+
+\begin{figure}[H]
+    \begin{center}
+    \begin{circuitikz}[american voltages]
+        \node [sground, label={left:$0$}]{} (0, 0);
+        \draw (0, 2) node [label={above:$1$}]{} to [V, l_={V}, *-*] (0, 0);
+        \draw (0, 2) to [short, -] (0, 2)
+        to [R, l_={R}, -] (4, 2)
+        node [label={above:$2$}]{} to [L, l_={L}, *-*] (8, 2)
+        node [label={above:$3$}]{} to [C, l_={C}, *-*] (8, 0) node[sground, label={left:$0$}]{};
+    \end{circuitikz}
+    \end{center}
+    \caption{A series RLC circuit.}
+    \label{fig:rlc-annotated}
+\end{figure}
+
+From Figure \ref{fig:rlc-annotated} we should have all the information we need to generate a netlist. We simply list each component, the nodes we can see it is attached to, and any value associated with it. This should give the netlist (Listing \ref{lst:example-rlc-netlist})
+
+\begin{lstlisting}[
+    caption = {Series RLC netlist.},
+    label = {lst:example-rlc-netlist}
+]
+V1 1 0 {V}
+R1 1 2 {R}
+L1 2 3 {L}
+C1 3 0 {C}
+\end{lstlisting}
+
+\pagebreak
+\pagenumbering{Roman}
+\printbibliography
+
+\end{document}
