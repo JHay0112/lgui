@@ -37,15 +37,14 @@ class Component:
         "Resistor",
         "Inductor",
         "Capacitor",
-        "Wire"
+        "Wire",
+        "Voltage",
+        "Current"
     )
 
-    TYPES = ("R", "L", "C", "W")
+    TYPES = ("R", "L", "C", "W", "V", "I")
     """Component types"""
-    R = TYPES[0]
-    L = TYPES[1]
-    C = TYPES[2]
-    W = TYPES[3]
+    R, L, C, W, V, I = TYPES
 
     HEIGHT = 4
 
@@ -138,8 +137,61 @@ class Component:
                     layer.stroke_line(shift[0], shift[1], shift[0] + plate[0], shift[1] + plate[1])
 
                 case Component.W: # Wires
+
                     layer.stroke_line(start_x, start_y, end_x, end_y)
 
+                case Component.V: # Voltage supply
+                    
+                    RADIUS = 0.3
+                    OFFSET = 0.05
+
+                    # lead 1
+                    mid = self.along(0.5 - RADIUS) + (start_x, start_y)
+                    layer.stroke_line(start_x, start_y, mid[0], mid[1])
+
+                    # circle
+                    mid = self.along(0.5) + (start_x, start_y)
+                    layer.stroke_arc(mid[0], mid[1], RADIUS*Component.HEIGHT*editor.STEP, 0, 2*np.pi)
+
+                    # lead 1
+                    mid = self.along(0.5 + RADIUS) + (start_x, start_y)
+                    layer.stroke_line(mid[0], mid[1], end_x, end_y)
+
+                case Component.I: # Current supply
+                    
+                    RADIUS = 0.3
+                    OFFSET = 0.05
+
+                    # lead 1
+                    mid = self.along(0.5 - RADIUS) + (start_x, start_y)
+                    layer.stroke_line(start_x, start_y, mid[0], mid[1])
+
+                    # circle
+                    mid = self.along(0.5) + (start_x, start_y)
+                    layer.stroke_arc(mid[0], mid[1], RADIUS*Component.HEIGHT*editor.STEP, 0, 2*np.pi)
+
+                    # arrow body
+                    arrow_start = self.along(0.5-RADIUS/2) + (start_x, start_y)
+                    arrow_end = self.along(0.5+RADIUS/2) + (start_x, start_y)
+                    layer.stroke_line(arrow_start[0], arrow_start[1], arrow_end[0], arrow_end[1])
+
+                    # arrow head
+                    arrow_shift = self.along(-OFFSET)
+                    arrow_orthog = self.orthog(OFFSET)
+                    layer.stroke_line(arrow_end[0], arrow_end[1], 
+                        arrow_end[0]+arrow_shift[0]+arrow_orthog[0],
+                        arrow_end[1]+arrow_shift[1]+arrow_orthog[1]
+                    )
+                    layer.stroke_line(arrow_end[0], arrow_end[1], 
+                        arrow_end[0]+arrow_shift[0]-arrow_orthog[0],
+                        arrow_end[1]+arrow_shift[1]-arrow_orthog[1]
+                    )
+
+                    # lead 1
+                    mid = self.along(0.5 + RADIUS) + (start_x, start_y)
+                    layer.stroke_line(mid[0], mid[1], end_x, end_y)
+
+            # node dots
             layer.fill_arc(start_x, start_y, editor.STEP // 5, 0, 2 * math.pi)
             layer.fill_arc(end_x, end_y, editor.STEP // 5, 0, 2 * math.pi)
         

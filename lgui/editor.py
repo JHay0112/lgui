@@ -59,7 +59,6 @@ class Editor(canvas.MultiCanvas):
         self.component_selector = widgets.ToggleButtons(
             options = dict(zip(Component.NAMES, Component.TYPES)),
             value = Component.W,
-            description = "Component",
             disabled = False
         )
 
