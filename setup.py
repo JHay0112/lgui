@@ -5,10 +5,10 @@ with open("README.md", "r", encoding="utf-8") as fh:
     long_description = fh.read()
 
 setup(
-    name = 'jmath',
+    name = 'lgui',
     packages = find_packages(include = [
-        "jmath",
-        "jmath.*"
+        "lgui",
+        "lgui.*"
     ]),
     version = "v0.1.0",
     description = "An IPython/Jupyter Interface for lcapy",
