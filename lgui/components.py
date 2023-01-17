@@ -154,7 +154,7 @@ class Component:
                     layer.stroke_arc(mid[0], mid[1], RADIUS*Component.HEIGHT*editor.STEP, 0, 2*np.pi)
 
                     # positive symbol
-                    mid = self.along(0.5 + RADIUS/2) + (start_x, start_y)
+                    mid = self.along(0.5 - RADIUS/2) + (start_x, start_y)
                     shift = self.along(OFFSET)
                     orthog = self.orthog(OFFSET)
 
@@ -166,7 +166,7 @@ class Component:
                     layer.stroke_line(start[0], start[1], end[0], end[1])
 
                     # negative symbol
-                    mid = self.along(0.5 - RADIUS/2) + (start_x, start_y)
+                    mid = self.along(0.5 + RADIUS/2) + (start_x, start_y)
                     start = mid - orthog
                     end = mid + orthog
                     layer.stroke_line(start[0], start[1], end[0], end[1])
@@ -189,13 +189,13 @@ class Component:
                     layer.stroke_arc(mid[0], mid[1], RADIUS*Component.HEIGHT*editor.STEP, 0, 2*np.pi)
 
                     # arrow body
-                    arrow_start = self.along(0.5-RADIUS/2) + (start_x, start_y)
-                    arrow_end = self.along(0.5+RADIUS/2) + (start_x, start_y)
+                    arrow_start = self.along(0.5 + RADIUS/2) + (start_x, start_y)
+                    arrow_end = self.along(0.5 - RADIUS/2) + (start_x, start_y)
                     layer.stroke_line(arrow_start[0], arrow_start[1], arrow_end[0], arrow_end[1])
 
                     # arrow head
-                    arrow_shift = self.along(-OFFSET)
-                    arrow_orthog = self.orthog(OFFSET)
+                    arrow_shift = self.along(OFFSET)
+                    arrow_orthog = self.orthog(-OFFSET)
                     layer.stroke_line(arrow_end[0], arrow_end[1], 
                         arrow_end[0]+arrow_shift[0]+arrow_orthog[0],
                         arrow_end[1]+arrow_shift[1]+arrow_orthog[1]
