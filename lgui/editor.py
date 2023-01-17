@@ -62,6 +62,12 @@ class Editor(canvas.MultiCanvas):
             disabled = False
         )
 
+        self.discard_buffer: list[Component] = []
+        """
+        When a component is removed from the board with CTRL+Z it is added to the discard buffer.
+        It can then be returned with CTRL+Y.
+        """
+
         self.mouse_position = (0, 0)
         self._refresh()
 
@@ -158,7 +164,7 @@ class Editor(canvas.MultiCanvas):
             self.active_component.ports[0].position = (x - (round(x) % Editor.STEP), y - (round(y) % Editor.STEP))
 
     @output.capture()
-    def _handle_key(self, key, shift_key, ctrl_key, meta_key):
+    def _handle_key(self, key: str, shift_key: bool, ctrl_key: bool, meta_key: bool):
         """
         Handles presses of keys
         """
@@ -171,14 +177,23 @@ class Editor(canvas.MultiCanvas):
                 self.active_component = None
                 self.active_layer.clear()
 
-        elif ctrl_key and str(key) == "z":
-            # CTRL + Z
-            self.active_component = None
-            self.active_layer.clear()
-            self.sheet.components.pop()
-            with canvas.hold_canvas():
-                self.component_layer.clear()
-                self.draw_components()
+        elif ctrl_key:
+
+            if str(key) == "z":
+                # CTRL + Z
+                self.active_component = None
+                self.active_layer.clear()
+                self.discard_buffer.append(self.sheet.components.pop())
+                with canvas.hold_canvas():
+                    self.component_layer.clear()
+                    self.draw_components()
+            elif str(key) == "y":
+                # CTRL + Y
+                if len(self.discard_buffer) > 0:
+                    self.sheet.add_component(self.discard_buffer.pop())
+                    with canvas.hold_canvas():
+                        self.component_layer.clear()
+                        self.draw_components()
 
     def display(self):
         """
