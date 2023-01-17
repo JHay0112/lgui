@@ -2,87 +2,24 @@
 Defines the components that lgui can simulate
 """
 
-import lcapy
-import os
-
-from typing import Union
-
-DIR = os.path.dirname(__file__)
+import numpy as np
+import ipycanvas as canvas
+import math
 
 class Node:
+
     """
-    Describes the connection between components.
-
-    Parameters
-    ----------
-
-    is_ground: bool = False
-        Optional flag if node is grounded.
+    Describes the node that joins components.
     """
 
-    # 0 is reserved for the ground node
-    id_assigned: list[bool] = [True]
+    def __init__(self):
 
-    def __init__(self, is_ground: bool = False):
-
-        self.components: set[Component] = set()
-
-        if is_ground:
-            self.id: int = 0
-        else:
-            self._assign_id()
+        self.position: tuple(int, int) = (0, 0)
+        self.is_ground: bool = False
 
     def __eq__(self, other: 'Node') -> bool:
-        return other.id == self.id
 
-    def _assign_id(self):
-        """Assigns the next free ID to the node."""
-        self.id = len(Node.id_assigned)
-        Node.id_assigned.append(True)
-
-    def _free_id(self):
-        """Frees the ID associated with this node."""
-        if self.id < len(Node.id_assigned):
-            Node.id_assigned[self.id] = False
-            for assigned in Node.id_assigned[::-1]:
-                if assigned:
-                    break
-                else:
-                    Node.id_assigned.pop()
-        self.id = None
-            
-    @property
-    def is_ground(self) -> bool:
-        return self.id == 0
-
-    @is_ground.setter
-    def is_ground(self, value: bool):
-        if value:
-            self.id = 0
-
-    def connect(self, other: Union['Node', 'Component']):
-        """
-        Joins two nodes or components together and reassigns ids to lowest if necessary.
-
-        Parameters
-        ----------
-
-        other: Node | Component
-            The other node or component to be connected with
-        """
-        if isinstance(other, Node):
-            self.components |= other.components
-            other.components = self.components
-
-            if self.id > other.id:
-                self._free_id()
-                self.id = other.id
-            else:
-                other._free_id()
-                other.id = self.id
-                
-        elif isinstance(other, Component):
-            self.components.add(other)
+        return self.position == other.position
 
 class Component:
 
@@ -96,135 +33,249 @@ class Component:
         The type of the component selected from Component.TYPES
     """
 
-    ORIENTATIONS = ("N", "E", "S", "W")
-    """Component orientations"""
-    N = ORIENTATIONS[0]
-    E = ORIENTATIONS[1]
-    S = ORIENTATIONS[2]
-    W = ORIENTATIONS[3]
+    NAMES = (
+        "Resistor",
+        "Inductor",
+        "Capacitor",
+        "Wire",
+        "Voltage",
+        "Current"
+    )
 
-    TYPES = ("R", "L", "C", "W")
+    TYPES = ("R", "L", "C", "W", "V", "I")
     """Component types"""
-    R = TYPES[0]
-    L = TYPES[1]
-    C = TYPES[2]
-    WIRE = TYPES[3]
+    R, L, C, W, V, I = TYPES
 
-    GRID_LENGTH = 2
-    """Length of components on the editor grid, wires may say otherwise"""
+    HEIGHT = 4
 
-    IMG_PATH = "symbols/"
-    IMG_EXT = "png"
-    IMG_HEIGHT = 380
-    IMG_WIDTH = 175
-
-    next_ids = {ctype: 0 for ctype in TYPES}
+    next_ids: dict[str, int] = {ctype: 0 for ctype in TYPES}
 
     def __init__(self, ctype: str, value: int | float | str):
 
         self.type = ctype
         self.value = value
-        self.orientation = Component.S
-        self._pos = [0, 0]
-        self.length = Component.GRID_LENGTH
         self.ports: list[Node] = [Node(), Node()]
-        for port in self.ports:
-            port.connect(self)
         self.id = Component.next_ids[self.type]
         Component.next_ids[self.type] += 1
 
-    def __getitem__(self, key: int) -> Node:
+    def along(self, p: float) -> np.array:
         """
-        Shorthand for accessing ports.
-        """
-        return self.ports[key]
-
-    @property
-    def position(self, port: int = 0):
-        """
-        The position of the component on the grid.
+        Computes the point some proportion along the line of the component.
+        This is relative to the position of the zero-th port.
 
         Parameters
         ----------
 
-        port: int = 0
-            The port of which to calculate the position from.
-
-        Raises
-        ------
-
-        ValueError:
-            If orientation is not specified.
+        p: float
+            Proportion of length along component.
         """
-        if port == 0:
-            pos = self._pos
-        else:
-            match self.orientation:
-                case Component.N:
-                    pos = self._pos[0] + self.length, self._pos[1]
-                case Component.E:
-                    pos = self._pos[0], self._pos[1] + self.length
-                case Component.S:
-                    pos = self._pos[0] - self.length, self._pos[1]
-                case Component.W:
-                    pos = self._pos[0], self._pos[1] - self.length
-                case _:
-                    raise ValueError("Component orientation not defined!")
+        delta = np.array(self.ports[1].position) - np.array(self.ports[0].position)
+        return p*delta
 
-        return pos
-
-    def rotate(self, times: int = 1):
+    def orthog(self, p: float) -> np.array:
         """
-        Rotates the component by 90 degrees clockwise.
+        Computes the point some proportion to the right (anti-clockwise) of the self.
+        This is relative to the position of the zero-th port.
 
         Parameters
         ----------
 
-        times: int
-            Number of times to rotate the component by 90 degrees.
+        p: float
+            Proportion of the length of the component.
         """
-        self.orientation = Component.ORIENTATIONS[
-            (Component.ORIENTATIONS.index(self.orientation) + times) % len(Component.ORIENTATIONS)
-        ] # go to next orientation in the orientation list
+        delta = np.array(self.ports[0].position) - np.array(self.ports[1].position) 
+        theta = np.pi/2
+        rot = np.array([[np.cos(theta), -np.sin(theta)], [np.sin(theta), np.cos(theta)]])
+        return p*np.dot(rot, delta)
 
-    def to_lcapy(self) -> str:
+    def draw_on(self, editor, layer: canvas.Canvas):
         """
-        Produces the lcapy netlist representation of the component
+        Draws a single component on a canvas.
+
+        Parameters
+        ----------
+
+        editor: Editor
+            The editor object to draw on
+        layer: Canvas = None
+            Layer to draw component on
         """
 
-        match self.orientation:
-            case Component.N: 
-                direction = "up"
-            case Component.E:
-                direction = "right"
-            case Component.S:
-                direction = "down"
-            case Component.W:
-                direction = "left"
-            case _:
-                direction = None
+        start_x, start_y = self.ports[0].position
+        end_x, end_y = self.ports[1].position
 
-        out = f"{self.type}{self.id} {self.ports[0].id} {self.ports[1].id}"
-        if self.value is not None:
-            out += f" {{{self.value}}}"
-        if self.orientation is not None:
-            out += f"; {direction}"
-        return out
+        with canvas.hold_canvas():
 
-    def draw(self, filepath: str):
-        """
-        Draws the component as the specified file.
-        Uses lcapy as a drawing backend, circuitikz must be installed to work.
-        See https://lcapy.readthedocs.io/en/latest/install.html
-        """
-        lcapy.Circuit("\n" + self.to_lcapy()).draw(
-            filename = filepath, 
-            label_ids = False, 
-            draw_nodes = False, 
-            label_nodes = False, 
-            label_values = False
-        )
+            layer.stroke_style = "#252525"
 
-    def img_path(self) -> str:
-        """Gives the path to an image representation of the component"""
-        return os.path.join(DIR, Component.IMG_PATH + self.type + "." + Component.IMG_EXT)
+            match self.type:
+                case Component.R: # Resistors
+                    
+                    ZIGS = 6
+                    LEAD_LENGTH = 0.2
+                    ZIG_WIDTH = (1 - 2*LEAD_LENGTH)/(ZIGS + 1)
+                    ZIG_HEIGHT = 0.15
+
+                    zig_shift = self.along(ZIG_WIDTH)
+                    zig_orthog = self.orthog(ZIG_HEIGHT)
+
+                    # lead 1
+                    offset = self.along(LEAD_LENGTH)
+                    mid = offset + (start_x, start_y)
+                    layer.stroke_line(start_x, start_y, mid[0], mid[1])
+                    # flick 1
+                    layer.stroke_line(mid[0], mid[1], 
+                        mid[0] - zig_orthog[0] + 0.5*zig_shift[0], 
+                        mid[1] - zig_orthog[1] + 0.5*zig_shift[1]
+                    )
+
+                    # lead 2
+                    mid = (end_x, end_y) - offset
+                    layer.stroke_line(mid[0], mid[1], end_x, end_y)
+                    # flick 2
+                    layer.stroke_line(mid[0], mid[1], 
+                        mid[0] - zig_orthog[0] - 0.5*zig_shift[0], 
+                        mid[1] - zig_orthog[1] - 0.5*zig_shift[1]
+                    )
+
+                    for z in range(ZIGS):
+                        mid = self.along(LEAD_LENGTH + (z + 1/2)*ZIG_WIDTH) + (start_x, start_y)
+                        if z % 2 == 0:
+                            start = mid - zig_orthog
+                            end = mid + zig_shift + zig_orthog
+                        else:
+                            start = mid + zig_orthog
+                            end = mid + zig_shift - zig_orthog
+
+                        layer.stroke_line(start[0], start[1], end[0], end[1])
+
+                case Component.L: # Inductors
+
+                    LOOPS = 4
+                    LEAD_LENGTH = 0.2
+                    LOOP_RADIUS = (1 - 2*LEAD_LENGTH)/(2*LOOPS)
+
+                    # leads
+                    offset = self.along(LEAD_LENGTH)
+                    mid = offset + (start_x, start_y)
+                    layer.stroke_line(start_x, start_y, mid[0], mid[1])
+                    mid = (end_x, end_y) - offset
+                    layer.stroke_line(mid[0], mid[1], end_x, end_y)
+
+                    angle_offset = np.arccos(
+                        np.clip(
+                            np.dot(
+                                offset/np.linalg.norm(offset), np.array([1, 0])
+                            ), 
+                        -1.0, 1.0)
+                    ) % np.pi
+
+                    # loops
+                    for l in range(LOOPS):
+                        mid = self.along(LEAD_LENGTH + (2*l + 1)*LOOP_RADIUS) + (start_x, start_y)
+                        layer.stroke_arc(
+                            mid[0], mid[1], 
+                            LOOP_RADIUS*editor.STEP/editor.SCALE, 
+                            np.pi - angle_offset, -angle_offset 
+                        )
+                    
+                case Component.C: # Capacitors
+
+                    PLATE_WIDTH = 0.4
+                    PLATE_SEP = 0.03
+
+                    # lead 1
+                    mid = self.along(0.5 - PLATE_SEP) + (start_x, start_y)
+                    layer.stroke_line(start_x, start_y, mid[0], mid[1])
+
+                    # plate 1
+                    plate = self.orthog(PLATE_WIDTH)
+                    shift = mid - 0.5*plate
+                    layer.stroke_line(shift[0], shift[1], shift[0] + plate[0], shift[1] + plate[1])
+
+                    # lead 2
+                    mid = self.along(0.5 + PLATE_SEP) + (start_x, start_y)
+                    layer.stroke_line(mid[0], mid[1], end_x, end_y)
+
+                    # plate 2
+                    plate = self.orthog(PLATE_WIDTH)
+                    shift = mid - 0.5*plate
+                    layer.stroke_line(shift[0], shift[1], shift[0] + plate[0], shift[1] + plate[1])
+
+                case Component.W: # Wires
+
+                    layer.stroke_line(start_x, start_y, end_x, end_y)
+
+                case Component.V: # Voltage supply
+                    
+                    RADIUS = 0.3
+                    OFFSET = 0.05
+
+                    # lead 1
+                    mid = self.along(0.5 - RADIUS) + (start_x, start_y)
+                    layer.stroke_line(start_x, start_y, mid[0], mid[1])
+
+                    # circle
+                    mid = self.along(0.5) + (start_x, start_y)
+                    layer.stroke_arc(mid[0], mid[1], RADIUS*Component.HEIGHT*editor.STEP, 0, 2*np.pi)
+
+                    # positive symbol
+                    mid = self.along(0.5 - RADIUS/2) + (start_x, start_y)
+                    shift = self.along(OFFSET)
+                    orthog = self.orthog(OFFSET)
+
+                    start = mid - shift
+                    end = mid + shift
+                    layer.stroke_line(start[0], start[1], end[0], end[1])
+                    start = mid - orthog
+                    end = mid + orthog
+                    layer.stroke_line(start[0], start[1], end[0], end[1])
+
+                    # negative symbol
+                    mid = self.along(0.5 + RADIUS/2) + (start_x, start_y)
+                    start = mid - orthog
+                    end = mid + orthog
+                    layer.stroke_line(start[0], start[1], end[0], end[1])
+
+                    # lead 1
+                    mid = self.along(0.5 + RADIUS) + (start_x, start_y)
+                    layer.stroke_line(mid[0], mid[1], end_x, end_y)
+
+                case Component.I: # Current supply
+                    
+                    RADIUS = 0.3
+                    OFFSET = 0.05
+
+                    # lead 1
+                    mid = self.along(0.5 - RADIUS) + (start_x, start_y)
+                    layer.stroke_line(start_x, start_y, mid[0], mid[1])
+
+                    # circle
+                    mid = self.along(0.5) + (start_x, start_y)
+                    layer.stroke_arc(mid[0], mid[1], RADIUS*Component.HEIGHT*editor.STEP, 0, 2*np.pi)
+
+                    # arrow body
+                    arrow_start = self.along(0.5 + RADIUS/2) + (start_x, start_y)
+                    arrow_end = self.along(0.5 - RADIUS/2) + (start_x, start_y)
+                    layer.stroke_line(arrow_start[0], arrow_start[1], arrow_end[0], arrow_end[1])
+
+                    # arrow head
+                    arrow_shift = self.along(OFFSET)
+                    arrow_orthog = self.orthog(-OFFSET)
+                    layer.stroke_line(arrow_end[0], arrow_end[1], 
+                        arrow_end[0]+arrow_shift[0]+arrow_orthog[0],
+                        arrow_end[1]+arrow_shift[1]+arrow_orthog[1]
+                    )
+                    layer.stroke_line(arrow_end[0], arrow_end[1], 
+                        arrow_end[0]+arrow_shift[0]-arrow_orthog[0],
+                        arrow_end[1]+arrow_shift[1]-arrow_orthog[1]
+                    )
+
+                    # lead 1
+                    mid = self.along(0.5 + RADIUS) + (start_x, start_y)
+                    layer.stroke_line(mid[0], mid[1], end_x, end_y)
+
+            # node dots
+            layer.fill_arc(start_x, start_y, editor.STEP // 5, 0, 2 * math.pi)
+            layer.fill_arc(end_x, end_y, editor.STEP // 5, 0, 2 * math.pi)
+        
