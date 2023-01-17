@@ -14,7 +14,7 @@ class Node:
 
     def __init__(self):
 
-        self.position: np.array = np.array([0, 0])
+        self.position: tuple(int, int) = (0, 0)
         self.is_ground: bool = False
 
     def __eq__(self, other: 'Node') -> bool:

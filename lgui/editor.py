@@ -139,7 +139,13 @@ class Editor(canvas.MultiCanvas):
 
         if self.active_component is not None:
             self.sheet.add_component(self.active_component)
-            self.active_component = None
+            
+            if self.active_component.type == Component.W:
+                last_component = self.active_component
+                self.active_component = Component(Component.W, None)
+                self.active_component.ports[0] = last_component.ports[1]
+            else:
+                self.active_component = None
 
             with canvas.hold_canvas():
                 self.active_layer.clear()
