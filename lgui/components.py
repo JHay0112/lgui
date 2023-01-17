@@ -15,7 +15,6 @@ class Node:
     def __init__(self):
 
         self.position: tuple(int, int) = (0, 0)
-        self.is_ground: bool = False
 
     def __eq__(self, other: 'Node') -> bool:
 
@@ -39,12 +38,13 @@ class Component:
         "Capacitor",
         "Wire",
         "Voltage",
-        "Current"
+        "Current",
+        "Ground"
     )
 
-    TYPES = ("R", "L", "C", "W", "V", "I")
+    TYPES = ("R", "L", "C", "W", "V", "I", "G")
     """Component types"""
-    R, L, C, W, V, I = TYPES
+    R, L, C, W, V, I, G = TYPES
 
     HEIGHT = 4
 

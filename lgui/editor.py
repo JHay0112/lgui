@@ -83,7 +83,7 @@ class Editor(canvas.MultiCanvas):
 
             dx, dy = (
                 x - self.active_component.ports[0].position[0],
-                round(y) - self.active_component.ports[0].position[1]
+                y - self.active_component.ports[0].position[1]
             )
 
             if self.active_component.type == Component.W:
@@ -98,7 +98,7 @@ class Editor(canvas.MultiCanvas):
                         self.active_component.ports[0].position[0], 
                         y - (y % Editor.STEP)
                     )
-            else:
+            elif self.active_component.type != Component.G:
                 # limit other components to set heights
                 if abs(dx) > abs(dy):
                     self.active_component.ports[1].position = (
@@ -114,6 +114,10 @@ class Editor(canvas.MultiCanvas):
             with canvas.hold_canvas():
                 self.active_layer.clear()
                 self.active_component.draw_on(self, self.active_layer)
+
+        else:
+            if self.component_selector.value == Component.G:
+                self.active_component = Component(Component.G, None)
 
         # draw a cursor for the user
         with canvas.hold_canvas():
@@ -144,7 +148,14 @@ class Editor(canvas.MultiCanvas):
         x, y = round(x), round(y)
 
         if self.active_component is not None:
-            self.sheet.add_component(self.active_component)
+
+            if self.active_component.type != Component.G:
+                self.sheet.add_component(self.active_component)
+            else:
+                port = self.active_component.ports[0]
+                port.position = (x - (round(x) % Editor.STEP), y - (round(y) % Editor.STEP))
+                x, y = round(port.position[0]), round(port.position[1])
+                self.sheet.nodes[(x, y)] = 0
             
             if self.active_component.type == Component.W:
                 last_component = self.active_component
