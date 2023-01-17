@@ -153,6 +153,24 @@ class Component:
                     mid = self.along(0.5) + (start_x, start_y)
                     layer.stroke_arc(mid[0], mid[1], RADIUS*Component.HEIGHT*editor.STEP, 0, 2*np.pi)
 
+                    # positive symbol
+                    mid = self.along(0.5 + RADIUS/2) + (start_x, start_y)
+                    shift = self.along(OFFSET)
+                    orthog = self.orthog(OFFSET)
+
+                    start = mid - shift
+                    end = mid + shift
+                    layer.stroke_line(start[0], start[1], end[0], end[1])
+                    start = mid - orthog
+                    end = mid + orthog
+                    layer.stroke_line(start[0], start[1], end[0], end[1])
+
+                    # negative symbol
+                    mid = self.along(0.5 - RADIUS/2) + (start_x, start_y)
+                    start = mid - orthog
+                    end = mid + orthog
+                    layer.stroke_line(start[0], start[1], end[0], end[1])
+
                     # lead 1
                     mid = self.along(0.5 + RADIUS) + (start_x, start_y)
                     layer.stroke_line(mid[0], mid[1], end_x, end_y)
