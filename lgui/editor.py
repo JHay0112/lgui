@@ -2,14 +2,14 @@
 Defines the component editor class.
 """
 
-import lcapy
 import threading
 import ipywidgets as widgets
 import ipycanvas as canvas
 import logging
-import math
 import numpy as np
 
+from typing import Callable
+from functools import wraps
 from IPython.display import display
 
 from .sheet import Sheet
@@ -53,9 +53,6 @@ class Editor(canvas.MultiCanvas):
         super().on_mouse_down(self._handle_mouse_down)
         super().on_key_down(self._handle_key)
 
-        with canvas.hold_canvas():
-            self.draw_grid()
-
         self.component_selector = widgets.ToggleButtons(
             options = dict(zip(Component.NAMES, Component.TYPES)),
             value = Component.W,
@@ -68,9 +65,21 @@ class Editor(canvas.MultiCanvas):
         It can then be returned with CTRL+Y.
         """
 
+        self.on_client_ready(self._draw_grid)
         self.mouse_position = (0, 0)
-        self._refresh()
+        self.on_client_ready(self._refresh)
 
+    def _draws(f: Callable) -> Callable:
+        """
+        Wrapper for methods that involve canvas operations.
+        """
+        @wraps(f)
+        def inner(self, *args, **kwargs):
+            with canvas.hold_canvas():
+                f(self, *args, **kwargs)
+        return inner
+
+    @_draws
     def _refresh(self):
         """
         Refreshes the canvas
@@ -111,22 +120,20 @@ class Editor(canvas.MultiCanvas):
                         self.active_component.ports[0].position[1] + np.sign(dx)*Editor.STEP*Component.HEIGHT
                     )
 
-            with canvas.hold_canvas():
-                self.active_layer.clear()
-                self.active_component.draw_on(self, self.active_layer)
+            self.active_layer.clear()
+            self.active_component.draw_on(self, self.active_layer)
 
         else:
             if self.component_selector.value == Component.G:
                 self.active_component = Component(Component.G, None)
 
         # draw a cursor for the user
-        with canvas.hold_canvas():
-            self.cursor_layer.clear()
-            self.cursor_layer.stroke_rect(
-                (x - (round(x) % Editor.STEP)) - Editor.STEP // 2, 
-                (y - (round(y) % Editor.STEP)) - Editor.STEP // 2,
-                Editor.STEP
-            )
+        self.cursor_layer.clear()
+        self.cursor_layer.stroke_rect(
+            (x - (round(x) % Editor.STEP)) - Editor.STEP // 2, 
+            (y - (round(y) % Editor.STEP)) - Editor.STEP // 2,
+            Editor.STEP
+        )
 
         threading.Timer(Editor.MOVE_DELAY, self._refresh).start()
 
@@ -139,6 +146,7 @@ class Editor(canvas.MultiCanvas):
         self.mouse_position = (x, y)
 
     @output.capture()
+    @_draws
     def _handle_mouse_down(self, x: int, y: int):
         """
         Handles mouse movements.
@@ -164,10 +172,9 @@ class Editor(canvas.MultiCanvas):
             else:
                 self.active_component = None
 
-            with canvas.hold_canvas():
-                self.active_layer.clear()
-                self.component_layer.clear()
-                self.draw_components()
+            self.active_layer.clear()
+            self.component_layer.clear()
+            self.draw_components()
         else:
             # no active component
             # set component from selector
@@ -175,6 +182,7 @@ class Editor(canvas.MultiCanvas):
             self.active_component.ports[0].position = (x - (round(x) % Editor.STEP), y - (round(y) % Editor.STEP))
 
     @output.capture()
+    @_draws
     def _handle_key(self, key: str, shift_key: bool, ctrl_key: bool, meta_key: bool):
         """
         Handles presses of keys
@@ -195,16 +203,22 @@ class Editor(canvas.MultiCanvas):
                 self.active_component = None
                 self.active_layer.clear()
                 self.discard_buffer.append(self.sheet.components.pop())
-                with canvas.hold_canvas():
-                    self.component_layer.clear()
-                    self.draw_components()
+                self.component_layer.clear()
+                self.draw_components()
             elif str(key) == "y":
                 # CTRL + Y
                 if len(self.discard_buffer) > 0:
                     self.sheet.add_component(self.discard_buffer.pop())
-                    with canvas.hold_canvas():
-                        self.component_layer.clear()
-                        self.draw_components()
+                    self.component_layer.clear()
+                    self.draw_components()
+
+    @_draws
+    def _draw_grid(self):
+        """Draws a grid based upon the step size."""
+        for i in range(Editor.WIDTH // Editor.STEP):
+            for j in range(Editor.HEIGHT // Editor.STEP):
+                self.grid_layer.fill_style = "#252525"
+                self.grid_layer.fill_rect(i * Editor.STEP, j * Editor.STEP, 1)
 
     def display(self):
         """
@@ -215,13 +229,7 @@ class Editor(canvas.MultiCanvas):
         # show buttons
         display(self.component_selector)
 
-    def draw_grid(self):
-        """Draws a grid based upon the step size."""
-        for i in range(Editor.WIDTH // Editor.STEP):
-            for j in range(Editor.HEIGHT // Editor.STEP):
-                self.grid_layer.fill_style = "#252525"
-                self.grid_layer.fill_rect(i * Editor.STEP, j * Editor.STEP, 1)
-
+    @_draws
     def draw_components(self, layer: canvas.Canvas = None):
         """
         Draws sheet components on canvas.
