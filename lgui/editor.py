@@ -5,7 +5,6 @@ Defines the component editor class.
 import threading
 import ipywidgets as widgets
 import ipycanvas as canvas
-import logging
 import numpy as np
 
 from typing import Callable
@@ -14,8 +13,6 @@ from IPython.display import display
 
 from .sheet import Sheet
 from .components import Component
-
-logging.basicConfig(filename = "out.log", level = logging.INFO)
 
 class Editor(canvas.MultiCanvas):
     """
@@ -187,8 +184,6 @@ class Editor(canvas.MultiCanvas):
         """
         Handles presses of keys
         """
-
-        logging.info(key)
         
         if str(key) == "Escape" and self.active_component is not None:
             # ESC
