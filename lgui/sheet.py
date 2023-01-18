@@ -2,7 +2,7 @@
 Defines a grid sheet for laying out lgui components on.
 """
 
-from .components import Component, Node
+from .components import Component
 
 class Sheet:
 
@@ -23,6 +23,8 @@ class Sheet:
         self.name: str = name
         self.author: str = author
         self.components: list[Component] = []
+        self.nodes: dict[tuple[int, int], int] = {}
+        self.next_id = 1
 
     def to_lcapy(self) -> str:
         """
@@ -30,26 +32,13 @@ class Sheet:
         Currently does not provide sufficient styling to be rendered with lcapy.
         """
         out = "\n"
-        ids: dict[tuple[int, int], int] = {}
-        next_id = 1
 
         for component in self.components:
-            for port in component.ports:
-                x, y = round(port.position[0]), round(port.position[1])
-                if (x, y) not in ids.keys():
-                    if port.is_ground:
-                        # give the ground value
-                        ids[(x, y)] = 0
-                    else:
-                        # if not ground
-                        # assign an arbitrary id
-                        ids[(x, y)] = next_id
-                        next_id += 1
             # netlist formatted string       
             out += f"{component.type}{component.id}"
             for port in component.ports:
                 x, y = round(port.position[0]), round(port.position[1])
-                out += f" {ids[(x, y)]}"
+                out += f" {self.nodes[(x, y)]}"
             if component.value is not None:
                 out += f" {{component.value}}"
             out += "\n"
@@ -61,3 +50,8 @@ class Sheet:
         Adds a component to the sheet
         """
         self.components.append(component)
+        for port in component.ports:
+            x, y = round(port.position[0]), round(port.position[1])
+            if (x, y) not in self.nodes.keys():
+                self.nodes[(x, y)] = self.next_id
+                self.next_id += 1
