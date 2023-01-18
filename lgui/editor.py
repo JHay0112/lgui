@@ -76,7 +76,6 @@ class Editor(canvas.MultiCanvas):
                 f(self, *args, **kwargs)
         return inner
 
-    @_draws
     def _refresh(self):
         """
         Refreshes the canvas
@@ -85,53 +84,54 @@ class Editor(canvas.MultiCanvas):
         super().on_mouse_move(self._handle_mouse_move, True)
         x, y = self.mouse_position
 
-        # deal with active component rendering
-        if self.active_component is not None:
+        with canvas.hold_canvas():
+            # deal with active component rendering
+            if self.active_component is not None:
 
-            dx, dy = (
-                x - self.active_component.ports[0].position[0],
-                y - self.active_component.ports[0].position[1]
+                dx, dy = (
+                    x - self.active_component.ports[0].position[0],
+                    y - self.active_component.ports[0].position[1]
+                )
+
+                if self.active_component.type == Component.W:
+                    # permit variable wire length
+                    if abs(dx) > abs(dy):
+                        self.active_component.ports[1].position = (
+                            x - (round(x) % Editor.STEP), 
+                            self.active_component.ports[0].position[1]
+                        )
+                    else:
+                        self.active_component.ports[1].position = (
+                            self.active_component.ports[0].position[0], 
+                            y - (y % Editor.STEP)
+                        )
+                elif self.active_component.type != Component.G:
+                    # limit other components to set heights
+                    if abs(dx) > abs(dy):
+                        self.active_component.ports[1].position = (
+                            self.active_component.ports[0].position[0] + np.sign(dx)*Editor.STEP*Component.HEIGHT,
+                            self.active_component.ports[0].position[1]
+                        )
+                    else:
+                        self.active_component.ports[1].position = (
+                            self.active_component.ports[0].position[0],
+                            self.active_component.ports[0].position[1] + np.sign(dy)*Editor.STEP*Component.HEIGHT
+                        )
+
+                self.active_layer.clear()
+                self.active_component.draw_on(self, self.active_layer)
+
+            else:
+                if self.component_selector.value == Component.G:
+                    self.active_component = Component(Component.G, None)
+
+            # draw a cursor for the user
+            self.cursor_layer.clear()
+            self.cursor_layer.stroke_rect(
+                (x - (round(x) % Editor.STEP)) - Editor.STEP // 2, 
+                (y - (round(y) % Editor.STEP)) - Editor.STEP // 2,
+                Editor.STEP
             )
-
-            if self.active_component.type == Component.W:
-                # permit variable wire length
-                if abs(dx) > abs(dy):
-                    self.active_component.ports[1].position = (
-                        x - (round(x) % Editor.STEP), 
-                        self.active_component.ports[0].position[1]
-                    )
-                else:
-                    self.active_component.ports[1].position = (
-                        self.active_component.ports[0].position[0], 
-                        y - (y % Editor.STEP)
-                    )
-            elif self.active_component.type != Component.G:
-                # limit other components to set heights
-                if abs(dx) > abs(dy):
-                    self.active_component.ports[1].position = (
-                        self.active_component.ports[0].position[0] + np.sign(dx)*Editor.STEP*Component.HEIGHT,
-                        self.active_component.ports[0].position[1]
-                    )
-                else:
-                    self.active_component.ports[1].position = (
-                        self.active_component.ports[0].position[0],
-                        self.active_component.ports[0].position[1] + np.sign(dy)*Editor.STEP*Component.HEIGHT
-                    )
-
-            self.active_layer.clear()
-            self.active_component.draw_on(self, self.active_layer)
-
-        else:
-            if self.component_selector.value == Component.G:
-                self.active_component = Component(Component.G, None)
-
-        # draw a cursor for the user
-        self.cursor_layer.clear()
-        self.cursor_layer.stroke_rect(
-            (x - (round(x) % Editor.STEP)) - Editor.STEP // 2, 
-            (y - (round(y) % Editor.STEP)) - Editor.STEP // 2,
-            Editor.STEP
-        )
 
         super().on_mouse_move(self._handle_mouse_move, False)  
         threading.Timer(Editor.MOVE_DELAY, self._refresh).start()
