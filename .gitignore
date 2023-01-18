@@ -3,6 +3,10 @@ __pycache__/
 *.pyc
 .ipynb_checkpoints/
 
+# Library artifacts
+lgui.egg-info/
+dist/
+
 # Local testing files
 test.py
 test.ipynb
