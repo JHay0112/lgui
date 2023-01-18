@@ -114,7 +114,7 @@ class Editor(canvas.MultiCanvas):
                 else:
                     self.active_component.ports[1].position = (
                         self.active_component.ports[0].position[0],
-                        self.active_component.ports[0].position[1] + np.sign(dx)*Editor.STEP*Component.HEIGHT
+                        self.active_component.ports[0].position[1] + np.sign(dy)*Editor.STEP*Component.HEIGHT
                     )
 
             self.active_layer.clear()
