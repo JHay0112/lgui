@@ -12,7 +12,7 @@ from functools import wraps
 from IPython.display import display
 
 from .sheet import Sheet
-from .components import Component
+from .components import *
 
 class Editor(canvas.MultiCanvas):
     """
@@ -52,7 +52,7 @@ class Editor(canvas.MultiCanvas):
 
         self.component_selector = widgets.ToggleButtons(
             options = dict(zip(Component.NAMES, Component.TYPES)),
-            value = Component.W,
+            value = Wire,
             disabled = False
         )
 
@@ -162,7 +162,7 @@ class Editor(canvas.MultiCanvas):
                 x, y = round(port.position[0]), round(port.position[1])
                 self.sheet.nodes[(x, y)] = 0
             
-            if self.active_component.type == Component.W:
+            if self.active_component.type == Wire.type:
                 last_component = self.active_component
                 self.active_component = Component(Component.W, None)
                 self.active_component.ports[0] = last_component.ports[1]

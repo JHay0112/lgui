@@ -25,12 +25,13 @@ class Component(ABC):
 
     """
     Describes an lgui component.
+    This is an abstract class, specific components are derived from here.
 
     Parameters
     ----------
 
-    ctype: str
-        The type of the component selected from Component.TYPES
+    value: str | int | float
+        The value of the component.
     """
 
     HEIGHT = 4
@@ -38,18 +39,28 @@ class Component(ABC):
 
     def __init__(self, value: str | int | float):
 
-        self.type: str = None
         self.value: str = value
         self.ports: list[Node] = [Node(), Node()]
         self.id = type(self).next_id
         type(self).next_id += 1
 
     @property
+    @classmethod
     @abstractmethod
-    def type(self) -> str:
+    def TYPE(cls) -> str:
         """
         Component type identifer used by lcapy.
         E.g. Resistors have the identifier R.
+        """
+        ...
+
+    @property
+    @classmethod
+    @abstractmethod
+    def NAME(cls) -> str:
+        """
+        The full name of the component.
+        E.g. Resistor
         """
         ...
 
@@ -105,7 +116,7 @@ class Component(ABC):
         """
 
         # abstract method for drawing components
-        self.__draw_on__(editor, layer)
+        self.__draw_on__(layer)
 
         # node dots
         start = self.ports[0].position
