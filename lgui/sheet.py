@@ -35,7 +35,7 @@ class Sheet:
 
         for component in self.components:
             # netlist formatted string       
-            out += f"{component.type}{component.id}"
+            out += f"{component.TYPE}{component.id}"
             for port in component.ports:
                 x, y = round(port.position[0]), round(port.position[1])
                 out += f" {self.nodes[(x, y)]}"
