@@ -19,7 +19,7 @@ class Inductor(Component):
 
     def __init__(self, value: str | int | float):
 
-        super().__init__(self, value)
+        super().__init__(value)
 
     def __draw_on__(self, editor, layer):
 

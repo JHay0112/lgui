@@ -5,6 +5,11 @@ class Ground(Component):
     """
     Ground Flag
     """
+
+    # this is a possible indicator that ground should not be a component!
+    # the type field makes little sense!
+    TYPE = "G"
+    NAME = "Ground"
     
     def __init__(self):
 

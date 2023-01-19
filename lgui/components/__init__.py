@@ -8,11 +8,11 @@ Handles the component class and its various subclasses.
 from .component import Component
 
 from .resistor import Resistor
-#from .inductor import Inductor
-#from .capacitor import Capacitor
+from .inductor import Inductor
+from .capacitor import Capacitor
 
-#from .voltage_supply import VoltageSupply
-#from .current_supply import CurrentSupply
-#from .ground import Ground
+from .voltage_supply import VoltageSupply
+from .current_supply import CurrentSupply
+from .ground import Ground
 
-#from .wire import Wire
+from .wire import Wire

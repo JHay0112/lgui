@@ -116,7 +116,7 @@ class Component(ABC):
         """
 
         # abstract method for drawing components
-        self.__draw_on__(layer)
+        self.__draw_on__(editor, layer)
 
         # node dots
         start = self.ports[0].position

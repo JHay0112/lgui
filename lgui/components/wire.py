@@ -13,7 +13,7 @@ class Wire(Component):
 
     def __init__(self):
 
-        super().__init__(self, None)
+        super().__init__(None)
 
     def __draw_on__(self, editor, layer):
 
