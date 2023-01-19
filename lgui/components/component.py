@@ -4,7 +4,8 @@ Defines the components that lgui can simulate
 
 import numpy as np
 import ipycanvas as canvas
-import math
+
+from abc import ABC, abstractmethod
 
 class Node:
 
@@ -20,7 +21,7 @@ class Node:
 
         return self.position == other.position
 
-class Component:
+class Component(ABC):
 
     """
     Describes an lgui component.
@@ -32,31 +33,33 @@ class Component:
         The type of the component selected from Component.TYPES
     """
 
-    NAMES = (
-        "Resistor",
-        "Inductor",
-        "Capacitor",
-        "Wire",
-        "Voltage",
-        "Current",
-        "Ground"
-    )
-
-    TYPES = ("R", "L", "C", "W", "V", "I", "G")
-    """Component types"""
-    R, L, C, W, V, I, G = TYPES
-
     HEIGHT = 4
+    next_id: int = 0
 
-    next_ids: dict[str, int] = {ctype: 0 for ctype in TYPES}
+    def __init__(self, value: str | int | float):
 
-    def __init__(self, ctype: str, value: int | float | str):
-
-        self.type = ctype
-        self.value = value
+        self.type: str = None
+        self.value: str = value
         self.ports: list[Node] = [Node(), Node()]
-        self.id = Component.next_ids[self.type]
-        Component.next_ids[self.type] += 1
+        self.id = type(self).next_id
+        type(self).next_id += 1
+
+    @property
+    @abstractmethod
+    def type(self) -> str:
+        """
+        Component type identifer used by lcapy.
+        E.g. Resistors have the identifier R.
+        """
+        ...
+
+    @abstractmethod
+    def __draw_on__(self, editor, layer: canvas.Canvas):
+        """
+        Handles drawing specific features of components.
+        Component end nodes are handled by the draw_on method, which calls this abstract method.
+        """
+        ...
 
     def along(self, p: float) -> np.array:
         """
@@ -101,181 +104,12 @@ class Component:
             Layer to draw component on
         """
 
-        start_x, start_y = self.ports[0].position
-        end_x, end_y = self.ports[1].position
+        # abstract method for drawing components
+        self.__draw_on__(editor, layer)
 
-        with canvas.hold_canvas():
-
-            layer.stroke_style = "#252525"
-
-            match self.type:
-                case Component.R: # Resistors
-                    
-                    ZIGS = 6
-                    LEAD_LENGTH = 0.2
-                    ZIG_WIDTH = (1 - 2*LEAD_LENGTH)/(ZIGS + 1)
-                    ZIG_HEIGHT = 0.15
-
-                    zig_shift = self.along(ZIG_WIDTH)
-                    zig_orthog = self.orthog(ZIG_HEIGHT)
-
-                    # lead 1
-                    offset = self.along(LEAD_LENGTH)
-                    mid = offset + (start_x, start_y)
-                    layer.stroke_line(start_x, start_y, mid[0], mid[1])
-                    # flick 1
-                    layer.stroke_line(mid[0], mid[1], 
-                        mid[0] - zig_orthog[0] + 0.5*zig_shift[0], 
-                        mid[1] - zig_orthog[1] + 0.5*zig_shift[1]
-                    )
-
-                    # lead 2
-                    mid = (end_x, end_y) - offset
-                    layer.stroke_line(mid[0], mid[1], end_x, end_y)
-                    # flick 2
-                    layer.stroke_line(mid[0], mid[1], 
-                        mid[0] - zig_orthog[0] - 0.5*zig_shift[0], 
-                        mid[1] - zig_orthog[1] - 0.5*zig_shift[1]
-                    )
-
-                    for z in range(ZIGS):
-                        mid = self.along(LEAD_LENGTH + (z + 1/2)*ZIG_WIDTH) + (start_x, start_y)
-                        if z % 2 == 0:
-                            start = mid - zig_orthog
-                            end = mid + zig_shift + zig_orthog
-                        else:
-                            start = mid + zig_orthog
-                            end = mid + zig_shift - zig_orthog
-
-                        layer.stroke_line(start[0], start[1], end[0], end[1])
-
-                case Component.L: # Inductors
-
-                    LOOPS = 4
-                    LEAD_LENGTH = 0.2
-                    LOOP_RADIUS = (1 - 2*LEAD_LENGTH)/(2*LOOPS)
-
-                    # leads
-                    offset = self.along(LEAD_LENGTH)
-                    mid = offset + (start_x, start_y)
-                    layer.stroke_line(start_x, start_y, mid[0], mid[1])
-                    mid = (end_x, end_y) - offset
-                    layer.stroke_line(mid[0], mid[1], end_x, end_y)
-
-                    angle_offset = np.arccos(
-                        np.clip(
-                            np.dot(
-                                offset/np.linalg.norm(offset), np.array([1, 0])
-                            ), 
-                        -1.0, 1.0)
-                    ) % np.pi
-
-                    # loops
-                    for l in range(LOOPS):
-                        mid = self.along(LEAD_LENGTH + (2*l + 1)*LOOP_RADIUS) + (start_x, start_y)
-                        layer.stroke_arc(
-                            mid[0], mid[1], 
-                            LOOP_RADIUS*editor.STEP/editor.SCALE, 
-                            np.pi - angle_offset, -angle_offset 
-                        )
-                    
-                case Component.C: # Capacitors
-
-                    PLATE_WIDTH = 0.4
-                    PLATE_SEP = 0.03
-
-                    # lead 1
-                    mid = self.along(0.5 - PLATE_SEP) + (start_x, start_y)
-                    layer.stroke_line(start_x, start_y, mid[0], mid[1])
-
-                    # plate 1
-                    plate = self.orthog(PLATE_WIDTH)
-                    shift = mid - 0.5*plate
-                    layer.stroke_line(shift[0], shift[1], shift[0] + plate[0], shift[1] + plate[1])
-
-                    # lead 2
-                    mid = self.along(0.5 + PLATE_SEP) + (start_x, start_y)
-                    layer.stroke_line(mid[0], mid[1], end_x, end_y)
-
-                    # plate 2
-                    plate = self.orthog(PLATE_WIDTH)
-                    shift = mid - 0.5*plate
-                    layer.stroke_line(shift[0], shift[1], shift[0] + plate[0], shift[1] + plate[1])
-
-                case Component.W: # Wires
-
-                    layer.stroke_line(start_x, start_y, end_x, end_y)
-
-                case Component.V: # Voltage supply
-                    
-                    RADIUS = 0.3
-                    OFFSET = 0.05
-
-                    # lead 1
-                    mid = self.along(0.5 - RADIUS) + (start_x, start_y)
-                    layer.stroke_line(start_x, start_y, mid[0], mid[1])
-
-                    # circle
-                    mid = self.along(0.5) + (start_x, start_y)
-                    layer.stroke_arc(mid[0], mid[1], RADIUS*Component.HEIGHT*editor.STEP, 0, 2*np.pi)
-
-                    # positive symbol
-                    mid = self.along(0.5 - RADIUS/2) + (start_x, start_y)
-                    shift = self.along(OFFSET)
-                    orthog = self.orthog(OFFSET)
-
-                    start = mid - shift
-                    end = mid + shift
-                    layer.stroke_line(start[0], start[1], end[0], end[1])
-                    start = mid - orthog
-                    end = mid + orthog
-                    layer.stroke_line(start[0], start[1], end[0], end[1])
-
-                    # negative symbol
-                    mid = self.along(0.5 + RADIUS/2) + (start_x, start_y)
-                    start = mid - orthog
-                    end = mid + orthog
-                    layer.stroke_line(start[0], start[1], end[0], end[1])
-
-                    # lead 1
-                    mid = self.along(0.5 + RADIUS) + (start_x, start_y)
-                    layer.stroke_line(mid[0], mid[1], end_x, end_y)
-
-                case Component.I: # Current supply
-                    
-                    RADIUS = 0.3
-                    OFFSET = 0.05
-
-                    # lead 1
-                    mid = self.along(0.5 - RADIUS) + (start_x, start_y)
-                    layer.stroke_line(start_x, start_y, mid[0], mid[1])
-
-                    # circle
-                    mid = self.along(0.5) + (start_x, start_y)
-                    layer.stroke_arc(mid[0], mid[1], RADIUS*Component.HEIGHT*editor.STEP, 0, 2*np.pi)
-
-                    # arrow body
-                    arrow_start = self.along(0.5 + RADIUS/2) + (start_x, start_y)
-                    arrow_end = self.along(0.5 - RADIUS/2) + (start_x, start_y)
-                    layer.stroke_line(arrow_start[0], arrow_start[1], arrow_end[0], arrow_end[1])
-
-                    # arrow head
-                    arrow_shift = self.along(OFFSET)
-                    arrow_orthog = self.orthog(-OFFSET)
-                    layer.stroke_line(arrow_end[0], arrow_end[1], 
-                        arrow_end[0]+arrow_shift[0]+arrow_orthog[0],
-                        arrow_end[1]+arrow_shift[1]+arrow_orthog[1]
-                    )
-                    layer.stroke_line(arrow_end[0], arrow_end[1], 
-                        arrow_end[0]+arrow_shift[0]-arrow_orthog[0],
-                        arrow_end[1]+arrow_shift[1]-arrow_orthog[1]
-                    )
-
-                    # lead 1
-                    mid = self.along(0.5 + RADIUS) + (start_x, start_y)
-                    layer.stroke_line(mid[0], mid[1], end_x, end_y)
-
-            # node dots
-            layer.fill_arc(start_x, start_y, editor.STEP // 5, 0, 2 * math.pi)
-            layer.fill_arc(end_x, end_y, editor.STEP // 5, 0, 2 * math.pi)
+        # node dots
+        start = self.ports[0].position
+        end = self.ports[1].position
+        layer.fill_arc(start[0], start[1], editor.STEP // 5, 0, 2 * np.pi)
+        layer.fill_arc(end[0], end[1], editor.STEP // 5, 0, 2 * np.pi)
         
