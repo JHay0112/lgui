@@ -5,6 +5,7 @@ Defines the components that lgui can simulate
 import numpy as np
 import ipycanvas as canvas
 
+from typing import Union
 from abc import ABC, abstractmethod
 
 class Node:
@@ -30,14 +31,14 @@ class Component(ABC):
     Parameters
     ----------
 
-    value: str | int | float
+    value: Union[str, int, float]
         The value of the component.
     """
 
     HEIGHT = 4
     next_id: int = 0
 
-    def __init__(self, value: str | int | float):
+    def __init__(self, value: Union[str, int, float]):
 
         self.value: str = value
         self.ports: list[Node] = [Node(), Node()]
