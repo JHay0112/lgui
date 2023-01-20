@@ -26,11 +26,11 @@ setup(
         "Operating System :: OS Independent",
     ],
     install_requires=[
-        "numpy",
         "lcapy",
+        "numpy",
         "ipywidgets",
         "IPython",
         "ipycanvas"
     ],
-    python_requires=">=3.10" # due to match statements
+    python_requires=">=3.7" # matched with lcapy
 )

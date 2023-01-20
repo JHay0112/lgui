@@ -1,6 +1,8 @@
 
 import numpy as np
 
+from typing import Union
+
 from .component import Component
 
 class VoltageSupply(Component):
@@ -10,14 +12,14 @@ class VoltageSupply(Component):
     Parameters
     ----------
 
-    value: str | int | float
+    value: Union[str, int, float]
         The value of the voltage supply.
     """
 
     TYPE = "V"
     NAME = "Voltage Supply"
 
-    def __init__(self, value: str | int | float):
+    def __init__(self, value: Union[str, int, float]):
 
         super().__init__(value)
 

@@ -1,4 +1,6 @@
 
+from typing import Union
+
 from .component import Component
 
 class Capacitor(Component):
@@ -8,14 +10,14 @@ class Capacitor(Component):
     Parameters
     ----------
 
-    value: str | int | float
+    value: Union[str, int, float]
         The value of the capacitor.
     """
 
     TYPE = "C"
     NAME = "Capacitor"
 
-    def __init__(self, value: str | int | float):
+    def __init__(self, value: Union[str, int, float]):
 
         super().__init__(value)
 

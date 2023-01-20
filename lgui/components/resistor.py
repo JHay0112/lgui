@@ -1,4 +1,6 @@
 
+from typing import Union
+
 from .component import Component
 
 class Resistor(Component):
@@ -8,14 +10,14 @@ class Resistor(Component):
     Parameters
     ----------
 
-    value: str | int | float
+    value: Union[str, int, float]
         The value of the resistor.
     """
 
     TYPE = "R"
     NAME = "Resistor"
 
-    def __init__(self, value: str | int | float):
+    def __init__(self, value: Union[str, int, float]):
 
         super().__init__(value)
 

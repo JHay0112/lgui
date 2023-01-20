@@ -1,6 +1,8 @@
 
 import numpy as np
 
+from typing import Union
+
 from .component import Component
 
 class Inductor(Component):
@@ -10,14 +12,14 @@ class Inductor(Component):
     Parameters
     ----------
 
-    value: str | int | float
+    value: Union[str, int, float]
         The value of the inductor.
     """
 
     TYPE = "L"
     NAME = "Inductor"
 
-    def __init__(self, value: str | int | float):
+    def __init__(self, value: Union[str, int, float]):
 
         super().__init__(value)
 
