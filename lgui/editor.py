@@ -12,7 +12,7 @@ from functools import wraps
 from IPython.display import display
 
 from .sheet import Sheet
-from .components import Component
+from .components import *
 
 class Editor(canvas.MultiCanvas):
     """
@@ -51,9 +51,16 @@ class Editor(canvas.MultiCanvas):
         super().on_key_down(self._handle_key)
 
         self.component_selector = widgets.ToggleButtons(
-            options = dict(zip(Component.NAMES, Component.TYPES)),
-            value = Component.W,
-            disabled = False
+            options = {
+                Resistor.NAME: Resistor,
+                Capacitor.NAME: Capacitor,
+                Inductor.NAME: Inductor,
+                Wire.NAME: Wire,
+                VoltageSupply.NAME: VoltageSupply,
+                CurrentSupply.NAME: CurrentSupply,
+                Ground.NAME: Ground
+            },
+            value = Wire
         )
 
         self.discard_buffer: list[Component] = []
@@ -93,7 +100,7 @@ class Editor(canvas.MultiCanvas):
                     y - self.active_component.ports[0].position[1]
                 )
 
-                if self.active_component.type == Component.W:
+                if self.active_component.TYPE == Wire.TYPE:
                     # permit variable wire length
                     if abs(dx) > abs(dy):
                         self.active_component.ports[1].position = (
@@ -105,7 +112,7 @@ class Editor(canvas.MultiCanvas):
                             self.active_component.ports[0].position[0], 
                             y - (y % Editor.STEP)
                         )
-                elif self.active_component.type != Component.G:
+                elif self.active_component.TYPE != Ground.TYPE:
                     # limit other components to set heights
                     if abs(dx) > abs(dy):
                         self.active_component.ports[1].position = (
@@ -122,8 +129,8 @@ class Editor(canvas.MultiCanvas):
                 self.active_component.draw_on(self, self.active_layer)
 
             else:
-                if self.component_selector.value == Component.G:
-                    self.active_component = Component(Component.G, None)
+                if self.component_selector.value.TYPE == Ground.TYPE:
+                    self.active_component = Ground()
 
             # draw a cursor for the user
             self.cursor_layer.clear()
@@ -154,7 +161,7 @@ class Editor(canvas.MultiCanvas):
 
         if self.active_component is not None:
 
-            if self.active_component.type != Component.G:
+            if self.active_component.TYPE != Ground.TYPE:
                 self.sheet.add_component(self.active_component)
             else:
                 port = self.active_component.ports[0]
@@ -162,9 +169,9 @@ class Editor(canvas.MultiCanvas):
                 x, y = round(port.position[0]), round(port.position[1])
                 self.sheet.nodes[(x, y)] = 0
             
-            if self.active_component.type == Component.W:
+            if self.active_component.TYPE == Wire.TYPE:
                 last_component = self.active_component
-                self.active_component = Component(Component.W, None)
+                self.active_component = Wire()
                 self.active_component.ports[0] = last_component.ports[1]
             else:
                 self.active_component = None
@@ -175,7 +182,10 @@ class Editor(canvas.MultiCanvas):
         else:
             # no active component
             # set component from selector
-            self.active_component = Component(self.component_selector.value, None)
+            if self.component_selector.value.TYPE in (Wire.TYPE, Ground.TYPE): # valueless components
+                self.active_component = self.component_selector.value()
+            else:
+                self.active_component = self.component_selector.value(None)
             self.active_component.ports[0].position = (x - (round(x) % Editor.STEP), y - (round(y) % Editor.STEP))
 
     @_draws
