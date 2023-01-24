@@ -14,7 +14,8 @@ from IPython.display import display
 from .sheet import Sheet
 from .components import *
 
-class Editor(canvas.MultiCanvas):
+
+class NotebookEditor(canvas.MultiCanvas):
     """
     The component editor is an ipywidget.
     """
@@ -34,14 +35,14 @@ class Editor(canvas.MultiCanvas):
         self.sheet: Sheet = Sheet("Untitled", None)
         self.active_component: Component = None
 
-        super().__init__(Editor.LAYERS, width = Editor.WIDTH, height = Editor.HEIGHT)
+        super().__init__(Editor.LAYERS, width=Editor.WIDTH, height=Editor.HEIGHT)
 
         # layer stackup
         self.cursor_layer,   \
-        self.active_layer,    \
-        self.component_layer,  \
-        self.grid_layer         \
-         = self
+            self.active_layer,    \
+            self.component_layer,  \
+            self.grid_layer         \
+            = self
 
         self.layout.width = "100%"
         self.layout.height = "auto"
@@ -51,7 +52,7 @@ class Editor(canvas.MultiCanvas):
         super().on_key_down(self._handle_key)
 
         self.component_selector = widgets.ToggleButtons(
-            options = {
+            options={
                 Resistor.NAME: Resistor,
                 Capacitor.NAME: Capacitor,
                 Inductor.NAME: Inductor,
@@ -60,7 +61,7 @@ class Editor(canvas.MultiCanvas):
                 CurrentSupply.NAME: CurrentSupply,
                 Ground.NAME: Ground
             },
-            value = Wire
+            value=Wire
         )
 
         self.discard_buffer: list[Component] = []
@@ -104,25 +105,27 @@ class Editor(canvas.MultiCanvas):
                     # permit variable wire length
                     if abs(dx) > abs(dy):
                         self.active_component.ports[1].position = (
-                            x - (round(x) % Editor.STEP), 
+                            x - (round(x) % Editor.STEP),
                             self.active_component.ports[0].position[1]
                         )
                     else:
                         self.active_component.ports[1].position = (
-                            self.active_component.ports[0].position[0], 
+                            self.active_component.ports[0].position[0],
                             y - (y % Editor.STEP)
                         )
                 elif self.active_component.TYPE != Ground.TYPE:
                     # limit other components to set heights
                     if abs(dx) > abs(dy):
                         self.active_component.ports[1].position = (
-                            self.active_component.ports[0].position[0] + np.sign(dx)*Editor.STEP*Component.HEIGHT,
+                            self.active_component.ports[0].position[0] +
+                            np.sign(dx)*Editor.STEP*Component.HEIGHT,
                             self.active_component.ports[0].position[1]
                         )
                     else:
                         self.active_component.ports[1].position = (
                             self.active_component.ports[0].position[0],
-                            self.active_component.ports[0].position[1] + np.sign(dy)*Editor.STEP*Component.HEIGHT
+                            self.active_component.ports[0].position[1] +
+                            np.sign(dy)*Editor.STEP*Component.HEIGHT
                         )
 
                 self.active_layer.clear()
@@ -135,12 +138,12 @@ class Editor(canvas.MultiCanvas):
             # draw a cursor for the user
             self.cursor_layer.clear()
             self.cursor_layer.stroke_rect(
-                (x - (round(x) % Editor.STEP)) - Editor.STEP // 2, 
+                (x - (round(x) % Editor.STEP)) - Editor.STEP // 2,
                 (y - (round(y) % Editor.STEP)) - Editor.STEP // 2,
                 Editor.STEP
             )
 
-        super().on_mouse_move(self._handle_mouse_move, False)  
+        super().on_mouse_move(self._handle_mouse_move, False)
         threading.Timer(Editor.MOVE_DELAY, self._refresh).start()
 
     def _handle_mouse_move(self, x: int, y: int):
@@ -165,10 +168,11 @@ class Editor(canvas.MultiCanvas):
                 self.sheet.add_component(self.active_component)
             else:
                 port = self.active_component.ports[0]
-                port.position = (x - (round(x) % Editor.STEP), y - (round(y) % Editor.STEP))
+                port.position = (x - (round(x) % Editor.STEP),
+                                 y - (round(y) % Editor.STEP))
                 x, y = round(port.position[0]), round(port.position[1])
                 self.sheet.nodes[(x, y)] = 0
-            
+
             if self.active_component.TYPE == Wire.TYPE:
                 last_component = self.active_component
                 self.active_component = Wire()
@@ -182,18 +186,20 @@ class Editor(canvas.MultiCanvas):
         else:
             # no active component
             # set component from selector
-            if self.component_selector.value.TYPE in (Wire.TYPE, Ground.TYPE): # valueless components
+            # valueless components
+            if self.component_selector.value.TYPE in (Wire.TYPE, Ground.TYPE):
                 self.active_component = self.component_selector.value()
             else:
                 self.active_component = self.component_selector.value(None)
-            self.active_component.ports[0].position = (x - (round(x) % Editor.STEP), y - (round(y) % Editor.STEP))
+            self.active_component.ports[0].position = (
+                x - (round(x) % Editor.STEP), y - (round(y) % Editor.STEP))
 
     @_draws
     def _handle_key(self, key: str, shift_key: bool, ctrl_key: bool, meta_key: bool):
         """
         Handles presses of keys
         """
-        
+
         if str(key) == "Escape" and self.active_component is not None:
             # ESC
             if self.active_component is not None:
@@ -236,10 +242,10 @@ class Editor(canvas.MultiCanvas):
     def draw_components(self, layer: canvas.Canvas = None):
         """
         Draws sheet components on canvas.
-        
+
         Parameters
         ----------
-        
+
         layer: Canvas = None
             Layer to draw sheet components on,
             if none specified it will draw on the component layer.
