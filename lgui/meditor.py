@@ -135,6 +135,10 @@ class History(list):
 
         self.append('S %s' % cptname)
 
+    def unselect(self):
+
+        self.append('U')
+
 
 class ModelBase:
 
@@ -185,11 +189,10 @@ class ModelBase:
         pass
 
     def select(self, cptname):
-        self.active_component = cptname
+        pass
 
     def unselect(self):
-        self.draw(self.active_component, 'black')
-        self.active_component = None
+        pass
 
 
 class ModelMPH(ModelBase):
@@ -200,6 +203,13 @@ class ModelMPH(ModelBase):
 
         self.cursors = []
         self.step = step
+
+    def unselect(self):
+
+        for cursor in self.cursors:
+            cursor.remove()
+        self.cursors = []
+        self.ui.refresh()
 
     def draw_cursor(self, x, y):
 
@@ -239,6 +249,7 @@ class ModelMPH(ModelBase):
         self.select(cptname)
 
     def on_unselect(self):
+        self.history.unselect()
         self.unselect()
 
     def on_add_node(self, x, y):
@@ -271,6 +282,21 @@ class ModelMPH(ModelBase):
         command = self.history.pop()
         print(command)
         # TODO, undo...
+
+    def on_key(self, key):
+
+        if key == 'escape':
+            self.unselect()
+        elif key in ('c', 'l', 'r', 'w'):
+            self.on_add_cpt(key.upper())
+
+    def on_left_click(self, x, y):
+
+        self.on_add_node(x, y)
+
+    def on_right_click(self, x, y):
+
+        pass
 
 
 class EditorBase:
@@ -377,9 +403,7 @@ class MatplotlibEditor(EditorBase):
             sys.exit()
 
         print(key)
-
-        if key in ('c', 'l', 'r', 'w'):
-            self.model.on_add_cpt(key.upper())
+        self.model.on_key(key)
 
     def on_click_event(self, event):
 
@@ -387,7 +411,10 @@ class MatplotlibEditor(EditorBase):
               ('double' if event.dblclick else 'single', event.button,
                event.x, event.y, event.xdata, event.ydata))
 
-        self.model.on_add_node(event.xdata, event.ydata)
+        if event.button == 1:
+            self.model.on_left_click(event.xdata, event.ydata)
+        elif event.button == 3:
+            self.model.on_right_click(event.xdata, event.ydata)
 
     def on_close(self, event):
         pass
