@@ -41,9 +41,8 @@ class Components(list):
 
         node_count = 0
 
-        s = ''
+        elts = []
         for cpt in self:
-            print(cpt.NAME)
             # Enumerate nodes (FIXME for node 0)
             for port in cpt.ports:
                 if port.position not in nodes:
@@ -81,8 +80,8 @@ class Components(list):
                 attr = 'rotate=%s' % angle
             parts.append('; ' + attr)
 
-            s += ' '.join(parts) + '\n'
-        print(s)
+            elts.append(' '.join(parts))
+        return '\n'.join(elts)
 
 
 class Cursor:
