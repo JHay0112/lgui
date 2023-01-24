@@ -24,16 +24,17 @@ class QuitTool(Tool):
 
 class Cursor:
 
-    def __init__(self, x, y):
+    def __init__(self, ui, x, y):
 
+        self.layer = ui.cursor_layer
         self.patch = None
         self.x = x
         self.y = y
 
-    def draw(self, ax, color='red'):
+    def draw(self, color='red'):
 
-        self.patch = patches.Circle((self.x, self.y), 0.5, fc=color, alpha=0.5)
-        ax.add_patch(self.patch)
+        self.patch = self.layer.stroke_filled_circle(self.x, self.y,
+                                                     color, alpha=0.5)
 
     def remove(self):
 
@@ -68,6 +69,16 @@ class Layer:
         self.stroke_line(xstart, yend, xend, yend)
         self.stroke_line(xend, yend, xend, ystart)
         self.stroke_line(xend, ystart, xstart, ystart)
+
+    def stroke_filled_circle(self, x, y, color='black', alpha=0.5):
+
+        patch = patches.Circle((x, y), 0.5, fc=color, alpha=alpha)
+        self.ax.add_patch(patch)
+        return patch
+
+    def remove(self, patch):
+
+        self.ax.remove(patch)
 
 
 class History(list):
@@ -125,13 +136,14 @@ class History(list):
         self.append('S %s' % cptname)
 
 
-class Editor:
+class ModelBase:
 
-    def __init__(self):
+    def __init__(self, ui):
 
         self.components = []
         self.active_component = None
         self.history = History()
+        self.ui = ui
 
     # Drawing commands
     def add(self, cptname, x1, y1, x2, y2):
@@ -153,8 +165,8 @@ class Editor:
         cpt.ports[1].position = (x2, y2)
 
         self.active_component = cpt
-        cpt.__draw_on__(self, self.component_layer)
-        self.fig.canvas.draw()
+        cpt.__draw_on__(self, self.ui.component_layer)
+        self.ui.refresh()
 
         self.components.append(cptname)
         self.select(cptname)
@@ -179,6 +191,49 @@ class Editor:
         self.draw(self.active_component, 'black')
         self.active_component = None
 
+
+class ModelMPH(ModelBase):
+
+    def __init__(self, ui, step):
+
+        super(ModelMPH, self).__init__(ui)
+
+        self.cursors = []
+        self.step = step
+
+    def draw_cursor(self, x, y):
+
+        step = self.step
+        x = (x + 0.5 * step) // step * step
+        y = (y + 0.5 * step) // step * step
+
+        cursor = Cursor(self.ui, x, y)
+
+        if len(self.cursors) == 0:
+            cursor.draw('red')
+            self.cursors.append(cursor)
+
+        elif len(self.cursors) == 1:
+            cursor.draw('blue')
+            self.cursors.append(cursor)
+
+        elif len(self.cursors) == 2:
+            self.cursors[0].remove()
+            self.cursors[1].remove()
+
+            r1 = (x - self.cursors[0].x)**2 + (y - self.cursors[0].y)**2
+            r2 = (x - self.cursors[1].x)**2 + (y - self.cursors[1].y)**2
+
+            if r2 > r1:
+                self.cursors[1] = cursor
+                self.cursors[0].draw('red')
+            else:
+                self.cursors[0] = cursor
+                self.cursors[1].draw('red')
+            cursor.draw('blue')
+
+        self.ui.refresh()
+
     # User interface commands
     def on_select(self, cptname):
         self.select(cptname)
@@ -191,7 +246,7 @@ class Editor:
         self.draw_cursor(x, y)
         self.history.add_node(x, y)
 
-    def on_add(self, cptname):
+    def on_add_cpt(self, cptname):
 
         if len(self.cursors) < 2:
             # TODO
@@ -218,7 +273,11 @@ class Editor:
         # TODO, undo...
 
 
-class MatplotlibEditor(Editor):
+class EditorBase:
+    pass
+
+
+class MatplotlibEditor(EditorBase):
 
     FIG_WIDTH = 6
     FIG_HEIGHT = 4
@@ -232,6 +291,7 @@ class MatplotlibEditor(Editor):
     def __init__(self):
 
         super(MatplotlibEditor, self).__init__()
+        self.model = ModelMPH(self, self.STEP)
 
         rcParams['keymap.xscale'].remove('L')
         rcParams['keymap.xscale'].remove('k')
@@ -241,6 +301,7 @@ class MatplotlibEditor(Editor):
         self.fig, self.ax = subplots(1, figsize=(self.FIG_WIDTH,
                                                  self.FIG_HEIGHT))
         self.fig.subplots_adjust(left=0.1, top=0.9, bottom=0.1, right=0.9)
+        self.ax.axis('equal')
 
         # Tools to add to the toolbar
         tools = [
@@ -267,6 +328,7 @@ class MatplotlibEditor(Editor):
         self.ax.set_yticklabels([])
         self.ax.grid()
 
+        # TODO: matplotlib uses on layer
         layer = Layer(self.ax)
 
         self.cursor_layer = layer
@@ -279,66 +341,27 @@ class MatplotlibEditor(Editor):
         # self.ax.spines['bottom'].set_color('none')
         # self.ax.spines['top'].set_color('none')
 
-        # Hack to remove default callback
-        #callbacks = self.fig.canvas.callbacks.callbacks['key_press_event']
-        #cid = list(callbacks.keys())[0]
-        # self.fig.canvas.mpl_disconnect(cid)
-
-        cid = self.fig.canvas.mpl_connect('button_press_event',
-                                          self.on_click_event)
+        self.cid = self.fig.canvas.mpl_connect('button_press_event',
+                                               self.on_click_event)
 
         self.kp_cid = self.fig.canvas.mpl_connect('key_press_event',
                                                   self.on_key_press_event)
 
         self.fig.canvas.mpl_connect('close_event', self.on_close)
 
-        self.active_component = None
-
         # Make fullscreen
-        # self.fig.canvas.manager.full_screen_toggle()
-
-        self.cursors = []
+        self.fig.canvas.manager.full_screen_toggle()
 
         # self.set_title()
         self.fig.show()
 
+    def refresh(self):
+
+        self.fig.canvas.draw()
+
     def quit(self):
         self.ret = None
         close(self.fig)
-
-    def draw_cursor(self, x, y):
-
-        # Snap to grid
-        step = self.STEP
-        x = (x + 0.5 * step) // step * step
-        y = (y + 0.5 * step) // step * step
-
-        cursor = Cursor(x, y)
-
-        if len(self.cursors) == 0:
-            cursor.draw(self.ax, 'red')
-            self.cursors.append(cursor)
-
-        elif len(self.cursors) == 1:
-            cursor.draw(self.ax, 'blue')
-            self.cursors.append(cursor)
-
-        elif len(self.cursors) == 2:
-            self.cursors[0].remove()
-            self.cursors[1].remove()
-
-            r1 = (x - self.cursors[0].x)**2 + (y - self.cursors[0].y)**2
-            r2 = (x - self.cursors[1].x)**2 + (y - self.cursors[1].y)**2
-
-            if r2 > r1:
-                self.cursors[1] = cursor
-                self.cursors[0].draw(self.ax, 'red')
-            else:
-                self.cursors[0] = cursor
-                self.cursors[1].draw(self.ax, 'red')
-            cursor.draw(self.ax, 'blue')
-
-        self.fig.canvas.draw()
 
     def on_key_press_event(self, event):
 
@@ -356,7 +379,7 @@ class MatplotlibEditor(Editor):
         print(key)
 
         if key in ('c', 'l', 'r', 'w'):
-            self.on_add(key.upper())
+            self.model.on_add_cpt(key.upper())
 
     def on_click_event(self, event):
 
@@ -364,7 +387,7 @@ class MatplotlibEditor(Editor):
               ('double' if event.dblclick else 'single', event.button,
                event.x, event.y, event.xdata, event.ydata))
 
-        self.on_add_node(event.xdata, event.ydata)
+        self.model.on_add_node(event.xdata, event.ydata)
 
     def on_close(self, event):
         pass
