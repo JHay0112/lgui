@@ -8,6 +8,7 @@ import ipycanvas as canvas
 from typing import Union
 from abc import ABC, abstractmethod
 
+
 class Node:
 
     """
@@ -21,6 +22,7 @@ class Node:
     def __eq__(self, other: 'Node') -> bool:
 
         return self.position == other.position
+
 
 class Component(ABC):
 
@@ -65,11 +67,18 @@ class Component(ABC):
         """
         ...
 
+    def __str__(self) -> str:
+
+        return self.TYPE + ' ' + '(%s, %s) (%s, %s)' % \
+            (self.ports[0].position[0], self.ports[0].position[1],
+             self.ports[1].position[0], self.ports[1].position[1])
+
     @abstractmethod
     def __draw_on__(self, editor, layer: canvas.Canvas):
-        """
-        Handles drawing specific features of components.
-        Component end nodes are handled by the draw_on method, which calls this abstract method.
+        """Handles drawing specific features of components.  Component end
+        nodes are handled by the draw_on method, which calls this
+        abstract method.
+
         """
         ...
 
@@ -84,23 +93,27 @@ class Component(ABC):
         p: float
             Proportion of length along component.
         """
-        delta = np.array(self.ports[1].position) - np.array(self.ports[0].position)
+        delta = np.array(self.ports[1].position) - \
+            np.array(self.ports[0].position)
         return p*delta
 
     def orthog(self, p: float) -> np.array:
-        """
-        Computes the point some proportion to the right (anti-clockwise) of the self.
-        This is relative to the position of the zero-th port.
+        """Computes the point some proportion to the right (anti-clockwise)
+        of the self.  This is relative to the position of the zero-th
+        port.
 
         Parameters
         ----------
 
         p: float
             Proportion of the length of the component.
+
         """
-        delta = np.array(self.ports[0].position) - np.array(self.ports[1].position) 
+        delta = np.array(self.ports[0].position) - \
+            np.array(self.ports[1].position)
         theta = np.pi/2
-        rot = np.array([[np.cos(theta), -np.sin(theta)], [np.sin(theta), np.cos(theta)]])
+        rot = np.array([[np.cos(theta), -np.sin(theta)],
+                       [np.sin(theta), np.cos(theta)]])
         return p*np.dot(rot, delta)
 
     def draw_on(self, editor, layer: canvas.Canvas):
@@ -124,4 +137,3 @@ class Component(ABC):
         end = self.ports[1].position
         layer.fill_arc(start[0], start[1], editor.STEP // 5, 0, 2 * np.pi)
         layer.fill_arc(end[0], end[1], editor.STEP // 5, 0, 2 * np.pi)
-        

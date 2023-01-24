@@ -22,6 +22,18 @@ class QuitTool(Tool):
     #  Can define image to point to a file to use for the icon
 
 
+class Components(list):
+
+    def add(self, cpt):
+
+        self.append(cpt)
+
+    def debug(self):
+
+        for cpt in self:
+            print(cpt)
+
+
 class Cursor:
 
     def __init__(self, ui, x, y):
@@ -163,7 +175,7 @@ class ModelBase:
 
     def __init__(self, ui):
 
-        self.components = []
+        self.components = Components()
         self.history = History()
         self.ui = ui
 
@@ -186,10 +198,11 @@ class ModelBase:
         cpt.ports[0].position = (x1, y1)
         cpt.ports[1].position = (x2, y2)
 
+        self.components.add(cpt)
+
         cpt.__draw_on__(self, self.ui.component_layer)
         self.ui.refresh()
 
-        self.components.append(cptname)
         self.select(cptname)
 
     def draw(self, cptname, **kwargs):
@@ -300,10 +313,12 @@ class ModelMPH(ModelBase):
 
     def on_debug(self):
 
-        print('History.........')
-        self.history.debug()
         print('Cursors.........')
         self.cursors.debug()
+        print('Components......')
+        self.components.debug()
+        print('History.........')
+        self.history.debug()
 
     def on_key(self, key):
 
