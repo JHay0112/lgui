@@ -145,7 +145,6 @@ class ModelBase:
     def __init__(self, ui):
 
         self.components = []
-        self.active_component = None
         self.history = History()
         self.ui = ui
 
@@ -168,7 +167,6 @@ class ModelBase:
         cpt.ports[0].position = (x1, y1)
         cpt.ports[1].position = (x2, y2)
 
-        self.active_component = cpt
         cpt.__draw_on__(self, self.ui.component_layer)
         self.ui.refresh()
 
@@ -285,7 +283,9 @@ class ModelMPH(ModelBase):
 
     def on_key(self, key):
 
-        if key == 'escape':
+        if key == 'ctrl+c':
+            self.ui.quit()
+        elif key == 'escape':
             self.unselect()
         elif key in ('c', 'l', 'r', 'w'):
             self.on_add_cpt(key.upper())
@@ -297,6 +297,10 @@ class ModelMPH(ModelBase):
     def on_right_click(self, x, y):
 
         pass
+
+    def on_close(self):
+
+        self.ui.quit()
 
 
 class EditorBase:
@@ -379,15 +383,14 @@ class MatplotlibEditor(EditorBase):
         self.fig.canvas.manager.full_screen_toggle()
 
         # self.set_title()
-        self.fig.show()
+
+    def display(self):
+
+        show()
 
     def refresh(self):
 
         self.fig.canvas.draw()
-
-    def quit(self):
-        self.ret = None
-        close(self.fig)
 
     def on_key_press_event(self, event):
 
@@ -396,13 +399,6 @@ class MatplotlibEditor(EditorBase):
             return
 
         key = event.key
-
-        print('roiplot key: %s' % key)
-
-        if key == 'ctrl+c':
-            sys.exit()
-
-        print(key)
         self.model.on_key(key)
 
     def on_click_event(self, event):
@@ -417,7 +413,9 @@ class MatplotlibEditor(EditorBase):
             self.model.on_right_click(event.xdata, event.ydata)
 
     def on_close(self, event):
-        pass
 
-    def display(self):
-        show()
+        self.model.on_close()
+
+    def quit(self):
+
+        sys.exit()
