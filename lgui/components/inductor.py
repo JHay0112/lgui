@@ -5,6 +5,7 @@ from typing import Union
 
 from .component import Component
 
+
 class Inductor(Component):
     """
     Inductor
@@ -27,7 +28,7 @@ class Inductor(Component):
 
         start_x, start_y = self.ports[0].position
         end_x, end_y = self.ports[1].position
-        
+
         LOOPS = 4
         LEAD_LENGTH = 0.2
         LOOP_RADIUS = (1 - 2*LEAD_LENGTH)/(2*LOOPS)
@@ -43,15 +44,16 @@ class Inductor(Component):
             np.clip(
                 np.dot(
                     offset/np.linalg.norm(offset), np.array([1, 0])
-                ), 
-            -1.0, 1.0)
+                ),
+                -1.0, 1.0)
         ) % np.pi
 
         # loops
         for l in range(LOOPS):
-            mid = self.along(LEAD_LENGTH + (2*l + 1)*LOOP_RADIUS) + (start_x, start_y)
+            mid = self.along(LEAD_LENGTH + (2*l + 1) *
+                             LOOP_RADIUS) + (start_x, start_y)
             layer.stroke_arc(
-                mid[0], mid[1], 
-                LOOP_RADIUS*editor.STEP/editor.SCALE, 
-                np.pi - angle_offset, -angle_offset 
+                mid[0], mid[1],
+                LOOP_RADIUS*editor.STEP/editor.SCALE,
+                np.pi - angle_offset, -angle_offset
             )
