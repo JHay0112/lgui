@@ -1,5 +1,5 @@
 import sys
-from matplotlib.pyplot import subplots, rcParams, close, show
+from matplotlib.pyplot import subplots, rcParams, show
 import matplotlib.patches as patches
 from matplotlib.backend_tools import ToolBase
 from numpy import arange
@@ -39,6 +39,20 @@ class Cursor:
     def remove(self):
 
         self.patch.remove()
+
+
+class Cursors(list):
+
+    def debug(self):
+
+        for cursor in self:
+            print('%s, %s' % (cursor.x, cursor.y))
+
+    def remove(self):
+
+        while self != []:
+            cursor = self.pop()
+            cursor.remove()
 
 
 class Layer:
@@ -90,6 +104,11 @@ class History(list):
     def add_node(self, x, y):
 
         self.append('N %s %s' % (x, y))
+
+    def debug(self):
+
+        for elt in self:
+            print(elt)
 
     def load(self, filename):
 
@@ -199,14 +218,12 @@ class ModelMPH(ModelBase):
 
         super(ModelMPH, self).__init__(ui)
 
-        self.cursors = []
+        self.cursors = Cursors()
         self.step = step
 
     def unselect(self):
 
-        for cursor in self.cursors:
-            cursor.remove()
-        self.cursors = []
+        self.cursors.remove()
         self.ui.refresh()
 
     def draw_cursor(self, x, y):
@@ -281,12 +298,21 @@ class ModelMPH(ModelBase):
         print(command)
         # TODO, undo...
 
+    def on_debug(self):
+
+        print('History.........')
+        self.history.debug()
+        print('Cursors.........')
+        self.cursors.debug()
+
     def on_key(self, key):
 
         if key == 'ctrl+c':
             self.ui.quit()
+        elif key == 'ctrl+d':
+            self.on_debug()
         elif key == 'escape':
-            self.unselect()
+            self.on_unselect()
         elif key in ('c', 'l', 'r', 'w'):
             self.on_add_cpt(key.upper())
 
