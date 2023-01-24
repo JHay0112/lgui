@@ -43,6 +43,7 @@ class Components(list):
 
         s = ''
         for cpt in self:
+            print(cpt.NAME)
             # Enumerate nodes (FIXME for node 0)
             for port in cpt.ports:
                 if port.position not in nodes:
@@ -316,7 +317,8 @@ class ModelMPH(ModelBase):
                 self.cursors[1] = cursor
                 self.cursors[0].draw('red')
             else:
-                self.cursors[0] = cursor
+                self.cursors[0] = self.cursors[1]
+                self.cursors[1] = cursor
                 self.cursors[1].draw('red')
             cursor.draw('blue')
 
