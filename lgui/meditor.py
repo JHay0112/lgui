@@ -4,6 +4,7 @@ import matplotlib.patches as patches
 from matplotlib.backend_tools import ToolBase
 from numpy import arange
 from .components import Capacitor, Inductor, Resistor, Wire
+from math import sqrt, degrees, atan2
 
 
 class Tool(ToolBase):
@@ -32,6 +33,55 @@ class Components(list):
 
         for cpt in self:
             print(cpt)
+
+    def as_sch(self, step):
+
+        nodes = {}
+        kinds = {}
+
+        node_count = 0
+
+        s = ''
+        for cpt in self:
+            # Enumerate nodes (FIXME for node 0)
+            for port in cpt.ports:
+                if port.position not in nodes:
+                    nodes[port.position] = node_count
+                    node_count += 1
+
+            # Enumerate components by type
+            if cpt.TYPE not in kinds:
+                kinds[cpt.TYPE] = 0
+            kinds[cpt.TYPE] += 1
+
+            parts = [cpt.TYPE + '%d' % kinds[cpt.TYPE]]
+            for port in cpt.ports:
+                parts.append('%d' % nodes[port.position])
+
+            x1, y1 = cpt.ports[0].position
+            x2, y2 = cpt.ports[1].position
+            r = sqrt((x1 - x2)**2 + (y1 - y2)**2) / step
+            if y1 == y2:
+                if r == 1:
+                    size = ''
+                else:
+                    size = '=%s' % r
+                if x1 > x2:
+                    attr = 'left' + size
+                else:
+                    attr = 'right' + size
+            elif x1 == x2:
+                if y1 > y2:
+                    attr = 'up' + size
+                else:
+                    attr = 'down' + size
+            else:
+                angle = degrees(atan2(y2 - y1, x2 - x1))
+                attr = 'rotate=%s' % angle
+            parts.append('; ' + attr)
+
+            s += ' '.join(parts) + '\n'
+        print(s)
 
 
 class Cursor:
@@ -313,6 +363,8 @@ class ModelMPH(ModelBase):
 
     def on_debug(self):
 
+        print('Netlist.........')
+        print(self.components.as_sch(self.step))
         print('Cursors.........')
         self.cursors.debug()
         print('Components......')
