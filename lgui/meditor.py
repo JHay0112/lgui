@@ -624,7 +624,7 @@ class ModelMPH(ModelBase):
             print(cpt.cname)
             if not self.edit_mode:
                 # Better to have a tooltip
-                self.ui.show_message(str(self.cct[cpt.cname].v))
+                self.ui.show_message_dialog(str(self.cct[cpt.cname].v))
 
     def on_right_click(self, x, y):
 
@@ -765,7 +765,7 @@ class MatplotlibEditor(EditorBase):
 
         sys.exit()
 
-    def show_message(self, message):
+    def show_message_dialog(self, message):
 
         from tkinter.messagebox import showinfo
         showinfo('', message)
