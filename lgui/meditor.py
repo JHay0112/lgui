@@ -306,20 +306,24 @@ class ModelMPH(ModelBase):
             self.cursors.append(cursor)
 
         elif len(self.cursors) == 2:
-            self.cursors[0].remove()
-            self.cursors[1].remove()
 
-            r1 = (x - self.cursors[0].x)**2 + (y - self.cursors[0].y)**2
-            r2 = (x - self.cursors[1].x)**2 + (y - self.cursors[1].y)**2
+            rp = (x - self.cursors[0].x)**2 + (y - self.cursors[0].y)**2
+            rm = (x - self.cursors[1].x)**2 + (y - self.cursors[1].y)**2
 
-            if r2 > r1:
+            if rm > rp:
+                # Close to plus cursor so add new minus cursor
+                self.cursors[1].remove()
                 self.cursors[1] = cursor
-                self.cursors[0].draw('red')
+                self.cursors[1].draw('blue')
             else:
+                # Close to minus cursor so change minus cursor to plus cursor
+                # and add new minus cursor
+                self.cursors[0].remove()
+                self.cursors[1].remove()
                 self.cursors[0] = self.cursors[1]
+                self.cursors[0].draw('red')
                 self.cursors[1] = cursor
-                self.cursors[1].draw('red')
-            cursor.draw('blue')
+                self.cursors[1].draw('blue')
 
         self.ui.refresh()
 
@@ -429,6 +433,11 @@ class MatplotlibEditor(EditorBase):
     SCALE = 0.25
 
     def __init__(self):
+
+        # Default Linux backend was TkAgg now QtAgg
+        # Default Windows backend Qt4Agg
+        import matplotlib.pyplot as p
+        print(p.get_backend())
 
         super(MatplotlibEditor, self).__init__()
         self.model = ModelMPH(self, self.STEP)
