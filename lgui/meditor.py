@@ -323,6 +323,13 @@ class ModelMPH(ModelBase):
 
         self.ui.refresh()
 
+    def save(self, filename):
+
+        s = self.components.as_sch(self.step)
+
+        with open(filename, 'w') as fhandle:
+            fhandle.write(s)
+
     # User interface commands
     def on_select(self, cptname):
         self.select(cptname)
@@ -373,10 +380,19 @@ class ModelMPH(ModelBase):
         print('History.........')
         self.history.debug()
 
+    def on_save(self):
+
+        filename = self.ui.save_file_dialog('')
+        if filename == '':
+            return
+        self.save(filename)
+
     def on_key(self, key):
 
         if key == 'ctrl+c':
             self.ui.quit()
+        elif key == 'ctrl+s':
+            self.on_save()
         elif key == 'ctrl+d':
             self.on_debug()
         elif key == 'escape':
@@ -420,11 +436,14 @@ class MatplotlibEditor(EditorBase):
         rcParams['keymap.xscale'].remove('L')
         rcParams['keymap.xscale'].remove('k')
         rcParams['keymap.yscale'].remove('l')
+        rcParams['keymap.save'].remove('s')
+        rcParams['keymap.save'].remove('ctrl+s')
 
         rcParams['toolbar'] = 'toolmanager'
         self.fig, self.ax = subplots(1, figsize=(self.FIG_WIDTH,
                                                  self.FIG_HEIGHT))
-        self.fig.subplots_adjust(left=0.1, top=0.9, bottom=0.1, right=0.9)
+        self.fig.subplots_adjust(
+            left=0.1, top=0.9, bottom=0.1, right=0.9)
         self.ax.axis('equal')
 
         # Tools to add to the toolbar
@@ -513,3 +532,29 @@ class MatplotlibEditor(EditorBase):
     def quit(self):
 
         sys.exit()
+
+    def open_file_dialog(self, initialdir='.'):
+
+        from tkinter.filedialog import askopenfilename
+
+        filename = askopenfilename(initialdir=initialdir,
+                                   title="Select file",
+                                   filetypes=(("Lcapy netlist", "*.sch"),))
+        return filename
+
+    def save_file_dialog(self, filename):
+
+        from tkinter.filedialog import asksaveasfilename
+        from os.path import dirname, splitext, basename
+
+        dirname = dirname(filename)
+        basename, ext = splitext(basename(filename))
+
+        options = {}
+        options['defaultextension'] = ext
+        options['filetypes'] = (("Lcapy netlist", "*.sch"),)
+        options['initialdir'] = dirname
+        options['initialfile'] = filename
+        options['title'] = "Save file"
+
+        return asksaveasfilename(**options)
