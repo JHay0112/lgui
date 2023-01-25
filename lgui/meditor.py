@@ -3,7 +3,8 @@ from matplotlib.pyplot import subplots, rcParams, show
 import matplotlib.patches as patches
 from matplotlib.backend_tools import ToolBase
 from numpy import arange
-from .components import Capacitor, Inductor, Resistor, Wire
+from .components import Capacitor, CurrentSupply, Inductor, \
+    Resistor, VoltageSupply, Wire
 from math import sqrt, degrees, atan2
 
 
@@ -126,10 +127,14 @@ class Layer:
 
     def stroke_line(self, xstart, ystart, xend, yend):
 
-        self.ax.plot((xstart, xend), (ystart, yend), '-', color=self.color)
+        return self.ax.plot((xstart, xend), (ystart, yend), '-',
+                            color=self.color)
 
-    def stroke_arc(self, xstart, ystart, foo, r, theta):
-        pass
+    def stroke_arc(self, x, y, r, theta1, theta2):
+
+        patch = patches.Arc((x, y), r, r, 0, degrees(theta1), degrees(theta2))
+        self.ax.add_patch(patch)
+        return patch
 
     def clear(self):
 
@@ -223,6 +228,9 @@ class History(list):
 
 class ModelBase:
 
+    STEP = 2
+    SCALE = 0.25
+
     def __init__(self, ui):
 
         self.components = Components()
@@ -235,10 +243,14 @@ class ModelBase:
 
         if cptname == 'C':
             cpt = Capacitor(0)
+        elif cptname == 'I':
+            cpt = CurrentSupply(0)
         elif cptname == 'L':
             cpt = Inductor(0)
         elif cptname == 'R':
             cpt = Resistor(0)
+        elif cptname == 'V':
+            cpt = VoltageSupply(0)
         elif cptname == 'W':
             cpt = Wire()
         else:
@@ -277,12 +289,11 @@ class ModelBase:
 
 class ModelMPH(ModelBase):
 
-    def __init__(self, ui, step):
+    def __init__(self, ui):
 
         super(ModelMPH, self).__init__(ui)
 
         self.cursors = Cursors()
-        self.step = step
 
     def unselect(self):
 
@@ -291,7 +302,7 @@ class ModelMPH(ModelBase):
 
     def draw_cursor(self, x, y):
 
-        step = self.step
+        step = self.STEP
         x = (x + 0.5 * step) // step * step
         y = (y + 0.5 * step) // step * step
 
@@ -329,7 +340,7 @@ class ModelMPH(ModelBase):
 
     def save(self, filename):
 
-        s = self.components.as_sch(self.step)
+        s = self.components.as_sch(self.STEP)
 
         with open(filename, 'w') as fhandle:
             fhandle.write(s)
@@ -376,7 +387,7 @@ class ModelMPH(ModelBase):
     def on_debug(self):
 
         print('Netlist.........')
-        print(self.components.as_sch(self.step))
+        print(self.components.as_sch(self.STEP))
         print('Cursors.........')
         self.cursors.debug()
         print('Components......')
@@ -401,7 +412,7 @@ class ModelMPH(ModelBase):
             self.on_debug()
         elif key == 'escape':
             self.on_unselect()
-        elif key in ('c', 'l', 'r', 'w'):
+        elif key in ('c', 'i', 'l', 'r', 'v', 'w'):
             self.on_add_cpt(key.upper())
 
     def on_left_click(self, x, y):
@@ -429,18 +440,17 @@ class MatplotlibEditor(EditorBase):
     XSIZE = 60
     YSIZE = 40
 
-    STEP = 2
-    SCALE = 0.25
-
     def __init__(self):
 
         # Default Linux backend was TkAgg now QtAgg
         # Default Windows backend Qt4Agg
         import matplotlib.pyplot as p
         print(p.get_backend())
+        # Need TkAgg if using Tkinter file dialogs
+        p.switch_backend('TkAgg')
 
         super(MatplotlibEditor, self).__init__()
-        self.model = ModelMPH(self, self.STEP)
+        self.model = ModelMPH(self)
 
         rcParams['keymap.xscale'].remove('L')
         rcParams['keymap.xscale'].remove('k')
