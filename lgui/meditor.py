@@ -26,8 +26,18 @@ class QuitTool(Tool):
 
 class Components(list):
 
+    def __init__(self):
+
+        super(Components, self).__init__(self)
+        self.kinds = {}
+
     def add(self, cpt):
 
+        if cpt.TYPE not in self.kinds:
+            self.kinds[cpt.TYPE] = 0
+        self.kinds[cpt.TYPE] += 1
+        # Hack, update component class to have this attribute
+        cpt.cname = cpt.TYPE + '%d' % self.kinds[cpt.TYPE]
         self.append(cpt)
 
     def debug(self):
@@ -38,7 +48,6 @@ class Components(list):
     def as_sch(self, step):
 
         nodes = {}
-        kinds = {}
 
         node_count = 0
 
@@ -50,14 +59,13 @@ class Components(list):
                     nodes[port.position] = node_count
                     node_count += 1
 
-            # Enumerate components by type
-            if cpt.TYPE not in kinds:
-                kinds[cpt.TYPE] = 0
-            kinds[cpt.TYPE] += 1
+            parts = [cpt.cname]
 
-            parts = [cpt.TYPE + '%d' % kinds[cpt.TYPE]]
             for port in cpt.ports:
                 parts.append('%d' % nodes[port.position])
+
+            if cpt.value is not None:
+                parts.append(cpt.value)
 
             x1, y1 = cpt.ports[0].position
             x2, y2 = cpt.ports[1].position
@@ -241,18 +249,18 @@ class ModelBase:
 
     # Drawing commands
     def add(self, cptname, x1, y1, x2, y2):
-        # Create component from name
 
+        # Create component from name
         if cptname == 'C':
-            cpt = Capacitor(0)
+            cpt = Capacitor(None)
         elif cptname == 'I':
-            cpt = CurrentSupply(0)
+            cpt = CurrentSupply(None)
         elif cptname == 'L':
-            cpt = Inductor(0)
+            cpt = Inductor(None)
         elif cptname == 'R':
-            cpt = Resistor(0)
+            cpt = Resistor(None)
         elif cptname == 'V':
-            cpt = VoltageSupply(0)
+            cpt = VoltageSupply(None)
         elif cptname == 'W':
             cpt = Wire()
         else:
