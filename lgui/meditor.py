@@ -28,6 +28,11 @@ class EditTool(Tool):
     description = 'Edit'
 
 
+class ExportTool(Tool):
+    # default_keymap = 'ctrl+x'
+    description = 'Export'
+
+
 class LoadTool(Tool):
     # default_keymap = 'ctrl+l'
     description = 'Load'
@@ -40,7 +45,7 @@ class QuitTool(Tool):
 
 class SaveTool(Tool):
     # default_keymap = 'ctrl+s'
-    description = 'View'
+    description = 'Save'
 
 
 class ViewTool(Tool):
@@ -419,14 +424,19 @@ class ModelBase:
         cct = Circuit(s)
         return cct
 
+    def analyze(self):
+
+        self.cct = self.circuit()
+
+    def export(self, filename):
+
+        cct = self.circuit()
+        cct.draw(filename)
+
     def view(self):
 
         cct = self.circuit()
         cct.draw()
-
-    def analyze(self):
-
-        self.cct = self.circuit()
 
 
 class ModelMPH(ModelBase):
@@ -492,6 +502,13 @@ class ModelMPH(ModelBase):
             self.ui.refresh()
 
         self.analyze()
+
+    def on_export(self):
+
+        filename = self.ui.export_file_dialog('')
+        if filename == '':
+            return
+        self.export(filename)
 
     def on_view(self):
 
@@ -603,6 +620,7 @@ class ModelMPH(ModelBase):
             # TODO, select component
             print(cpt.cname)
             if not self.edit_mode:
+                # Better to have a tooltip
                 self.ui.show_message(str(self.cct[cpt.cname].v))
 
     def on_right_click(self, x, y):
@@ -655,6 +673,7 @@ class MatplotlibEditor(EditorBase):
         tools = [
             ['Load', LoadTool, self.model.on_load],
             ['Save', SaveTool, self.model.on_save],
+            ['Export', ExportTool, self.model.on_export],
             ['View', ViewTool, self.model.on_view],
             ['Edit', EditTool, self.model.on_edit],
             ['Analyze', AnalyzeTool, self.model.on_analyze],
@@ -771,5 +790,26 @@ class MatplotlibEditor(EditorBase):
         options['initialdir'] = dirname
         options['initialfile'] = filename
         options['title'] = "Save file"
+
+        return asksaveasfilename(**options)
+
+    def export_file_dialog(self, filename):
+
+        from tkinter.filedialog import asksaveasfilename
+        from os.path import dirname, splitext, basename
+
+        dirname = dirname(filename)
+        basename, ext = splitext(basename(filename))
+
+        options = {}
+        options['defaultextension'] = ext
+        options['filetypes'] = (("Embeddable LaTeX", "*.schtex"),
+                                ("Standalone LaTeX", "*.tex"),
+                                ("PNG image", "*.png"),
+                                ("SVG image", "*.svg"),
+                                ("PDF", "*.pdf"))
+        options['initialdir'] = dirname
+        options['initialfile'] = filename
+        options['title'] = "Export file"
 
         return asksaveasfilename(**options)
