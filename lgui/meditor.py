@@ -362,25 +362,30 @@ class ModelBase:
 
         self.select(cptname)
 
+    def circuit(self):
+
+        from lcapy import Circuit
+
+        s = self.components.as_sch(self.STEP)
+        # Note, need a newline so string treated as a netlist string
+        s += '\n; draw_nodes=connections'
+        cct = Circuit(s)
+        return cct
+
+    def analyze(self):
+
+        self.cct = self.circuit()
+
     def draw(self, cpt, **kwargs):
 
         if cpt is None:
             return
         cpt.draw(**kwargs)
 
-    def move(self, xshift, yshift):
-        # TODO
-        pass
+    def export(self, filename):
 
-    def rotate(self, angle):
-        # TODO
-        pass
-
-    def select(self, cptname):
-        pass
-
-    def unselect(self):
-        pass
+        cct = self.circuit()
+        cct.draw(filename)
 
     def load(self, filename):
 
@@ -410,6 +415,14 @@ class ModelBase:
                      elt.nodes[-1].pos.x + offsetx,
                      elt.nodes[-1].pos.y + offsety)
 
+    def move(self, xshift, yshift):
+        # TODO
+        pass
+
+    def rotate(self, angle):
+        # TODO
+        pass
+
     def save(self, filename):
 
         s = self.components.as_sch(self.STEP)
@@ -417,24 +430,11 @@ class ModelBase:
         with open(filename, 'w') as fhandle:
             fhandle.write(s)
 
-    def circuit(self):
+    def select(self, cptname):
+        pass
 
-        from lcapy import Circuit
-
-        s = self.components.as_sch(self.STEP)
-        # Note, need a newline so string treated as a netlist string
-        s += '\n; draw_nodes=connections'
-        cct = Circuit(s)
-        return cct
-
-    def analyze(self):
-
-        self.cct = self.circuit()
-
-    def export(self, filename):
-
-        cct = self.circuit()
-        cct.draw(filename)
+    def unselect(self):
+        pass
 
     def view(self):
 
@@ -449,11 +449,6 @@ class ModelMPH(ModelBase):
         super(ModelMPH, self).__init__(ui)
 
         self.cursors = Cursors()
-
-    def unselect(self):
-
-        self.cursors.remove()
-        self.ui.refresh()
 
     def draw_cursor(self, x, y):
 
@@ -493,37 +488,10 @@ class ModelMPH(ModelBase):
 
         self.ui.refresh()
 
-    def on_edit(self):
+    def unselect(self):
 
-        self.edit_mode = True
-
-    def on_analyze(self):
-
-        if self.edit_mode:
-            self.edit_mode = False
-            self.cursors.remove()
-            self.ui.refresh()
-
-        self.analyze()
-
-    def on_export(self):
-
-        filename = self.ui.export_file_dialog(self.filename)
-        if filename == '':
-            return
-        self.export(filename)
-
-    def on_view(self):
-
-        self.view()
-
-    # User interface commands
-    def on_select(self, cptname):
-        self.select(cptname)
-
-    def on_unselect(self):
-        self.history.unselect()
-        self.unselect()
+        self.cursors.remove()
+        self.ui.refresh()
 
     def on_add_node(self, x, y):
 
@@ -543,18 +511,18 @@ class ModelMPH(ModelBase):
         self.history.add(cptname, x1, y1, x2, y2)
         self.add(cptname, x1, y1, x2, y2)
 
-    def on_move(self, xshift, yshift):
-        self.history.move(xshift, yshift)
-        self.move(xshift, yshift)
+    def on_analyze(self):
 
-    def on_rotate(self, angle):
-        self.history.rotate(angle)
-        self.rotate(angle)
+        if self.edit_mode:
+            self.edit_mode = False
+            self.cursors.remove()
+            self.ui.refresh()
 
-    def on_undo(self):
-        command = self.history.pop()
-        print(command)
-        # TODO, undo...
+        self.analyze()
+
+    def on_close(self):
+
+        self.quit()
 
     def on_debug(self):
 
@@ -569,19 +537,31 @@ class ModelMPH(ModelBase):
         print('History.........')
         self.history.debug()
 
-    def on_load(self):
+    def on_edit(self):
 
-        filename = self.ui.open_file_dialog()
+        self.edit_mode = True
+
+    def on_export(self):
+
+        filename = self.ui.export_file_dialog(self.filename)
         if filename == '':
             return
-        self.load(filename)
+        self.export(filename)
 
-    def on_save(self):
+    def on_move(self, xshift, yshift):
+        self.history.move(xshift, yshift)
+        self.move(xshift, yshift)
 
-        filename = self.ui.save_file_dialog(self.filename)
-        if filename == '':
-            return
-        self.save(filename)
+    def on_rotate(self, angle):
+        self.history.rotate(angle)
+        self.rotate(angle)
+
+    def on_select(self, cptname):
+        self.select(cptname)
+
+    def on_unselect(self):
+        self.history.unselect()
+        self.unselect()
 
     def on_key(self, key):
 
@@ -626,13 +606,32 @@ class ModelMPH(ModelBase):
                 # Better to have a tooltip
                 self.ui.show_message_dialog(str(self.cct[cpt.cname].v))
 
+    def on_load(self):
+
+        filename = self.ui.open_file_dialog()
+        if filename == '':
+            return
+        self.load(filename)
+
     def on_right_click(self, x, y):
 
         pass
 
-    def on_close(self):
+    def on_save(self):
 
-        self.ui.quit()
+        filename = self.ui.save_file_dialog(self.filename)
+        if filename == '':
+            return
+        self.save(filename)
+
+    def on_undo(self):
+        command = self.history.pop()
+        print(command)
+        # TODO, undo...
+
+    def on_view(self):
+
+        self.view()
 
 
 class EditorBase:
