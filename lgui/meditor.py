@@ -58,6 +58,12 @@ class Components(list):
         cpt.cname = cpt.TYPE + '%d' % self.kinds[cpt.TYPE]
         self.append(cpt)
 
+    def clear(self):
+
+        while self != []:
+            # TODO erase component
+            self.pop()
+
     def debug(self):
 
         for cpt in self:
@@ -111,6 +117,19 @@ class Components(list):
 
             elts.append(' '.join(parts))
         return '\n'.join(elts)
+
+    def closest(self, x, y):
+
+        for cpt in self:
+            x1, y1 = cpt.ports[0].position
+            x2, y2 = cpt.ports[1].position
+            s = sqrt((x2 - x1)**2 + (y2 - y1)**2)
+            r1 = sqrt((x1 - x)**2 + (y1 - y)**2)
+            r2 = sqrt((x2 - x)**2 + (y2 - y)**2)
+            # print(cpt.cname, r1, r2, s)
+            if (r1 + r2) < 1.2 * s:
+                return cpt
+        return None
 
 
 class Cursor:
@@ -295,10 +314,11 @@ class ModelBase:
 
         self.select(cptname)
 
-    def draw(self, cptname, **kwargs):
-        if cptname is None:
+    def draw(self, cpt, **kwargs):
+
+        if cpt is None:
             return
-        cptname.draw(**kwargs)
+        cpt.draw(**kwargs)
 
     def move(self, xshift, yshift):
         # TODO
@@ -365,6 +385,32 @@ class ModelMPH(ModelBase):
                 self.cursors[1].draw('blue')
 
         self.ui.refresh()
+
+    def load(self, filename):
+
+        from lcapy import Circuit
+
+        # self.ui.component_layer.clear()
+        self.components.clear()
+
+        cct = Circuit(filename)
+        sch = cct.sch
+
+        sch._positions_calculate()
+
+        # TODO: centre nicely
+        offsetx = 20
+        offsety = 20
+
+        elements = sch.elements
+        for elt in elements.values():
+            print(elt.name, elt.nodes[0].pos.x, elt.nodes[0].pos.y,
+                  elt.nodes[-1].pos.x, elt.nodes[-1].pos.y)
+            # TODO: allow component name
+            self.add(elt.type, elt.nodes[0].pos.x + offsetx,
+                     elt.nodes[0].pos.y + offsety,
+                     elt.nodes[-1].pos.x + offsetx,
+                     elt.nodes[-1].pos.y + offsety)
 
     def save(self, filename):
 
@@ -434,8 +480,11 @@ class ModelMPH(ModelBase):
         self.history.debug()
 
     def on_load(self):
-        # TODO
-        pass
+
+        filename = self.ui.open_file_dialog()
+        if filename == '':
+            return
+        self.load(filename)
 
     def on_save(self):
 
@@ -463,7 +512,12 @@ class ModelMPH(ModelBase):
 
     def on_left_click(self, x, y):
 
-        self.on_add_node(x, y)
+        cpt = self.components.closest(x, y)
+        if cpt is None:
+            self.on_add_node(x, y)
+        else:
+            # TODO, select component
+            print(cpt.cname)
 
     def on_right_click(self, x, y):
 
@@ -486,7 +540,7 @@ class MatplotlibEditor(EditorBase):
     XSIZE = 60
     YSIZE = 40
 
-    def __init__(self):
+    def __init__(self, filename=None):
 
         # Default Linux backend was TkAgg now QtAgg
         # Default Windows backend Qt4Agg
@@ -561,6 +615,9 @@ class MatplotlibEditor(EditorBase):
         self.fig.canvas.manager.full_screen_toggle()
 
         # self.set_title()
+
+        if filename is not None:
+            self.model.load(filename)
 
     def display(self):
 

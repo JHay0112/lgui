@@ -41,13 +41,11 @@ def main(argv=None):
 
     args = parser.parse_args()
 
-#    infilename = args.filename
-
     if args.pdb:
         sys.excepthook = schtex_exception
 
     from lgui.meditor import MatplotlibEditor
-    e = MatplotlibEditor()
+    e = MatplotlibEditor(args.filename)
     e.display()
 
     return 0
