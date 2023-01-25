@@ -396,6 +396,7 @@ class ModelMPH(ModelBase):
         cct = Circuit(filename)
         sch = cct.sch
 
+        # TODO: handle wails of protest if something wrong
         sch._positions_calculate()
 
         # TODO: centre nicely
