@@ -74,8 +74,8 @@ class Nodes(list):
 
         for node in self:
             x1, y1 = node
-            r = sqrt((x1 - x)**2 + (y1 - y)**2)
-            if r < 0.3:
+            rsq = (x1 - x)**2 + (y1 - y)**2
+            if rsq < 0.1:
                 return node
         return None
 
@@ -163,9 +163,9 @@ class Components(list):
             x2, y2 = cpt.ports[1].position
             xmid = (x1 + x2) / 2
             ymid = (y1 + y2) / 2
-            r = sqrt((xmid - x)**2 + (ymid - y)**2)
-            s = sqrt((x2 - x1)**2 + (y2 - y1)**2)
-            if r < 0.3 * s:
+            rsq = (xmid - x)**2 + (ymid - y)**2
+            ssq = (x2 - x1)**2 + (y2 - y1)**2
+            if rsq < 0.1 * ssq:
                 return cpt
         return None
 
@@ -583,6 +583,19 @@ class ModelMPH(ModelBase):
     def on_left_click(self, x, y):
 
         cpt = self.components.closest(x, y)
+        node = self.nodes.closest(x, y)
+
+        # TODO: in future want to be able to edit node attributes as
+        # well as place cursor on node.  Perhaps have an inspect mode?
+        # The easiest option is to use a different mouse button but
+        # this not available in browser implementations.
+
+        if node:
+            print(node)
+
+        if cpt and node:
+            print('Selected both node %s and cpt %s' % (node, cpt))
+
         if cpt is None:
             if self.edit_mode:
                 self.on_add_node(x, y)
@@ -590,7 +603,7 @@ class ModelMPH(ModelBase):
             # TODO, select component
             print(cpt.cname)
             if not self.edit_mode:
-                print(self.cct[cpt.cname].v)
+                self.ui.show_message(str(self.cct[cpt.cname].v))
 
     def on_right_click(self, x, y):
 
@@ -729,6 +742,11 @@ class MatplotlibEditor(EditorBase):
     def quit(self):
 
         sys.exit()
+
+    def show_message(self, message):
+
+        from tkinter.messagebox import showinfo
+        showinfo('', message)
 
     def open_file_dialog(self, initialdir='.'):
 
