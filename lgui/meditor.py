@@ -62,20 +62,22 @@ class Components(list):
             x1, y1 = cpt.ports[0].position
             x2, y2 = cpt.ports[1].position
             r = sqrt((x1 - x2)**2 + (y1 - y2)**2) / step
+
+            if r == 1:
+                size = ''
+            else:
+                size = '=%s' % r
+
             if y1 == y2:
-                if r == 1:
-                    size = ''
-                else:
-                    size = '=%s' % r
                 if x1 > x2:
                     attr = 'left' + size
                 else:
                     attr = 'right' + size
             elif x1 == x2:
                 if y1 > y2:
-                    attr = 'up' + size
-                else:
                     attr = 'down' + size
+                else:
+                    attr = 'up' + size
             else:
                 angle = degrees(atan2(y2 - y1, x2 - x1))
                 attr = 'rotate=%s' % angle
@@ -345,6 +347,17 @@ class ModelMPH(ModelBase):
         with open(filename, 'w') as fhandle:
             fhandle.write(s)
 
+    def view(self):
+
+        from lcapy import Circuit
+
+        s = self.components.as_sch(self.STEP)
+        # Note, need a newline so string treated as a netlist string
+        s += '\n; draw_nodes=connections'
+        cct = Circuit(s)
+        print(cct)
+        cct.draw()
+
     # User interface commands
     def on_select(self, cptname):
         self.select(cptname)
@@ -406,10 +419,12 @@ class ModelMPH(ModelBase):
 
         if key == 'ctrl+c':
             self.ui.quit()
-        elif key == 'ctrl+s':
-            self.on_save()
         elif key == 'ctrl+d':
             self.on_debug()
+        elif key == 'ctrl+s':
+            self.on_save()
+        elif key == 'ctrl+v':
+            self.view()
         elif key == 'escape':
             self.on_unselect()
         elif key in ('c', 'i', 'l', 'r', 'v', 'w'):
