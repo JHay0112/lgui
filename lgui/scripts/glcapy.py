@@ -44,8 +44,8 @@ def main(argv=None):
     if args.pdb:
         sys.excepthook = schtex_exception
 
-    from lgui.meditor import MatplotlibEditor
-    e = MatplotlibEditor(args.filename)
+    from lgui.ui.matplotlib_tkinter import Editor
+    e = Editor(args.filename)
     e.display()
 
     return 0

@@ -1,0 +1,2 @@
+class EditorBase:
+    pass
