@@ -329,6 +329,7 @@ class ModelBase:
         self.ui = ui
         self.edit_mode = True
         self.cct = None
+        self.filename = ''
 
     # Drawing commands
     def add(self, cptname, x1, y1, x2, y2):
@@ -384,6 +385,8 @@ class ModelBase:
     def load(self, filename):
 
         from lcapy import Circuit
+
+        self.filename = filename
 
         # TODO: FIXME
         # self.ui.component_layer.clear()
@@ -505,7 +508,7 @@ class ModelMPH(ModelBase):
 
     def on_export(self):
 
-        filename = self.ui.export_file_dialog('')
+        filename = self.ui.export_file_dialog(self.filename)
         if filename == '':
             return
         self.export(filename)
@@ -575,7 +578,7 @@ class ModelMPH(ModelBase):
 
     def on_save(self):
 
-        filename = self.ui.save_file_dialog('')
+        filename = self.ui.save_file_dialog(self.filename)
         if filename == '':
             return
         self.save(filename)
@@ -809,7 +812,7 @@ class MatplotlibEditor(EditorBase):
                                 ("SVG image", "*.svg"),
                                 ("PDF", "*.pdf"))
         options['initialdir'] = dirname
-        options['initialfile'] = filename
+        options['initialfile'] = basename + '.pdf'
         options['title'] = "Export file"
 
         return asksaveasfilename(**options)
