@@ -24,6 +24,24 @@ class QuitTool(Tool):
     #  Can define image to point to a file to use for the icon
 
 
+class LoadTool(Tool):
+    # default_keymap = 'ctrl+l'
+    description = 'Load'
+    #  Can define image to point to a file to use for the icon
+
+
+class SaveTool(Tool):
+    # default_keymap = 'ctrl+s'
+    description = 'View'
+    #  Can define image to point to a file to use for the icon
+
+
+class ViewTool(Tool):
+    # default_keymap = 'ctrl+v'
+    description = 'View'
+    #  Can define image to point to a file to use for the icon
+
+
 class Components(list):
 
     def __init__(self):
@@ -355,7 +373,7 @@ class ModelMPH(ModelBase):
         with open(filename, 'w') as fhandle:
             fhandle.write(s)
 
-    def view(self):
+    def on_view(self):
 
         from lcapy import Circuit
 
@@ -363,7 +381,6 @@ class ModelMPH(ModelBase):
         # Note, need a newline so string treated as a netlist string
         s += '\n; draw_nodes=connections'
         cct = Circuit(s)
-        print(cct)
         cct.draw()
 
     # User interface commands
@@ -416,6 +433,10 @@ class ModelMPH(ModelBase):
         print('History.........')
         self.history.debug()
 
+    def on_load(self):
+        # TODO
+        pass
+
     def on_save(self):
 
         filename = self.ui.save_file_dialog('')
@@ -429,10 +450,12 @@ class ModelMPH(ModelBase):
             self.ui.quit()
         elif key == 'ctrl+d':
             self.on_debug()
+        elif key == 'ctrl+l':
+            self.on_load()
         elif key == 'ctrl+s':
             self.on_save()
         elif key == 'ctrl+v':
-            self.view()
+            self.on_view()
         elif key == 'escape':
             self.on_unselect()
         elif key in ('c', 'i', 'l', 'r', 'v', 'w'):
@@ -490,9 +513,9 @@ class MatplotlibEditor(EditorBase):
 
         # Tools to add to the toolbar
         tools = [
-            # ['Annotate', AnnotateTool, self.comment],
-            # ['Play', PlayTool, self.play],
-            # ['Extract', ExtractTool, self.extract],
+            ['Load', LoadTool, self.model.on_load],
+            ['Save', SaveTool, self.model.on_save],
+            ['View', ViewTool, self.model.on_view],
             ['Quit', QuitTool, self.quit]]
 
         for tool in tools:
