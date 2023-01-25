@@ -18,28 +18,66 @@ class Tool(ToolBase):
         self.func()
 
 
-class QuitTool(Tool):
-    # default_keymap = 'q'
-    description = 'Quit'
-    #  Can define image to point to a file to use for the icon
+class AnalyzeTool(Tool):
+    # default_keymap = 'ctrl+a'
+    description = 'Analyze'
+
+
+class EditTool(Tool):
+    # default_keymap = 'ctrl+e'
+    description = 'Edit'
 
 
 class LoadTool(Tool):
     # default_keymap = 'ctrl+l'
     description = 'Load'
-    #  Can define image to point to a file to use for the icon
+
+
+class QuitTool(Tool):
+    # default_keymap = 'q'
+    description = 'Quit'
 
 
 class SaveTool(Tool):
     # default_keymap = 'ctrl+s'
     description = 'View'
-    #  Can define image to point to a file to use for the icon
 
 
 class ViewTool(Tool):
     # default_keymap = 'ctrl+v'
     description = 'View'
-    #  Can define image to point to a file to use for the icon
+
+
+class Nodes(list):
+
+    def __init__(self):
+
+        super(Nodes, self).__init__(self)
+
+    def add(self, *nodes):
+
+        for node in nodes:
+            if node not in self:
+                self.append(node)
+
+    def clear(self):
+
+        while self != []:
+            self.pop()
+
+    def debug(self):
+
+        for node in self:
+            print(node)
+
+    def closest(self, x, y):
+
+        for node in self:
+            x1, y1 = node
+            r = sqrt((x1 - x)**2 + (y1 - y)**2)
+            if r < 0.3:
+                return node
+        return None
 
 
 class Components(list):
@@ -123,11 +161,11 @@ class Components(list):
         for cpt in self:
             x1, y1 = cpt.ports[0].position
             x2, y2 = cpt.ports[1].position
+            xmid = (x1 + x2) / 2
+            ymid = (y1 + y2) / 2
+            r = sqrt((xmid - x)**2 + (ymid - y)**2)
             s = sqrt((x2 - x1)**2 + (y2 - y1)**2)
-            r1 = sqrt((x1 - x)**2 + (y1 - y)**2)
-            r2 = sqrt((x2 - x)**2 + (y2 - y)**2)
-            # print(cpt.cname, r1, r2, s)
-            if (r1 + r2) < 1.2 * s:
+            if r < 0.3 * s:
                 return cpt
         return None
 
@@ -281,8 +319,11 @@ class ModelBase:
     def __init__(self, ui):
 
         self.components = Components()
+        self.nodes = Nodes()
         self.history = History()
         self.ui = ui
+        self.edit_mode = True
+        self.cct = None
 
     # Drawing commands
     def add(self, cptname, x1, y1, x2, y2):
@@ -304,10 +345,11 @@ class ModelBase:
             # TODO
             return
 
-        cpt.ports[0].position = (x1, y1)
-        cpt.ports[1].position = (x2, y2)
+        cpt.ports[0].position = x1, y1
+        cpt.ports[1].position = x2, y2
 
         self.components.add(cpt)
+        self.nodes.add(cpt.ports[0].position, cpt.ports[0].position)
 
         cpt.__draw_on__(self, self.ui.component_layer)
         self.ui.refresh()
@@ -333,6 +375,58 @@ class ModelBase:
 
     def unselect(self):
         pass
+
+    def load(self, filename):
+
+        from lcapy import Circuit
+
+        # TODO: FIXME
+        # self.ui.component_layer.clear()
+        self.components.clear()
+
+        cct = Circuit(filename)
+        sch = cct.sch
+
+        # TODO: handle wails of protest if something wrong
+        sch._positions_calculate()
+
+        # TODO: centre nicely
+        offsetx = 20
+        offsety = 20
+
+        elements = sch.elements
+        for elt in elements.values():
+            # TODO: allow component name and value
+            self.add(elt.type, elt.nodes[0].pos.x + offsetx,
+                     elt.nodes[0].pos.y + offsety,
+                     elt.nodes[-1].pos.x + offsetx,
+                     elt.nodes[-1].pos.y + offsety)
+
+    def save(self, filename):
+
+        s = self.components.as_sch(self.STEP)
+
+        with open(filename, 'w') as fhandle:
+            fhandle.write(s)
+
+    def circuit(self):
+
+        from lcapy import Circuit
+
+        s = self.components.as_sch(self.STEP)
+        # Note, need a newline so string treated as a netlist string
+        s += '\n; draw_nodes=connections'
+        cct = Circuit(s)
+        return cct
+
+    def view(self):
+
+        cct = self.circuit()
+        cct.draw()
+
+    def analyze(self):
+
+        self.cct = self.circuit()
 
 
 class ModelMPH(ModelBase):
@@ -386,49 +480,22 @@ class ModelMPH(ModelBase):
 
         self.ui.refresh()
 
-    def load(self, filename):
+    def on_edit(self):
 
-        from lcapy import Circuit
+        self.edit_mode = True
 
-        # self.ui.component_layer.clear()
-        self.components.clear()
+    def on_analyze(self):
 
-        cct = Circuit(filename)
-        sch = cct.sch
+        if self.edit_mode:
+            self.edit_mode = False
+            self.cursors.remove()
+            self.ui.refresh()
 
-        # TODO: handle wails of protest if something wrong
-        sch._positions_calculate()
-
-        # TODO: centre nicely
-        offsetx = 20
-        offsety = 20
-
-        elements = sch.elements
-        for elt in elements.values():
-            print(elt.name, elt.nodes[0].pos.x, elt.nodes[0].pos.y,
-                  elt.nodes[-1].pos.x, elt.nodes[-1].pos.y)
-            # TODO: allow component name
-            self.add(elt.type, elt.nodes[0].pos.x + offsetx,
-                     elt.nodes[0].pos.y + offsety,
-                     elt.nodes[-1].pos.x + offsetx,
-                     elt.nodes[-1].pos.y + offsety)
-
-    def save(self, filename):
-
-        s = self.components.as_sch(self.STEP)
-
-        with open(filename, 'w') as fhandle:
-            fhandle.write(s)
+        self.analyze()
 
     def on_view(self):
 
-        from lcapy import Circuit
-
-        s = self.components.as_sch(self.STEP)
-        # Note, need a newline so string treated as a netlist string
-        s += '\n; draw_nodes=connections'
-        cct = Circuit(s)
-        cct.draw()
+        self.view()
 
     # User interface commands
     def on_select(self, cptname):
@@ -477,6 +544,8 @@ class ModelMPH(ModelBase):
         self.cursors.debug()
         print('Components......')
         self.components.debug()
+        print('Nodes...........')
+        self.nodes.debug()
         print('History.........')
         self.history.debug()
 
@@ -515,10 +584,13 @@ class ModelMPH(ModelBase):
 
         cpt = self.components.closest(x, y)
         if cpt is None:
-            self.on_add_node(x, y)
+            if self.edit_mode:
+                self.on_add_node(x, y)
         else:
             # TODO, select component
             print(cpt.cname)
+            if not self.edit_mode:
+                print(self.cct[cpt.cname].v)
 
     def on_right_click(self, x, y):
 
@@ -571,6 +643,8 @@ class MatplotlibEditor(EditorBase):
             ['Load', LoadTool, self.model.on_load],
             ['Save', SaveTool, self.model.on_save],
             ['View', ViewTool, self.model.on_view],
+            ['Edit', EditTool, self.model.on_edit],
+            ['Analyze', AnalyzeTool, self.model.on_analyze],
             ['Quit', QuitTool, self.quit]]
 
         for tool in tools:
