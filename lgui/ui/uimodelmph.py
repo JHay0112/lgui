@@ -102,6 +102,9 @@ class UIModelMPH(UIModelBase):
         self.node_cursor = cursor
         self.ui.refresh()
 
+    def exception(self, message):
+        self.ui.show_message_dialog(message)
+
     def unselect(self):
 
         self.cursors.remove()
@@ -124,6 +127,12 @@ class UIModelMPH(UIModelBase):
 
         self.history.add(cptname, x1, y1, x2, y2)
         self.add(cptname, x1, y1, x2, y2)
+
+    def on_add_ground(self):
+
+        # TODO
+        if len(self.cursors) < 2:
+            return
 
     def on_analyze(self):
 
@@ -189,8 +198,12 @@ class UIModelMPH(UIModelBase):
             self.on_save()
         elif key == 'ctrl+v':
             self.on_view()
+        elif key == 'ctrl+z':
+            self.on_undo()
         elif key == 'escape':
             self.on_unselect()
+        elif key == '0':
+            self.on_add_ground()
         elif key in ('c', 'i', 'l', 'r', 'v', 'w'):
             self.on_add_cpt(key.upper())
 
@@ -230,6 +243,7 @@ class UIModelMPH(UIModelBase):
         if filename == '':
             return
         self.load(filename)
+        self.ui.refresh()
 
     def on_right_click(self, x, y):
 

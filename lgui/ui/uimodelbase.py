@@ -79,8 +79,7 @@ class Nodes(list):
             return node
 
         if name is None:
-            # TODO: First defined node is ground.  What if user wants
-            # a different ground node?
+            # Ensure there is a 0 node; later on let user define it
             num = 0
             while True:
                 name = str(num)
@@ -309,6 +308,10 @@ class UIModelBase:
     def analyze(self):
 
         self.cct = self.circuit()
+        try:
+            self.cct[0]
+        except (AttributeError, ValueError) as e:
+            self.exception(e)
 
     def draw(self, cpt, **kwargs):
 
