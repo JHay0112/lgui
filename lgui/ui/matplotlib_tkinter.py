@@ -108,12 +108,15 @@ class Editor(EditorBase):
     XSIZE = 30
     YSIZE = 20
 
-    def __init__(self, filename=None, uimodel_class=None):
+    def __init__(self, filename=None, uimodel_class=None, debug=0):
+
+        self.debug = debug
 
         # Default Linux backend was TkAgg now QtAgg
         # Default Windows backend Qt4Agg
         import matplotlib.pyplot as p
-        print(p.get_backend())
+        if self.debug:
+            print(p.get_backend())
         # Need TkAgg if using Tkinter file dialogs
         p.switch_backend('TkAgg')
 
@@ -215,9 +218,10 @@ class Editor(EditorBase):
 
     def on_click_event(self, event):
 
-        print('%s click: button=%d, x=%d, y=%d, xdata=%f, ydata=%f' %
-              ('double' if event.dblclick else 'single', event.button,
-               event.x, event.y, event.xdata, event.ydata))
+        if self.debug:
+            print('%s click: button=%d, x=%d, y=%d, xdata=%f, ydata=%f' %
+                  ('double' if event.dblclick else 'single', event.button,
+                   event.x, event.y, event.xdata, event.ydata))
 
         if event.button == 1:
             self.model.on_left_click(event.xdata, event.ydata)

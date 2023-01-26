@@ -36,6 +36,9 @@ def main(argv=None):
     parser.add_argument('--pdb', action='store_true',
                         default=False,
                         help="enter python debugger on exception")
+    parser.add_argument('--debug', type=int,
+                        dest='debug', default=None,
+                        help="enable debugging")
     parser.add_argument('filename', type=str, nargs='?',
                         help='schematic filename', default=None)
 
@@ -45,7 +48,7 @@ def main(argv=None):
         sys.excepthook = schtex_exception
 
     from lgui.ui.matplotlib_tkinter import Editor
-    e = Editor(args.filename)
+    e = Editor(args.filename, debug=args.debug)
     e.display()
 
     return 0
