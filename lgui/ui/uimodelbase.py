@@ -3,6 +3,47 @@ from ..components import Capacitor, CurrentSupply, Inductor, \
 from math import sqrt, degrees, atan2
 
 
+class Annotation:
+
+    def __init__(self, ui, x, y, text):
+
+        self.layer = ui.cursor_layer
+        self.x = x
+        self.y = y
+        self.text = text
+        self.patch = None
+
+    @property
+    def position(self):
+
+        return self.x, self.y
+
+    def draw(self, **kwargs):
+
+        self.patch = self.layer.text(self.x, self.y, self.text, **kwargs)
+
+    def remove(self):
+
+        if self.patch:
+            self.patch.remove()
+
+
+class Annotations(list):
+
+    def __init__(self):
+
+        super(Annotations, self).__init__(self)
+
+    def add(self, annotation):
+
+        self.append(annotation)
+
+    def remove(self):
+
+        while self != []:
+            self.pop().remove()
+
+
 class Node:
 
     def __init__(self, x, y, name):
@@ -100,8 +141,6 @@ class Components(list):
 
     def add(self, cpt, *nodes):
 
-        print(nodes)
-
         if cpt.TYPE not in self.kinds:
             self.kinds[cpt.TYPE] = 0
         self.kinds[cpt.TYPE] += 1
@@ -114,9 +153,6 @@ class Components(list):
         cpt.ports[0].position = nodes[0].position
         cpt.ports[1].position = nodes[1].position
 
-        print(cpt.ports[0].position)
-        print(cpt.ports[1].position)
-
         self.append(cpt)
 
     def clear(self):
@@ -128,6 +164,7 @@ class Components(list):
     def debug(self):
 
         for cpt in self:
+            # Need to redow Component class to show node names as well.
             print(cpt)
 
     def as_sch(self, step):
@@ -261,6 +298,7 @@ class UIModelBase:
         self.edit_mode = True
         self.cct = None
         self.filename = ''
+        self.voltage_annotations = Annotations()
 
     # Drawing commands
     def add(self, cptname, x1, y1, x2, y2):
@@ -384,3 +422,14 @@ class UIModelBase:
 
         cct = self.circuit()
         cct.draw()
+
+    def voltage_annotate(self, cpt):
+
+        ann1 = Annotation(self.ui, *cpt.nodes[0].position, '+')
+        ann2 = Annotation(self.ui, *cpt.nodes[1].position, '-')
+
+        self.voltage_annotations.add(ann1)
+        self.voltage_annotations.add(ann2)
+        ann1.draw(color='red', fontsize=40)
+        ann2.draw(color='blue', fontsize=40)
+        self.ui.refresh()

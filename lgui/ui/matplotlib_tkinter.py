@@ -91,6 +91,10 @@ class Layer:
         self.ax.add_patch(patch)
         return patch
 
+    def text(self, x, y, text, **kwargs):
+
+        return self.ax.annotate(text, (x, y), **kwargs)
+
     def remove(self, patch):
 
         self.ax.remove(patch)

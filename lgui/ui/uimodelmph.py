@@ -41,8 +41,7 @@ class Cursors(list):
     def remove(self):
 
         while self != []:
-            cursor = self.pop()
-            cursor.remove()
+            self.pop().remove()
 
 
 class UIModelMPH(UIModelBase):
@@ -139,6 +138,9 @@ class UIModelMPH(UIModelBase):
         if self.edit_mode:
             self.edit_mode = False
             self.cursors.remove()
+            # Indicate in analyze mode.
+            if self.components != []:
+                self.voltage_annotate(self.components[0])
             self.ui.refresh()
 
         self.analyze()
@@ -163,6 +165,8 @@ class UIModelMPH(UIModelBase):
     def on_edit(self):
 
         self.edit_mode = True
+        self.voltage_annotations.remove()
+        self.ui.refresh()
 
     def on_export(self):
 
@@ -229,7 +233,8 @@ class UIModelMPH(UIModelBase):
             print('Selected both node %s and cpt %s' % (node, cpt))
 
         if cpt is not None:
-            print(cpt.cname)
+            self.voltage_annotations.remove()
+            self.voltage_annotate(cpt)
             # Better to have a tooltip
             self.ui.show_message_dialog(str(self.cct[cpt.cname].v))
         elif node is not None:
