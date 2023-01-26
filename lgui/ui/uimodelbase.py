@@ -276,8 +276,9 @@ class UIModelBase:
         # TODO: handle wails of protest if something wrong
         sch._positions_calculate()
 
-        # TODO: centre nicely
-        offsetx, offsety = self.snap(self.ui.XSIZE / 2, self.ui.YSIZE / 2)
+        width, height = sch.width * self.STEP,  sch.height * self.STEP
+        offsetx, offsety = self.snap((self.ui.XSIZE - width) / 2,
+                                     (self.ui.YSIZE - height) / 2)
 
         elements = sch.elements
         for elt in elements.values():
