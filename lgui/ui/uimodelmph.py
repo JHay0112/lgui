@@ -44,9 +44,7 @@ class UIModelMPH(UIModelBase):
 
     def draw_cursor(self, x, y):
 
-        step = self.STEP
-        x = (x + 0.5 * step) // step * step
-        y = (y + 0.5 * step) // step * step
+        x, y = self.snap(x, y)
 
         cursor = Cursor(self.ui, x, y)
 

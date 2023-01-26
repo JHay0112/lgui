@@ -101,8 +101,8 @@ class Editor(EditorBase):
     FIG_WIDTH = 6
     FIG_HEIGHT = 4
 
-    XSIZE = 60
-    YSIZE = 40
+    XSIZE = 30
+    YSIZE = 20
 
     def __init__(self, filename=None, uimodel_class=None):
 

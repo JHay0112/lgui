@@ -277,8 +277,7 @@ class UIModelBase:
         sch._positions_calculate()
 
         # TODO: centre nicely
-        offsetx = 20
-        offsety = 20
+        offsetx, offsety = self.snap(self.ui.XSIZE / 2, self.ui.YSIZE / 2)
 
         elements = sch.elements
         for elt in elements.values():
@@ -305,6 +304,13 @@ class UIModelBase:
 
     def select(self, cptname):
         pass
+
+    def snap(self, x, y):
+
+        step = self.STEP
+        x = (x + 0.5 * step) // step * step
+        y = (y + 0.5 * step) // step * step
+        return x, y
 
     def unselect(self):
         pass
