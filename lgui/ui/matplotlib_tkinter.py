@@ -85,9 +85,9 @@ class Layer:
         self.stroke_line(xend, yend, xend, ystart)
         self.stroke_line(xend, ystart, xstart, ystart)
 
-    def stroke_filled_circle(self, x, y, color='black', alpha=0.5):
+    def stroke_filled_circle(self, x, y, radius=0.5, color='black', alpha=0.5):
 
-        patch = patches.Circle((x, y), 0.5, fc=color, alpha=alpha)
+        patch = patches.Circle((x, y), radius, fc=color, alpha=alpha)
         self.ax.add_patch(patch)
         return patch
 

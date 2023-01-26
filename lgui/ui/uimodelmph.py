@@ -1,5 +1,14 @@
 from .uimodelbase import UIModelBase
 
+# In analyze mode could interrogate node voltage with respect to
+# ground but need to define a ground node.  Otherwise, could specify a
+# pair of cursors (+ and -) and interrogate voltage between them.
+# This does not need a ground node defined.  However, would need to
+# move the cursors and press a key or button to find the voltage.
+# This is not as intuitive as say clicking on a node or clicking on a
+# component.  Perhaps clicking on a component would place the cursors
+# on its nodes with the positive one as defined in the netlist.
+
 
 class Cursor:
 
@@ -10,10 +19,12 @@ class Cursor:
         self.x = x
         self.y = y
 
-    def draw(self, color='red'):
+    def draw(self, color='red', radius=0.5):
 
         self.patch = self.layer.stroke_filled_circle(self.x, self.y,
-                                                     color, alpha=0.5)
+                                                     radius,
+                                                     color=color,
+                                                     alpha=0.5)
 
     def remove(self):
 
@@ -41,6 +52,7 @@ class UIModelMPH(UIModelBase):
         super(UIModelMPH, self).__init__(ui)
 
         self.cursors = Cursors()
+        self.node_cursor = None
 
     def draw_cursor(self, x, y):
 
@@ -76,6 +88,18 @@ class UIModelMPH(UIModelBase):
                 self.cursors[1] = cursor
                 self.cursors[1].draw('blue')
 
+        self.ui.refresh()
+
+    def draw_node_select(self, x, y):
+
+        x, y = self.snap(x, y)
+
+        if self.node_cursor is not None:
+            self.node_cursor.remove()
+
+        cursor = Cursor(self.ui, x, y)
+        cursor.draw('black', 0.2)
+        self.node_cursor = cursor
         self.ui.refresh()
 
     def unselect(self):
@@ -172,6 +196,14 @@ class UIModelMPH(UIModelBase):
 
     def on_left_click(self, x, y):
 
+        if self.edit_mode:
+            cpt = self.components.closest(x, y)
+            if cpt is not None:
+                print('Cannot put node on component')
+            else:
+                self.on_add_node(x, y)
+            return
+
         cpt = self.components.closest(x, y)
         node = self.nodes.closest(x, y)
 
@@ -180,21 +212,17 @@ class UIModelMPH(UIModelBase):
         # The easiest option is to use a different mouse button but
         # this not available in browser implementations.
 
-        if node:
-            print(node)
-
         if cpt and node:
             print('Selected both node %s and cpt %s' % (node, cpt))
 
-        if cpt is None:
-            if self.edit_mode:
-                self.on_add_node(x, y)
-        else:
-            # TODO, select component
+        if cpt is not None:
             print(cpt.cname)
-            if not self.edit_mode:
-                # Better to have a tooltip
-                self.ui.show_message_dialog(str(self.cct[cpt.cname].v))
+            # Better to have a tooltip
+            self.ui.show_message_dialog(str(self.cct[cpt.cname].v))
+        elif node is not None:
+            self.draw_node_select(x, y)
+            # Better to have a tooltip
+            self.ui.show_message_dialog(str(self.cct[node.name].v))
 
     def on_load(self):
 

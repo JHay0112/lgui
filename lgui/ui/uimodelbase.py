@@ -3,36 +3,93 @@ from ..components import Capacitor, CurrentSupply, Inductor, \
 from math import sqrt, degrees, atan2
 
 
+class Node:
+
+    def __init__(self, x, y, name):
+
+        self.x = x
+        self.y = y
+        self.name = name
+
+    @property
+    def position(self):
+
+        return self.x, self.y
+
+    def __str__(self):
+
+        return '%s@(%s, %s)' % (self.name, self.x, self.y)
+
+
 class Nodes(list):
 
     def __init__(self):
 
         super(Nodes, self).__init__(self)
 
-    def add(self, *nodes):
+    def add(self, node):
 
-        for node in nodes:
-            if node not in self:
-                self.append(node)
+        if not isinstance(node, Node):
+            raise TypeError('Not a Node object')
+        if node not in self:
+            self.append(node)
+
+    def by_name(self, name):
+
+        for node in self:
+            if node.name == name:
+                return node
+        return None
+
+    def by_position(self, position):
+
+        x, y = position
+
+        for node in self:
+            if node.x == x and node.y == y:
+                return node
+        return None
 
     def clear(self):
 
         while self != []:
             self.pop()
 
+    def closest(self, x, y):
+
+        for node in self:
+            x1, y1 = node.position
+            rsq = (x1 - x)**2 + (y1 - y)**2
+            if rsq < 0.1:
+                return node
+        return None
+
     def debug(self):
 
         for node in self:
             print(node)
 
-    def closest(self, x, y):
+    def make(self, x, y, name=None):
 
-        for node in self:
-            x1, y1 = node
-            rsq = (x1 - x)**2 + (y1 - y)**2
-            if rsq < 0.1:
-                return node
-        return None
+        node = self.by_position((x, y))
+        if node is not None:
+            if name is not None and node.name != name:
+                raise ValueError('Node name conflict %s and %s' %
+                                 (node.name, name))
+            return node
+
+        if name is None:
+            # TODO: First defined node is ground.  What if user wants
+            # a different ground node?
+            num = 0
+            while True:
+                name = str(num)
+                if not self.by_name(name):
+                    break
+                num += 1
+
+        node = Node(x, y, name)
+        return node
 
 
 class Components(list):
@@ -42,13 +99,25 @@ class Components(list):
         super(Components, self).__init__(self)
         self.kinds = {}
 
-    def add(self, cpt):
+    def add(self, cpt, *nodes):
+
+        print(nodes)
 
         if cpt.TYPE not in self.kinds:
             self.kinds[cpt.TYPE] = 0
         self.kinds[cpt.TYPE] += 1
+
         # Hack, update component class to have this attribute
         cpt.cname = cpt.TYPE + '%d' % self.kinds[cpt.TYPE]
+
+        # Hack for drawing
+        cpt.nodes = nodes
+        cpt.ports[0].position = nodes[0].position
+        cpt.ports[1].position = nodes[1].position
+
+        print(cpt.ports[0].position)
+        print(cpt.ports[1].position)
+
         self.append(cpt)
 
     def clear(self):
@@ -64,28 +133,18 @@ class Components(list):
 
     def as_sch(self, step):
 
-        nodes = {}
-
-        node_count = 0
-
         elts = []
         for cpt in self:
-            # Enumerate nodes (FIXME for node 0)
-            for port in cpt.ports:
-                if port.position not in nodes:
-                    nodes[port.position] = node_count
-                    node_count += 1
-
             parts = [cpt.cname]
 
-            for port in cpt.ports:
-                parts.append('%d' % nodes[port.position])
+            for node in cpt.nodes:
+                parts.append(node.name)
 
             if cpt.value is not None:
                 parts.append(cpt.value)
 
-            x1, y1 = cpt.ports[0].position
-            x2, y2 = cpt.ports[1].position
+            x1, y1 = cpt.nodes[0].position
+            x2, y2 = cpt.nodes[1].position
             r = sqrt((x1 - x2)**2 + (y1 - y2)**2) / step
 
             if r == 1:
@@ -114,8 +173,8 @@ class Components(list):
     def closest(self, x, y):
 
         for cpt in self:
-            x1, y1 = cpt.ports[0].position
-            x2, y2 = cpt.ports[1].position
+            x1, y1 = cpt.nodes[0].position
+            x2, y2 = cpt.nodes[1].position
             xmid = (x1 + x2) / 2
             ymid = (y1 + y2) / 2
             rsq = (xmid - x)**2 + (ymid - y)**2
@@ -224,11 +283,13 @@ class UIModelBase:
             # TODO
             return
 
-        cpt.ports[0].position = x1, y1
-        cpt.ports[1].position = x2, y2
+        node1 = self.nodes.make(x1, y1)
+        self.nodes.add(node1)
 
-        self.components.add(cpt)
-        self.nodes.add(cpt.ports[0].position, cpt.ports[0].position)
+        node2 = self.nodes.make(x2, y2)
+        self.nodes.add(node2)
+
+        self.components.add(cpt, node1, node2)
 
         cpt.__draw_on__(self, self.ui.component_layer)
         self.ui.refresh()
