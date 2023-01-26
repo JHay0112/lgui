@@ -215,8 +215,10 @@ class UIModelMPH(UIModelBase):
 
         if self.edit_mode:
             cpt = self.components.closest(x, y)
-            if cpt is not None:
-                print('Cannot put node on component')
+            if cpt:
+                self.cursors.remove()
+                self.draw_cursor(*cpt.nodes[0].position)
+                self.draw_cursor(*cpt.nodes[-1].position)
             else:
                 self.on_add_node(x, y)
             return
