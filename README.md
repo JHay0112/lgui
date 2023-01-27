@@ -1,3 +1,4 @@
-# lgui
+# lcapy-gui
 
-lgui is a Jupyter widget that provides a GUI for control of lcapy.
+This is an experimental GUI for Lcapy.  The goal is to have a
+Jupyter-based GUI and a standalone GUI, say based on Qt5.
