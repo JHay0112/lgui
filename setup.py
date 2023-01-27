@@ -30,11 +30,13 @@ setup(
         "numpy",
         "ipywidgets",
         "IPython",
-        "ipycanvas"
+        "ipycanvas",
+        "matplotlib"
     ],
     entry_points={
         'console_scripts': [
             'glcapy=lgui.scripts.glcapy:main',
+            'lcapy-gui=lgui.scripts.glcapy:main',
         ],
     },
     python_requires=">=3.7"  # matched with lcapy

@@ -1,4 +1,4 @@
-from .editorbase import EditorBase
+from ..editorbase import EditorBase
 from matplotlib.pyplot import subplots, rcParams, show
 import matplotlib.patches as patches
 from matplotlib.backend_tools import ToolBase
@@ -122,7 +122,7 @@ class Editor(EditorBase):
 
         super(Editor, self).__init__()
 
-        from .uimodelmph import UIModelMPH
+        from ..uimodelmph import UIModelMPH
 
         if uimodel_class is None:
             uimodel_class = UIModelMPH
