@@ -236,6 +236,12 @@ class Editor(EditorBase):
 
         exit()
 
+    def show_expr_dialog(self, expr):
+
+        from .expr_dialog import ExprDialog
+
+        self.expr_dialog = ExprDialog(expr)
+
     def show_message_dialog(self, message):
 
         from tkinter.messagebox import showinfo

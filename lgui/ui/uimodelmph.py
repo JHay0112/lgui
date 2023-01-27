@@ -237,12 +237,10 @@ class UIModelMPH(UIModelBase):
         if cpt is not None:
             self.voltage_annotations.remove()
             self.voltage_annotate(cpt)
-            # Better to have a tooltip
-            self.ui.show_message_dialog(str(self.cct[cpt.cname].v))
+            self.ui.show_expr_dialog(self.cct[cpt.cname].v)
         elif node is not None:
             self.draw_node_select(x, y)
-            # Better to have a tooltip
-            self.ui.show_message_dialog(str(self.cct[node.name].v))
+            self.ui.show_expr_dialog(self.cct[node.name].v)
 
     def on_load(self):
 
