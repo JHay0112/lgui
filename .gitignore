@@ -30,3 +30,8 @@ test.ipynb
 *.bcf
 *.blg
 *.run.xml
+
+# Emacs
+*~
+#*
+.#*
