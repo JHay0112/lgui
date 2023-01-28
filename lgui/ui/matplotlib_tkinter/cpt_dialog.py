@@ -1,3 +1,4 @@
+from ...components import Capacitor, Inductor
 from tkinter import Tk, StringVar, Label, OptionMenu, Entry, Button
 
 
@@ -9,25 +10,30 @@ class CptDialog:
 
         self.master = Tk()
 
-        self.kind_var = StringVar(self.master)
-        self.kind_var.set(cpt.kind)
+        row = 0
 
+        self.kind_var = None
         if cpt.kind is not None:
+            self.kind_var = StringVar(self.master)
+            self.kind_var.set(cpt.kind)
+
             kind_label = Label(self.master, text='Kind: ')
             kind_option = OptionMenu(self.master, self.kind_var,
                                      *cpt.kinds.keys())
 
-            kind_label.grid(row=0)
-            kind_option.grid(row=0, column=1)
+            kind_label.grid(row=row)
+            kind_option.grid(row=row, column=1)
+            row += 1
 
         self.name_var = StringVar(self.master)
         self.name_var.set(cpt.cname)
 
         name_label = Label(self.master, text='Name: ')
-        name_option = Entry(self.master, textvariable=self.name_var)
+        name_entry = Entry(self.master, textvariable=self.name_var)
 
-        name_label.grid(row=1)
-        name_option.grid(row=1, column=1)
+        name_label.grid(row=row)
+        name_entry.grid(row=row, column=1)
+        row += 1
 
         self.value_var = StringVar(self.master)
         value = cpt.value
@@ -36,17 +42,50 @@ class CptDialog:
         self.value_var.set(value)
 
         value_label = Label(self.master, text='Value: ')
-        value_option = Entry(self.master, textvariable=self.value_var)
+        value_entry = Entry(self.master, textvariable=self.value_var)
 
-        value_label.grid(row=2)
-        value_option.grid(row=2, column=1)
+        value_label.grid(row=row)
+        value_entry.grid(row=row, column=1)
+        row += 1
+
+        self.initial_value_var = None
+        if isinstance(cpt, (Capacitor, Inductor)):
+
+            ivlabel = 'v0'
+            if isinstance(cpt, Inductor):
+                ivlabel = 'i0'
+
+            self.initial_value_var = StringVar(self.master)
+
+            initial_value_label = Label(self.master, text=ivlabel + ': ')
+            initial_value_entry = Entry(
+                self.master, textvariable=self.initial_value_var)
+            initial_value_label.grid(row=row)
+            initial_value_entry.grid(row=row, column=1)
+            row += 1
 
         button = Button(self.master, text="OK", command=self.on_update)
-        button.grid(row=3)
+        button.grid(row=row)
 
     def on_update(self):
 
-        self.cpt.kind = self.kind_var.get()
+        if self.kind_var is not None:
+            kind = self.kind_var.get()
+            if kind == '':
+                kind = None
+            self.cpt.kind = kind
+
         self.cpt.cname = self.name_var.get()
-        self.cpt.value = self.value_var.get()
+
+        value = self.value_var.get()
+        if value == '':
+            value = None
+        self.cpt.value = value
+
+        if self.initial_value_var is not None:
+            value = self.initial_value_var.get()
+            if value == '':
+                value = None
+            self.cpt.initial_value = value
+
         self.master.destroy()

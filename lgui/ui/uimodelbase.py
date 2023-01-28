@@ -182,6 +182,9 @@ class Components(list):
             if cpt.value is not None:
                 parts.append(cpt.value)
 
+            if cpt.initial_value is not None:
+                parts.append(cpt.initial_value)
+
             x1, y1 = cpt.nodes[0].position
             x2, y2 = cpt.nodes[1].position
             r = sqrt((x1 - x2)**2 + (y1 - y2)**2) / step
