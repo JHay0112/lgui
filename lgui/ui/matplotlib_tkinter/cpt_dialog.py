@@ -41,7 +41,7 @@ class CptDialog:
         value_label.grid(row=2)
         value_option.grid(row=2, column=1)
 
-        button = Button(self.master, text="Okay", command=self.on_update)
+        button = Button(self.master, text="OK", command=self.on_update)
         button.grid(row=3)
 
     def on_update(self):

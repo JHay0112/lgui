@@ -32,6 +32,11 @@ class ExportTool(Tool):
     description = 'Export'
 
 
+class HelpTool(Tool):
+    # default_keymap = 'ctrl+h'
+    description = 'Help'
+
+
 class LoadTool(Tool):
     # default_keymap = 'ctrl+l'
     description = 'Load'
@@ -150,6 +155,7 @@ class Editor(EditorBase):
             ['View', ViewTool, self.model.on_view],
             ['Edit', EditTool, self.model.on_edit],
             ['Analyze', AnalyzeTool, self.model.on_analyze],
+            ['Help', ExportTool, self.model.on_help],
             ['Quit', QuitTool, self.quit]]
 
         for tool in tools:
@@ -223,6 +229,9 @@ class Editor(EditorBase):
                   ('double' if event.dblclick else 'single', event.button,
                    event.x, event.y, event.xdata, event.ydata))
 
+        if event.xdata is None or event.ydata is None:
+            return
+
         if event.button == 1:
             self.model.on_left_click(event.xdata, event.ydata)
         elif event.button == 3:
@@ -248,10 +257,16 @@ class Editor(EditorBase):
 
         self.cpt_dialog = CptDialog(cpt)
 
-    def show_message_dialog(self, message):
+    def show_info_dialog(self, message):
 
         from tkinter.messagebox import showinfo
         showinfo('', message)
+
+    def show_message_dialog(self, message):
+
+        # TODO, show wide messages...
+        from tkinter.messagebox import showinfo
+        showinfo('', message.replace('\n', ' '))
 
     def open_file_dialog(self, initialdir='.'):
 

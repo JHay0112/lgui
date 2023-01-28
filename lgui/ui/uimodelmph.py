@@ -102,7 +102,7 @@ class UIModelMPH(UIModelBase):
         self.ui.refresh()
 
     def exception(self, message):
-        self.ui.show_message_dialog(message)
+        self.ui.show_info_dialog(message)
 
     def unselect(self):
 
@@ -273,3 +273,24 @@ class UIModelMPH(UIModelBase):
     def on_view(self):
 
         self.view()
+
+    def on_help(self):
+
+        self.ui.show_message_dialog("""
+There are two modes: Edit mode and Analyze model.  The default is Edit mode.
+
+In edit mode, click on the grid to place a red positive cursor then
+click elsewhere to place a blue negative cursor.  Then enter c for a
+capacitor, i for a current source, l for an inductor, r for a
+resistor, v for a voltage source, etc.  The escape key will remove the
+last defined cursor.
+
+The attributes of a component (name, value, etc.) can be edited by
+right clicking on a component.
+
+In analyze mode, left click on a component to display the voltage
+across the component.  The polarity is indicated by plus and minus
+symbols on the schematic.  The node voltages can be found by clicking
+on a node.  This will require a ground node to be defined.  This is
+defined in edit mode by typing the 0 key; the ground node is placed at
+the negative cursor.""")
