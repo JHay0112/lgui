@@ -242,6 +242,12 @@ class Editor(EditorBase):
 
         self.expr_dialog = ExprDialog(expr)
 
+    def show_cpt_dialog(self, cpt):
+
+        from .cpt_dialog import CptDialog
+
+        self.cpt_dialog = CptDialog(cpt)
+
     def show_message_dialog(self, message):
 
         from tkinter.messagebox import showinfo

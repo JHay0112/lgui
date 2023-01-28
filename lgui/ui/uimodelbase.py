@@ -172,9 +172,12 @@ class Components(list):
         elts = []
         for cpt in self:
             parts = [cpt.cname]
-
             for node in cpt.nodes:
                 parts.append(node.name)
+
+            # Later need to handle schematic kind attributes.
+            if cpt.kind is not None:
+                parts.append(cpt.kinds[cpt.kind])
 
             if cpt.value is not None:
                 parts.append(cpt.value)

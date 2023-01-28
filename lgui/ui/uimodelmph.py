@@ -252,7 +252,11 @@ class UIModelMPH(UIModelBase):
 
     def on_right_click(self, x, y):
 
-        pass
+        cpt = self.components.closest(x, y)
+        if cpt is None:
+            return
+
+        self.ui.show_cpt_dialog(cpt)
 
     def on_save(self):
 

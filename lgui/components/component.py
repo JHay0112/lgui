@@ -39,6 +39,7 @@ class Component(ABC):
 
     HEIGHT = 4
     next_id: int = 0
+    kinds = {}
 
     def __init__(self, value: Union[str, int, float]):
 
@@ -46,6 +47,7 @@ class Component(ABC):
         self.ports: list[Node] = [Node(), Node()]
         self.id = type(self).next_id
         type(self).next_id += 1
+        self.kind = None
 
     @property
     @classmethod

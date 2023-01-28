@@ -5,6 +5,7 @@ from typing import Union
 
 from .component import Component
 
+
 class CurrentSupply(Component):
     """
     CurrentSupply
@@ -18,16 +19,18 @@ class CurrentSupply(Component):
 
     TYPE = "I"
     NAME = "Current Supply"
+    kinds = {'DC': 'dc', 'AC': 'ac', 'Step': 'step'}
 
     def __init__(self, value: Union[str, int, float]):
 
         super().__init__(value)
+        self.kind = 'AC'
 
     def __draw_on__(self, editor, layer):
 
         start_x, start_y = self.ports[0].position
         end_x, end_y = self.ports[1].position
-        
+
         RADIUS = 0.3
         OFFSET = 0.05
 
@@ -37,7 +40,8 @@ class CurrentSupply(Component):
 
         # circle
         mid = self.along(0.5) + (start_x, start_y)
-        layer.stroke_arc(mid[0], mid[1], RADIUS*type(self).HEIGHT*editor.STEP, 0, 2*np.pi)
+        layer.stroke_arc(mid[0], mid[1], RADIUS *
+                         type(self).HEIGHT*editor.STEP, 0, 2*np.pi)
 
         # positive symbol
         mid = self.along(0.5 - RADIUS/2) + (start_x, start_y)
