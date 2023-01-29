@@ -120,8 +120,7 @@ class Nodes(list):
             return node
 
         if name is None:
-            # Ensure there is a 0 node; later on let user define it
-            num = 0
+            num = 1
             while True:
                 name = str(num)
                 if not self.by_name(name):
@@ -139,7 +138,11 @@ class Components(list):
         super(Components, self).__init__(self)
         self.kinds = {}
 
-    def add(self, cpt, *nodes):
+    def add(self, cpt):
+
+        self.append(cpt)
+
+    def add_auto(self, cpt, *nodes):
 
         if cpt.TYPE not in self.kinds:
             self.kinds[cpt.TYPE] = 0
@@ -153,7 +156,7 @@ class Components(list):
         cpt.ports[0].position = nodes[0].position
         cpt.ports[1].position = nodes[1].position
 
-        self.append(cpt)
+        self.add(cpt)
 
     def clear(self):
 
@@ -210,7 +213,7 @@ class Components(list):
             parts.append('; ' + attr)
 
             elts.append(' '.join(parts))
-        return '\n'.join(elts)
+        return '\n'.join(elts) + '\n'
 
     def closest(self, x, y):
 
@@ -313,8 +316,7 @@ class UIModelBase:
 
         return isinstance(self.selected, Component)
 
-    # Drawing commands
-    def add(self, cptname, x1, y1, x2, y2):
+    def cpt_make(self, cptname):
 
         # Create component from name
         if cptname == 'C':
@@ -330,8 +332,13 @@ class UIModelBase:
         elif cptname == 'W':
             cpt = Wire()
         else:
-            # TODO
-            return
+            self.exception('Unhandled component ' + cptname)
+        return cpt
+
+    # Drawing commands
+    def cpt_add(self, cptname, x1, y1, x2, y2):
+
+        cpt = self.cpt_make(cptname)
 
         node1 = self.nodes.make(x1, y1)
         self.nodes.add(node1)
@@ -339,7 +346,7 @@ class UIModelBase:
         node2 = self.nodes.make(x2, y2)
         self.nodes.add(node2)
 
-        self.components.add(cpt, node1, node2)
+        self.components.add_auto(cpt, node1, node2)
 
         cpt.__draw_on__(self, self.ui.component_layer)
         self.ui.refresh()
@@ -358,11 +365,21 @@ class UIModelBase:
 
     def analyze(self):
 
-        self.cct = self.circuit()
+        from lcapy import Circuit
+
+        if len(self.components) == 0:
+            self.exception('No circuit defined')
+
+        sch = self.components.as_sch(self.STEP)
+        if self.ground_node is None:
+            # Add dummy ground node
+            sch += 'W %s 0\n' % self.nodes[0].name
+
+        self.cct = Circuit(sch)
 
         try:
             self.cct[0]
-        except (AttributeError, ValueError) as e:
+        except (AttributeError, ValueError, RuntimeError) as e:
             self.exception(e)
 
     def draw(self, cpt, **kwargs):
@@ -389,20 +406,50 @@ class UIModelBase:
         cct = Circuit(filename)
         sch = cct.sch
 
-        # TODO: handle wails of protest if something wrong
-        sch._positions_calculate()
+        try:
+            sch._positions_calculate()
+        except (AttributeError, ValueError, RuntimeError) as e:
+            self.exception(e)
 
         width, height = sch.width * self.STEP,  sch.height * self.STEP
         offsetx, offsety = self.snap((self.ui.XSIZE - width) / 2,
                                      (self.ui.YSIZE - height) / 2)
 
-        elements = sch.elements
+        for node in sch.nodes.values():
+            x1 = node.pos.x + offsetx
+            y1 = node.pos.y + offsety
+            node1 = self.nodes.make(x1, y1, node.name)
+            self.nodes.add(node1)
+
+        elements = cct.elements
         for elt in elements.values():
-            # TODO: allow component name and value
-            self.add(elt.type, elt.nodes[0].pos.x + offsetx,
-                     elt.nodes[0].pos.y + offsety,
-                     elt.nodes[-1].pos.x + offsetx,
-                     elt.nodes[-1].pos.y + offsety)
+            cpt = self.cpt_make(elt.type)
+            cpt.cname = elt.name
+            cpt.nodes = []
+            for m, node in enumerate(elt.nodes):
+                node = self.node_find(node.name)
+                cpt.nodes.append(node)
+                cpt.ports[m].position = node.position
+            if elt.type == 'R':
+                cpt.value = elt.args[0]
+            elif elt.type in ('C', 'L'):
+                cpt.value = elt.args[0]
+                cpt.initial_value = elt.args[1]
+            elif elt.type in ('V', 'I'):
+                cpt.value = elt.args[0]
+                if elt.keyword[0] is not None:
+                    for key, val in cpt.kinds.items():
+                        if val == elt.keyword[1]:
+                            cpt.kind = key
+
+            elif elt.type in ('W', 'O', 'P'):
+                pass
+            else:
+                self.exception('Unhandled component ' + elt)
+
+            self.components.add(cpt)
+            cpt.__draw_on__(self, self.ui.component_layer)
+        self.ui.refresh()
 
     def move(self, xshift, yshift):
         # TODO
@@ -425,7 +472,7 @@ class UIModelBase:
         try:
             self.ui.show_expr_dialog(self.cct[cpt.cname].i,
                                      '%s current' % cpt.cname)
-        except (AttributeError, ValueError) as e:
+        except (AttributeError, ValueError, RuntimeError) as e:
             self.exception(e)
 
     def show_cpt_voltage(self, cpt):
@@ -433,7 +480,7 @@ class UIModelBase:
         try:
             self.ui.show_expr_dialog(self.cct[cpt.cname].v,
                                      '%s potential difference' % cpt.cname)
-        except (AttributeError, ValueError) as e:
+        except (AttributeError, ValueError, RuntimeError) as e:
             self.exception(e)
 
     def show_node_voltage(self, node):
@@ -441,7 +488,7 @@ class UIModelBase:
         try:
             self.ui.show_expr_dialog(self.cct[node.name].v,
                                      'Node %s potential' % node.name)
-        except (AttributeError, ValueError) as e:
+        except (AttributeError, ValueError, RuntimeError) as e:
             self.exception(e)
 
     def select(self, thing):
@@ -474,9 +521,14 @@ class UIModelBase:
         ann2.draw(color='blue', fontsize=40)
         self.ui.refresh()
 
+    @property
     def ground_node(self):
 
+        return self.node_find('0')
+
+    def node_find(self, nodename):
+
         for node in self.nodes:
-            if node.name == '0':
+            if node.name == nodename:
                 return node
-        self.exception('No ground node defined')
+        return None

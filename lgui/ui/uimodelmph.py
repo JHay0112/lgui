@@ -125,7 +125,7 @@ class UIModelMPH(UIModelBase):
         y2 = self.cursors[1].y
 
         self.history.add(cptname, x1, y1, x2, y2)
-        self.add(cptname, x1, y1, x2, y2)
+        self.cpt_add(cptname, x1, y1, x2, y2)
 
     def on_add_ground(self):
 
@@ -234,7 +234,10 @@ class UIModelMPH(UIModelBase):
 
     def on_inspect_node_voltage(self):
 
-        gnode = self.ground_node()
+        gnode = self.ground_node
+        if gnode is None:
+            self.exception('No ground node defined')
+
         node = self.selected
         self.voltage_annotations.remove()
 
