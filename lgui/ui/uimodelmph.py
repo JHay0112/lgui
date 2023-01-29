@@ -209,6 +209,15 @@ class UIModelMPH(UIModelBase):
         self.history.unselect()
         self.unselect()
 
+    def on_inspect_cpt_current(self):
+
+        cpt = self.selected
+        self.voltage_annotations.remove()
+        self.voltage_annotate(cpt)
+        # TODO: FIXME for wire current
+        self.ui.show_expr_dialog(self.cct[cpt.cname].i,
+                                 '%s current' % cpt.cname)
+
     def on_inspect_cpt_voltage(self):
 
         cpt = self.selected
@@ -227,6 +236,8 @@ class UIModelMPH(UIModelBase):
 
         if key == 'v':
             self.on_inspect_cpt_voltage()
+        elif key == 'i':
+            self.on_inspect_cpt_current()
 
     def on_edit_key(self, key):
 
