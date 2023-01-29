@@ -186,6 +186,13 @@ class UIModelMPH(UIModelBase):
     def on_select(self, cptname):
         self.select(cptname)
 
+    def on_toggle_mode(self):
+
+        if self.edit_mode:
+            self.on_analyze()
+        else:
+            self.on_edit()
+
     def on_unselect(self):
         self.history.unselect()
         self.unselect()
@@ -198,6 +205,8 @@ class UIModelMPH(UIModelBase):
             self.on_debug()
         elif key == 'ctrl+l':
             self.on_load()
+        elif key == 'ctrl+m':
+            self.on_toggle_mode()
         elif key == 'ctrl+s':
             self.on_save()
         elif key == 'ctrl+v':
