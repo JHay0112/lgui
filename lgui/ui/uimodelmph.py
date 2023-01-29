@@ -19,6 +19,11 @@ class Cursor:
         self.x = x
         self.y = y
 
+    @property
+    def position(self):
+
+        return self.x, self.y
+
     def draw(self, color='red', radius=0.5):
 
         self.patch = self.layer.stroke_filled_circle(self.x, self.y,
@@ -129,9 +134,20 @@ class UIModelMPH(UIModelBase):
 
     def on_add_ground(self):
 
-        # TODO
-        if len(self.cursors) < 2:
+        if self.ground_node is not None:
+            # Perhaps could rename old ground?
+            self.exception('Ground node already defined')
+
+        if len(self.cursors) == 0:
             return
+        cursor = self.cursors[-1]
+        x, y = cursor.position
+        node = self.nodes.closest(x, y)
+        if node is None:
+            return
+        node.name = '0'
+
+        # TODO: annotate ground
 
     def on_analyze(self):
 
@@ -242,12 +258,14 @@ class UIModelMPH(UIModelBase):
         self.voltage_annotations.remove()
 
         ann1 = Annotation(self.ui, *node.position, '+')
-        ann2 = Annotation(self.ui, *gnode.position, '-')
-
         self.voltage_annotations.add(ann1)
-        self.voltage_annotations.add(ann2)
         ann1.draw(color='red', fontsize=40)
-        ann2.draw(color='blue', fontsize=40)
+
+        if gnode is not None:
+            ann2 = Annotation(self.ui, *gnode.position, '-')
+            self.voltage_annotations.add(ann2)
+            ann2.draw(color='blue', fontsize=40)
+
         self.ui.refresh()
 
         self.show_node_voltage(node)
