@@ -417,6 +417,23 @@ class UIModelBase:
         with open(filename, 'w') as fhandle:
             fhandle.write(s)
 
+    def show_cpt_current(self, cpt):
+
+        # TODO: FIXME for wire current
+        try:
+            self.ui.show_expr_dialog(self.cct[cpt.cname].i,
+                                     '%s current' % cpt.cname)
+        except (AttributeError, ValueError) as e:
+            self.exception(e)
+
+    def show_cpt_voltage(self, cpt):
+
+        try:
+            self.ui.show_expr_dialog(self.cct[cpt.cname].v,
+                                     '%s potential difference' % cpt.cname)
+        except (AttributeError, ValueError) as e:
+            self.exception(e)
+
     def select(self, thing):
 
         self.selected = thing

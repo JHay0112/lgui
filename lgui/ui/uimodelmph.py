@@ -212,22 +212,25 @@ class UIModelMPH(UIModelBase):
         self.history.unselect()
         self.unselect()
 
+    def on_inspect_cpt_admittance(self):
+        pass
+
     def on_inspect_cpt_current(self):
 
         cpt = self.selected
         self.voltage_annotations.remove()
         self.voltage_annotate(cpt)
-        # TODO: FIXME for wire current
-        self.ui.show_expr_dialog(self.cct[cpt.cname].i,
-                                 '%s current' % cpt.cname)
+        self.show_cpt_current(cpt)
+
+    def on_inspect_cpt_impedance(self):
+        pass
 
     def on_inspect_cpt_voltage(self):
 
         cpt = self.selected
         self.voltage_annotations.remove()
         self.voltage_annotate(cpt)
-        self.ui.show_expr_dialog(self.cct[cpt.cname].v,
-                                 '%s potential difference' % cpt.cname)
+        self.show_cpt_voltage(cpt)
 
     def on_inspect_node_voltage(self):
 
@@ -235,12 +238,45 @@ class UIModelMPH(UIModelBase):
         self.ui.show_expr_dialog(self.cct[node.name].v,
                                  'Node %s potential' % node.name)
 
+    def on_inspect_current(self):
+
+        if not self.selected:
+            return
+        if self.cpt_selected:
+            self.on_inspect_cpt_current()
+        # Cannot inspect node current
+
+    def on_inspect_voltage(self):
+
+        if not self.selected:
+            return
+        if self.cpt_selected:
+            self.on_inspect_cpt_voltage()
+        else:
+            self.on_inspect_node_voltage()
+
+    def on_inspect_admittance(self):
+
+        if not self.selected:
+            return
+        # TODO
+
+    def on_inspect_impedance(self):
+
+        if not self.selected:
+            return
+        # TODO
+
     def on_analyze_key(self, key):
 
         if key == 'v':
-            self.on_inspect_cpt_voltage()
+            self.on_inspect_voltage()
         elif key == 'i':
-            self.on_inspect_cpt_current()
+            self.on_inspect_current()
+        elif key == 'y':
+            self.on_inspect_admittance()
+        elif key == 'z':
+            self.on_inspect_impedance()
 
     def on_edit_key(self, key):
 
