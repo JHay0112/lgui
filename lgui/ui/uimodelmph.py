@@ -234,16 +234,17 @@ class UIModelMPH(UIModelBase):
 
     def on_inspect_node_voltage(self):
 
+        gnode = self.ground_node()
         node = self.selected
         self.voltage_annotations.remove()
 
         ann1 = Annotation(self.ui, *node.position, '+')
-        # ann2 = Annotation(self.ui, position, '-')
+        ann2 = Annotation(self.ui, *gnode.position, '-')
 
         self.voltage_annotations.add(ann1)
-        # self.voltage_annotations.add(ann2)
+        self.voltage_annotations.add(ann2)
         ann1.draw(color='red', fontsize=40)
-        # ann2.draw(color='blue', fontsize=40)
+        ann2.draw(color='blue', fontsize=40)
         self.ui.refresh()
 
         self.show_node_voltage(node)

@@ -473,3 +473,10 @@ class UIModelBase:
         ann1.draw(color='red', fontsize=40)
         ann2.draw(color='blue', fontsize=40)
         self.ui.refresh()
+
+    def ground_node(self):
+
+        for node in self.nodes:
+            if node.name == '0':
+                return node
+        self.exception('No ground node defined')
