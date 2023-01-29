@@ -35,7 +35,6 @@ class Component(ABC):
         The value of the component.
     """
 
-    HEIGHT = 4
     next_id: int = 0
 
     def __init__(self, value: Union[str, int, float]):
@@ -73,35 +72,31 @@ class Component(ABC):
         """
         ...
 
-    def along(self, p: float) -> np.array:
+    def length(self) -> float:
         """
-        Computes the point some proportion along the line of the component.
-        This is relative to the position of the zero-th port.
-
-        Parameters
-        ----------
-
-        p: float
-            Proportion of length along component.
+        Computes the length of the component.
         """
-        delta = np.array(self.ports[1].position) - np.array(self.ports[0].position)
-        return p*delta
+        return np.linalg.norm(np.abs(np.array(self.ports[1].position) - np.array(self.ports[0].position)))
 
-    def orthog(self, p: float) -> np.array:
+    def along(self) -> np.array:
         """
-        Computes the point some proportion to the right (anti-clockwise) of the self.
-        This is relative to the position of the zero-th port.
-
-        Parameters
-        ----------
-
-        p: float
-            Proportion of the length of the component.
+        Computes a unit vector pointing along the line of the component.
+        If the length of the component is zero, this will return the zero vector.
         """
-        delta = np.array(self.ports[0].position) - np.array(self.ports[1].position) 
+        length = self.length()
+        if length == 0:
+            return np.array((0, 0))
+        else:
+            return (np.array(self.ports[1].position) - np.array(self.ports[0].position))/length
+
+    def orthog(self) -> np.array:
+        """
+        Computes a unit vector pointing anti-clockwise to the line of the component.
+        """
+        delta = self.along()
         theta = np.pi/2
         rot = np.array([[np.cos(theta), -np.sin(theta)], [np.sin(theta), np.cos(theta)]])
-        return p*np.dot(rot, delta)
+        return np.dot(rot, delta)
 
     def draw_on(self, editor, layer: canvas.Canvas):
         """
