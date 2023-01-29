@@ -2,7 +2,7 @@ from ...components import Capacitor, Inductor
 from tkinter import Tk, StringVar, Label, OptionMenu, Entry, Button
 
 
-class NodeDialog:
+class NodePropertiesDialog:
 
     def __init__(self, node, update=None):
 

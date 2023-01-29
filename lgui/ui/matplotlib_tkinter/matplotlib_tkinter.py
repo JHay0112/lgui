@@ -253,15 +253,15 @@ class Editor(EditorBase):
 
     def show_cpt_dialog(self, cpt, on_changed):
 
-        from .cpt_dialog import CptDialog
+        from .cpt_dialog import CptPropertiesDialog
 
-        self.cpt_dialog = CptDialog(cpt, on_changed)
+        self.cpt_dialog = CptPropertiesDialog(cpt, on_changed)
 
     def show_node_dialog(self, node, on_changed):
 
-        from .node_dialog import NodeDialog
+        from .node_dialog import NodePropertiesDialog
 
-        self.node_dialog = NodeDialog(node, on_changed)
+        self.node_dialog = NodePropertiesDialog(node, on_changed)
 
     def show_info_dialog(self, message):
 

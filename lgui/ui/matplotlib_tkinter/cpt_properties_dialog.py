@@ -2,7 +2,7 @@ from ...components import Capacitor, Inductor
 from tkinter import Tk, StringVar, Label, OptionMenu, Entry, Button
 
 
-class CptDialog:
+class CptPropertiesDialog:
 
     def __init__(self, cpt, update=None):
 
