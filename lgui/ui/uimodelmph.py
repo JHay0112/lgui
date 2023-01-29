@@ -141,6 +141,7 @@ class UIModelMPH(UIModelBase):
             # Indicate in analyze mode.
             if self.components != []:
                 self.voltage_annotate(self.components[0])
+                self.on_select(self.components[0])
             self.ui.refresh()
 
         self.analyze()
@@ -161,6 +162,8 @@ class UIModelMPH(UIModelBase):
         self.nodes.debug()
         print('History.........')
         self.history.debug()
+        print('Selected.........')
+        print(self.selected)
 
     def on_edit(self):
 
