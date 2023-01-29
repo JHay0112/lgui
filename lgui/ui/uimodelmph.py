@@ -1,4 +1,4 @@
-from .uimodelbase import UIModelBase
+from .uimodelbase import UIModelBase, Annotation
 
 # In analyze mode could interrogate node voltage with respect to
 # ground but need to define a ground node.  Otherwise, could specify a
@@ -141,7 +141,7 @@ class UIModelMPH(UIModelBase):
             # Indicate in analyze mode.
             if self.components != []:
                 self.voltage_annotate(self.components[0])
-                self.on_select(self.components[0])
+                self.select(self.components[0])
             self.ui.refresh()
 
         self.analyze()
@@ -235,8 +235,18 @@ class UIModelMPH(UIModelBase):
     def on_inspect_node_voltage(self):
 
         node = self.selected
-        self.ui.show_expr_dialog(self.cct[node.name].v,
-                                 'Node %s potential' % node.name)
+        self.voltage_annotations.remove()
+
+        ann1 = Annotation(self.ui, *node.position, '+')
+        # ann2 = Annotation(self.ui, position, '-')
+
+        self.voltage_annotations.add(ann1)
+        # self.voltage_annotations.add(ann2)
+        ann1.draw(color='red', fontsize=40)
+        # ann2.draw(color='blue', fontsize=40)
+        self.ui.refresh()
+
+        self.show_node_voltage(node)
 
     def on_inspect_current(self):
 

@@ -254,19 +254,20 @@ class History(list):
 
     def play(self, ui):
 
-        for action in self:
-            parts = action.split(' ')
-            if parts[0] == 'A':
-                ui.add(parts[1], float(parts[2]), float(parts[3]),
-                       float(parts[4]))
-            elif parts[0] == 'M':
-                ui.move(float(parts[1]), float(parts[2]))
-            elif parts[0] == 'R':
-                ui.rotate(float(parts[1]))
-            elif parts[0] == 'S':
-                ui.select(parts[1])
-            else:
-                raise RuntimeError('Unknown command ' + action)
+        # for action in self:
+        #     parts = action.split(' ')
+        #     if parts[0] == 'A':
+        #         ui.add(parts[1], float(parts[2]), float(parts[3]),
+        #                float(parts[4]))
+        #     elif parts[0] == 'M':
+        #         ui.move(float(parts[1]), float(parts[2]))
+        #     elif parts[0] == 'R':
+        #         ui.rotate(float(parts[1]))
+        #     elif parts[0] == 'S':
+        #         ui.select(parts[1])   # FIXME, pass x, y
+        #     else:
+        #         raise RuntimeError('Unknown command ' + action)
+        pass
 
     def move(self, xshift, yshift):
 
@@ -343,7 +344,7 @@ class UIModelBase:
         cpt.__draw_on__(self, self.ui.component_layer)
         self.ui.refresh()
 
-        self.select(cptname)
+        self.select(cpt)
 
     def circuit(self):
 
@@ -358,6 +359,7 @@ class UIModelBase:
     def analyze(self):
 
         self.cct = self.circuit()
+
         try:
             self.cct[0]
         except (AttributeError, ValueError) as e:
@@ -431,6 +433,14 @@ class UIModelBase:
         try:
             self.ui.show_expr_dialog(self.cct[cpt.cname].v,
                                      '%s potential difference' % cpt.cname)
+        except (AttributeError, ValueError) as e:
+            self.exception(e)
+
+    def show_node_voltage(self, node):
+
+        try:
+            self.ui.show_expr_dialog(self.cct[node.name].v,
+                                     'Node %s potential' % node.name)
         except (AttributeError, ValueError) as e:
             self.exception(e)
 
