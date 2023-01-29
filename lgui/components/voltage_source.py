@@ -5,19 +5,19 @@ from typing import Union
 
 from .component import Component
 
-class CurrentSupply(Component):
+class VoltageSource(Component):
     """
-    CurrentSupply
+    VoltageSource
 
     Parameters
     ----------
 
     value: Union[str, int, float]
-        The value of the current supply.
+        The value of the voltage supply.
     """
 
-    TYPE = "I"
-    NAME = "Current Supply"
+    TYPE = "V"
+    NAME = "Voltage Supply"
 
     def __init__(self, value: Union[str, int, float]):
 

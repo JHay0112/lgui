@@ -56,8 +56,8 @@ class Editor(canvas.MultiCanvas):
                 Capacitor.NAME: Capacitor,
                 Inductor.NAME: Inductor,
                 Wire.NAME: Wire,
-                VoltageSupply.NAME: VoltageSupply,
-                CurrentSupply.NAME: CurrentSupply,
+                VoltageSource.NAME: VoltageSource,
+                CurrentSource.NAME: CurrentSource,
                 Ground.NAME: Ground
             },
             value = Wire
