@@ -5,7 +5,7 @@ from PIL import Image, ImageTk
 
 class ExprDialog:
 
-    def __init__(self, expr):
+    def __init__(self, expr, title=''):
 
         self.expr = expr
 
@@ -29,6 +29,7 @@ class ExprDialog:
                         'Angular Frequency': 'angular_frequency'}
 
         self.master = Tk()
+        self.master.title(title)
 
         format_var = StringVar(self.master)
         format_var.set(self.format)

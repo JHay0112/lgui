@@ -245,17 +245,17 @@ class Editor(EditorBase):
 
         exit()
 
-    def show_expr_dialog(self, expr):
+    def show_expr_dialog(self, expr, title=''):
 
         from .expr_dialog import ExprDialog
 
-        self.expr_dialog = ExprDialog(expr)
+        self.expr_dialog = ExprDialog(expr, title)
 
-    def show_cpt_dialog(self, cpt):
+    def show_cpt_dialog(self, cpt, on_changed):
 
         from .cpt_dialog import CptDialog
 
-        self.cpt_dialog = CptDialog(cpt)
+        self.cpt_dialog = CptDialog(cpt, on_changed)
 
     def show_info_dialog(self, message):
 

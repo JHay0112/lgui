@@ -4,9 +4,10 @@ from tkinter import Tk, StringVar, Label, OptionMenu, Entry, Button
 
 class CptDialog:
 
-    def __init__(self, cpt):
+    def __init__(self, cpt, update=None):
 
         self.cpt = cpt
+        self.update = update
 
         self.master = Tk()
 
@@ -89,3 +90,6 @@ class CptDialog:
             self.cpt.initial_value = value
 
         self.master.destroy()
+
+        if self.update:
+            self.update(self.cpt)

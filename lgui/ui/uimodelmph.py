@@ -237,10 +237,12 @@ class UIModelMPH(UIModelBase):
         if cpt is not None:
             self.voltage_annotations.remove()
             self.voltage_annotate(cpt)
-            self.ui.show_expr_dialog(self.cct[cpt.cname].v)
+            self.ui.show_expr_dialog(self.cct[cpt.cname].v,
+                                     '%s potential difference' % cpt.cname)
         elif node is not None:
             self.draw_node_select(x, y)
-            self.ui.show_expr_dialog(self.cct[node.name].v)
+            self.ui.show_expr_dialog(self.cct[node.name].v,
+                                     'Node %s potential' % node.name)
 
     def on_load(self):
 
@@ -250,13 +252,18 @@ class UIModelMPH(UIModelBase):
         self.load(filename)
         self.ui.refresh()
 
+    def on_cpt_changed(self, cpt):
+
+        if not self.edit_mode:
+            self.analyze()
+
     def on_right_click(self, x, y):
 
         cpt = self.components.closest(x, y)
         if cpt is None:
             return
 
-        self.ui.show_cpt_dialog(cpt)
+        self.ui.show_cpt_dialog(cpt, self.on_cpt_changed)
 
     def on_save(self):
 
