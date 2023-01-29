@@ -1,4 +1,4 @@
-from ..components import Capacitor, CurrentSupply, Inductor, \
+from ..components import Capacitor, Component, CurrentSupply, Inductor, \
     Resistor, VoltageSupply, Wire
 from math import sqrt, degrees, atan2
 
@@ -281,9 +281,9 @@ class History(list):
         with open(filename, 'w') as fhandle:
             fhandle.write_lines(self)
 
-    def select(self, cptname):
+    def select(self, thing):
 
-        self.append('S %s' % cptname)
+        self.append('S %s' % thing)
 
     def unselect(self):
 
@@ -305,6 +305,12 @@ class UIModelBase:
         self.cct = None
         self.filename = ''
         self.voltage_annotations = Annotations()
+        self.selected = None
+
+    @property
+    def cpt_selected(self):
+
+        return isinstance(self.selected, Component)
 
     # Drawing commands
     def add(self, cptname, x1, y1, x2, y2):
@@ -411,8 +417,9 @@ class UIModelBase:
         with open(filename, 'w') as fhandle:
             fhandle.write(s)
 
-    def select(self, cptname):
-        pass
+    def select(self, thing):
+
+        self.selected = thing
 
     def snap(self, x, y):
 

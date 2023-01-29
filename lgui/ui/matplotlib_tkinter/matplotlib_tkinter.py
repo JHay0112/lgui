@@ -257,10 +257,21 @@ class Editor(EditorBase):
 
         self.cpt_dialog = CptDialog(cpt, on_changed)
 
+    def show_node_dialog(self, node, on_changed):
+
+        from .node_dialog import NodeDialog
+
+        self.node_dialog = NodeDialog(node, on_changed)
+
     def show_info_dialog(self, message):
 
         from tkinter.messagebox import showinfo
         showinfo('', message)
+
+    def show_error_dialog(self, message):
+
+        from tkinter.messagebox import showerror
+        showerror('', message)
 
     def show_message_dialog(self, message):
 

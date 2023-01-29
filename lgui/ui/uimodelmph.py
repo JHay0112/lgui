@@ -183,8 +183,20 @@ class UIModelMPH(UIModelBase):
         self.history.rotate(angle)
         self.rotate(angle)
 
-    def on_select(self, cptname):
-        self.select(cptname)
+    def on_select(self, x, y):
+
+        cpt = self.components.closest(x, y)
+        node = self.nodes.closest(x, y)
+
+        if cpt and node:
+            self.ui.show_error(
+                'Selected both node %s and cpt %s' % (node, cpt))
+            return
+
+        if cpt:
+            self.select(cpt)
+        elif node:
+            self.select(node)
 
     def on_toggle_mode(self):
 
@@ -196,6 +208,34 @@ class UIModelMPH(UIModelBase):
     def on_unselect(self):
         self.history.unselect()
         self.unselect()
+
+    def on_inspect_cpt_voltage(self):
+
+        cpt = self.selected
+        self.voltage_annotations.remove()
+        self.voltage_annotate(cpt)
+        self.ui.show_expr_dialog(self.cct[cpt.cname].v,
+                                 '%s potential difference' % cpt.cname)
+
+    def on_inspect_node_voltage(self):
+
+        node = self.selected
+        self.ui.show_expr_dialog(self.cct[node.name].v,
+                                 'Node %s potential' % node.name)
+
+    def on_analyze_key(self, key):
+
+        if key == 'v':
+            self.on_inspect_cpt_voltage()
+
+    def on_edit_key(self, key):
+
+        if key == 'ctrl+z':
+            self.on_undo()
+        elif key == '0':
+            self.on_add_ground()
+        elif key in ('c', 'i', 'l', 'r', 'v', 'w'):
+            self.on_add_cpt(key.upper())
 
     def on_key(self, key):
 
@@ -211,20 +251,23 @@ class UIModelMPH(UIModelBase):
             self.on_save()
         elif key == 'ctrl+v':
             self.on_view()
-        elif key == 'ctrl+z':
-            self.on_undo()
         elif key == 'escape':
             self.on_unselect()
-        elif key == '0':
-            self.on_add_ground()
-        elif key in ('c', 'i', 'l', 'r', 'v', 'w'):
-            self.on_add_cpt(key.upper())
+        else:
+            if self.edit_mode:
+                self.on_edit_key(key)
+            else:
+                self.on_analyze_key(key)
 
     def on_left_click(self, x, y):
 
+        self.on_select(x, y)
+        if not self.selected:
+            return
+
         if self.edit_mode:
-            cpt = self.components.closest(x, y)
-            if cpt:
+            if self.cpt_selected:
+                cpt = self.selected
                 self.cursors.remove()
                 self.draw_cursor(*cpt.nodes[0].position)
                 self.draw_cursor(*cpt.nodes[-1].position)
@@ -232,26 +275,16 @@ class UIModelMPH(UIModelBase):
                 self.on_add_node(x, y)
             return
 
-        cpt = self.components.closest(x, y)
-        node = self.nodes.closest(x, y)
-
         # TODO: in future want to be able to edit node attributes as
         # well as place cursor on node.  Perhaps have an inspect mode?
         # The easiest option is to use a different mouse button but
         # this not available in browser implementations.
 
-        if cpt and node:
-            print('Selected both node %s and cpt %s' % (node, cpt))
-
-        if cpt is not None:
-            self.voltage_annotations.remove()
-            self.voltage_annotate(cpt)
-            self.ui.show_expr_dialog(self.cct[cpt.cname].v,
-                                     '%s potential difference' % cpt.cname)
-        elif node is not None:
+        if self.cpt_selected:
+            self.on_inspect_cpt_voltage()
+        else:
             self.draw_node_select(x, y)
-            self.ui.show_expr_dialog(self.cct[node.name].v,
-                                     'Node %s potential' % node.name)
+            self.on_inspect_node_voltage()
 
     def on_load(self):
 
@@ -268,11 +301,14 @@ class UIModelMPH(UIModelBase):
 
     def on_right_click(self, x, y):
 
-        cpt = self.components.closest(x, y)
-        if cpt is None:
+        self.on_select(x, y)
+        if not self.selected:
             return
 
-        self.ui.show_cpt_dialog(cpt, self.on_cpt_changed)
+        if self.cpt_selected:
+            self.ui.show_cpt_dialog(self.selected, self.on_cpt_changed)
+        else:
+            self.ui.show_node_dialog(self.selected, self.on_cpt_changed)
 
     def on_save(self):
 
