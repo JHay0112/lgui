@@ -11,8 +11,8 @@ from .resistor import Resistor
 from .inductor import Inductor
 from .capacitor import Capacitor
 
-from .voltage_supply import VoltageSupply
-from .current_supply import CurrentSupply
+from .voltage_source import VoltageSource
+from .current_source import CurrentSource
 from .ground import Ground
 
 from .wire import Wire
