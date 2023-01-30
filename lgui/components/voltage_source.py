@@ -25,38 +25,52 @@ class VoltageSource(Component):
 
     def __draw_on__(self, editor, layer):
 
-        start_x, start_y = self.ports[0].position
-        end_x, end_y = self.ports[1].position
+        length = self.length()
+
+        start = self.ports[0].position
+        end = self.ports[1].position
+        mid = 0.5 * self.along() * length + start
         
-        RADIUS = 0.3
-        OFFSET = 0.05
+        RADIUS = 1.2 * editor.STEP
+        OFFSET = 0.5 * editor.STEP
 
         # lead 1
-        mid = self.along(0.5 - RADIUS) + (start_x, start_y)
-        layer.stroke_line(start_x, start_y, mid[0], mid[1])
+        shift = self.along() * RADIUS
+        layer.stroke_line(
+            start[0], start[1],
+            mid[0] - shift[0], mid[1] - shift[1]
+        )
+
+        # lead 2
+        layer.stroke_line(
+            mid[0] + shift[0], mid[1] + shift[1], 
+            end[0], end[1]
+        )
 
         # circle
-        mid = self.along(0.5) + (start_x, start_y)
-        layer.stroke_arc(mid[0], mid[1], RADIUS*type(self).HEIGHT*editor.STEP, 0, 2*np.pi)
+        layer.stroke_arc(
+            mid[0], mid[1], 
+            RADIUS, 
+            0, 2 * np.pi
+        )
 
-        # positive symbol
-        mid = self.along(0.5 - RADIUS/2) + (start_x, start_y)
-        shift = self.along(OFFSET)
-        orthog = self.orthog(OFFSET)
+        # plus/minus signs
+        offset = (RADIUS - OFFSET) * self.along()
+        v_shift = OFFSET * self.along()
+        h_shift = OFFSET * self.orthog()
 
-        start = mid - shift
-        end = mid + shift
-        layer.stroke_line(start[0], start[1], end[0], end[1])
-        start = mid - orthog
-        end = mid + orthog
-        layer.stroke_line(start[0], start[1], end[0], end[1])
+        # plus
+        layer.stroke_line(
+            mid[0] - offset[0] + v_shift[0]/2, mid[1] - offset[1] + v_shift[1]/2,
+            mid[0] - offset[0] - v_shift[0]/2, mid[1] - offset[1] - v_shift[1]/2
+        )
+        layer.stroke_line(
+            mid[0] - offset[0] + h_shift[0]/2, mid[1] - offset[1] + h_shift[1]/2,
+            mid[0] - offset[0] - h_shift[0]/2, mid[1] - offset[1] - h_shift[1]/2
+        )
 
-        # negative symbol
-        mid = self.along(0.5 + RADIUS/2) + (start_x, start_y)
-        start = mid - orthog
-        end = mid + orthog
-        layer.stroke_line(start[0], start[1], end[0], end[1])
-
-        # lead 1
-        mid = self.along(0.5 + RADIUS) + (start_x, start_y)
-        layer.stroke_line(mid[0], mid[1], end_x, end_y)
+        # minus
+        layer.stroke_line(
+            mid[0] + offset[0] + h_shift[0]/2, mid[1] + offset[1] + h_shift[1]/2,
+            mid[0] + offset[0] - h_shift[0]/2, mid[1] + offset[1] - h_shift[1]/2
+        )
