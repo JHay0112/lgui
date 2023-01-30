@@ -368,6 +368,10 @@ class UIModelMPH(UIModelBase):
             self.draw_node_select(x, y)
             self.on_inspect_node_voltage()
 
+    def on_left_double_click(self, x, y):
+
+        self.on_right_click(x, y)
+
     def on_load(self):
 
         filename = self.ui.open_file_dialog()
@@ -388,9 +392,14 @@ class UIModelMPH(UIModelBase):
             return
 
         if self.cpt_selected:
-            self.ui.show_cpt_dialog(self.selected, self.on_cpt_changed)
+            self.ui.show_cpt_properties_dialog(self.selected,
+                                               self.on_cpt_changed)
         else:
-            self.ui.show_node_dialog(self.selected, self.on_cpt_changed)
+            self.ui.show_node_properties_dialog(self.selected,
+                                                self.on_cpt_changed)
+
+    def on_right_double_click(self, x, y):
+        pass
 
     def on_save(self):
 

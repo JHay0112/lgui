@@ -232,10 +232,16 @@ class Editor(EditorBase):
         if event.xdata is None or event.ydata is None:
             return
 
-        if event.button == 1:
-            self.model.on_left_click(event.xdata, event.ydata)
-        elif event.button == 3:
-            self.model.on_right_click(event.xdata, event.ydata)
+        if event.dblclick:
+            if event.button == 1:
+                self.model.on_left_double_click(event.xdata, event.ydata)
+            elif event.button == 3:
+                self.model.on_right_double_click(event.xdata, event.ydata)
+        else:
+            if event.button == 1:
+                self.model.on_left_click(event.xdata, event.ydata)
+            elif event.button == 3:
+                self.model.on_right_click(event.xdata, event.ydata)
 
     def on_close(self, event):
 
@@ -251,17 +257,17 @@ class Editor(EditorBase):
 
         self.expr_dialog = ExprDialog(expr, title)
 
-    def show_cpt_dialog(self, cpt, on_changed):
+    def show_cpt_properties_dialog(self, cpt, on_changed):
 
-        from .cpt_dialog import CptPropertiesDialog
+        from .cpt_properties_dialog import CptPropertiesDialog
 
-        self.cpt_dialog = CptPropertiesDialog(cpt, on_changed)
+        self.cpt_properties_dialog = CptPropertiesDialog(cpt, on_changed)
 
-    def show_node_dialog(self, node, on_changed):
+    def show_node_properties_dialog(self, node, on_changed):
 
-        from .node_dialog import NodePropertiesDialog
+        from .node_properties_dialog import NodePropertiesDialog
 
-        self.node_dialog = NodePropertiesDialog(node, on_changed)
+        self.node_properties_dialog = NodePropertiesDialog(node, on_changed)
 
     def show_info_dialog(self, message):
 
