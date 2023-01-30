@@ -53,8 +53,6 @@ class ExprDialog:
         domain_label.grid(row=1)
         domain_option.grid(row=1, column=1)
 
-        img = self.make_img(self.expr)
-
         expr_label1 = Label(self.master, text='Expr: ')
         expr_label2 = Label(self.master, text='')
         expr_label1.grid(row=2, column=0)

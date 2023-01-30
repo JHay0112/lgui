@@ -269,9 +269,11 @@ class Editor(EditorBase):
 
         self.node_properties_dialog = NodePropertiesDialog(node, on_changed)
 
-    def show_plot_dialog(self):
+    def show_plot_properties_dialog(self, expr):
 
-        pass
+        from .plot_properties_dialog import PlotPropertiesDialog
+
+        self.plot_properties_dialog = PlotPropertiesDialog(expr, self)
 
     def show_info_dialog(self, message):
 
