@@ -33,8 +33,8 @@ class VoltageSource(Component):
         end = self.ports[1].position
         mid = 0.5 * self.along() * length + start
 
-        RADIUS = 1.2 * editor.STEP
-        OFFSET = 0.5 * editor.STEP
+        RADIUS = 1.2 * editor.STEP * editor.SCALE
+        OFFSET = 0.5 * editor.STEP * editor.SCALE
 
         # lead 1
         shift = self.along() * RADIUS
