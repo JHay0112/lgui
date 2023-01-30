@@ -382,6 +382,11 @@ class UIModelMPH(UIModelBase):
         self.load(filename)
         self.ui.refresh()
 
+    def on_plot(self):
+        if self.last_expr is None:
+            return
+        self.ui.show_plot_properties_dialog(self.last_expr)
+
     def on_cpt_changed(self, cpt):
 
         if not self.edit_mode:
