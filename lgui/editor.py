@@ -25,6 +25,7 @@ class Editor(canvas.MultiCanvas):
     LAYERS = 4
     STEP = 24
     MOVE_DELAY = 0.05
+    HV_ONLY = True
 
     # capture user interactions
     output = widgets.Output()
@@ -94,13 +95,30 @@ class Editor(canvas.MultiCanvas):
         with canvas.hold_canvas():
             # deal with active component rendering
             if self.active_component is not None:
-
                 if self.active_component.TYPE != Ground.TYPE:
                     # update final port position
-                    self.active_component.ports[1].position = (
-                        x - (x % Editor.STEP),
-                        y - (y % Editor.STEP)
-                    )
+                    if self.HV_ONLY:
+                        # locks the editor to only permit horizontal and vertical components
+                        dx, dy = (
+                            x - self.active_component.ports[0].position[0],
+                            y - self.active_component.ports[0].position[1]
+                        )
+                        # permit variable wire length
+                        if abs(dx) > abs(dy):
+                            self.active_component.ports[1].position = (
+                                x - (round(x) % Editor.STEP), 
+                                self.active_component.ports[0].position[1]
+                            )
+                        else:
+                            self.active_component.ports[1].position = (
+                                self.active_component.ports[0].position[0], 
+                                y - (y % Editor.STEP)
+                            )
+                    else:
+                        self.active_component.ports[1].position = (
+                            x - (x % Editor.STEP),
+                            y - (y % Editor.STEP)
+                        )
 
                 self.active_layer.clear()
                 self.active_component.draw_on(self, self.active_layer)
