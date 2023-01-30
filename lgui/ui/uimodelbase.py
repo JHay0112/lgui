@@ -310,6 +310,7 @@ class UIModelBase:
         self.filename = ''
         self.voltage_annotations = Annotations()
         self.selected = None
+        self.last_expr = None
 
     @property
     def cpt_selected(self):
@@ -470,7 +471,8 @@ class UIModelBase:
 
         # TODO: FIXME for wire current
         try:
-            self.ui.show_expr_dialog(self.cct[cpt.cname].i,
+            self.last_expr = self.cct[cpt.cname].i
+            self.ui.show_expr_dialog(self.last_expr,
                                      '%s current' % cpt.cname)
         except (AttributeError, ValueError, RuntimeError) as e:
             self.exception(e)
@@ -478,7 +480,8 @@ class UIModelBase:
     def show_cpt_voltage(self, cpt):
 
         try:
-            self.ui.show_expr_dialog(self.cct[cpt.cname].v,
+            self.last_expr = self.cct[cpt.cname].v
+            self.ui.show_expr_dialog(self.last_expr,
                                      '%s potential difference' % cpt.cname)
         except (AttributeError, ValueError, RuntimeError) as e:
             self.exception(e)
@@ -486,7 +489,8 @@ class UIModelBase:
     def show_node_voltage(self, node):
 
         try:
-            self.ui.show_expr_dialog(self.cct[node.name].v,
+            self.last_expr = self.cct[node.name].v
+            self.ui.show_expr_dialog(self.last_expr,
                                      'Node %s potential' % node.name)
         except (AttributeError, ValueError, RuntimeError) as e:
             self.exception(e)

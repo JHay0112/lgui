@@ -301,7 +301,9 @@ class UIModelMPH(UIModelBase):
 
     def on_analyze_key(self, key):
 
-        if key == 'v':
+        if key == 'ctrl+p':
+            self.on_plot()
+        elif key == 'v':
             self.on_inspect_voltage()
         elif key == 'i':
             self.on_inspect_current()

@@ -46,3 +46,9 @@ attributes unless clever
 
 19. Entry of exotic components, say xtal.  Need a special prefix, say x.
 xxtal for a crystal, xcpe for a CPE, etc.
+
+20. Configuration file
+
+21. User levels to hide many options
+
+22. Plotting
