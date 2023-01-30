@@ -1,14 +1,15 @@
-from tkinter import StringVar, Label, Entry
+from tkinter import StringVar, Label, Entry, OptionMenu
 
 
 class LabelEntry:
 
-    def __init__(self, name, text, default, cls):
+    def __init__(self, name, text, default, options=None):
 
         self.name = name
         self.text = text
         self.default = default
-        self.cls = cls
+        self.cls = default.__class__
+        self.options = options
 
 
 class LabelEntries(dict):
@@ -24,7 +25,10 @@ class LabelEntries(dict):
             self[labelentry.name] = (var, labelentry.cls)
 
             label = Label(master, text=labelentry.text + ': ')
-            entry = Entry(master, textvariable=var)
+            if isinstance(labelentry.options, (tuple, list)):
+                entry = OptionMenu(master, var, *labelentry.options)
+            else:
+                entry = Entry(master, textvariable=var)
 
             label.grid(row=self.row)
             entry.grid(row=self.row, column=1)
