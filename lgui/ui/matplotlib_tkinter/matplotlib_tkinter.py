@@ -269,6 +269,10 @@ class Editor(EditorBase):
 
         self.node_properties_dialog = NodePropertiesDialog(node, on_changed)
 
+    def show_plot_dialog(self):
+
+        pass
+
     def show_info_dialog(self, message):
 
         from tkinter.messagebox import showinfo
