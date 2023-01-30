@@ -1,5 +1,5 @@
 """
-Defines the component editor class.
+Defines the Jupyter component editor class.
 """
 
 import threading
@@ -11,12 +11,32 @@ from typing import Callable
 from functools import wraps
 from IPython.display import display
 
+from .ui import UserInterface
 from .sheet import Sheet
 from .components import *
 
-class Editor(canvas.MultiCanvas):
+class MetaEditor(type(UserInterface), type(canvas.MultiCanvas)):
     """
-    The component editor is an ipywidget.
+    This class resolves a metaclass conflict for the editor type.
+    Without this metaclass the Editor object cannot succesfully inherit
+    from both the UserInterface and MultiCanvas.
+
+    This is not an ideal fix since it doesn't feel truly Pythonic,
+    and I don't fully understand what is happening. The only alternative
+    I can see is to not use multiple-inheritance...
+    """
+    ...
+
+class Editor(UserInterface, canvas.MultiCanvas, metaclass = MetaEditor):
+    """
+    Jupyter Widget for laying out schematics.
+
+    Run with 
+    ```
+    from lgui.jupyter import Editor
+    editor = Editor()
+    editor.display()
+    ```
     """
 
     SCALE = 0.25
@@ -35,7 +55,7 @@ class Editor(canvas.MultiCanvas):
         self.sheet: Sheet = Sheet("Untitled", None)
         self.active_component: Component = None
 
-        super().__init__(Editor.LAYERS, width = Editor.WIDTH, height = Editor.HEIGHT)
+        super().__init__(n_canvases = Editor.LAYERS, width = Editor.WIDTH, height = Editor.HEIGHT)
 
         # layer stackup
         self.cursor_layer,   \
