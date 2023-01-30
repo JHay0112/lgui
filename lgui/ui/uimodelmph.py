@@ -218,6 +218,8 @@ class UIModelMPH(UIModelBase):
             self.select(cpt)
         elif node:
             self.select(node)
+        else:
+            self.select(None)
 
     def on_toggle_mode(self):
 
@@ -346,16 +348,18 @@ class UIModelMPH(UIModelBase):
     def on_left_click(self, x, y):
 
         self.on_select(x, y)
-        if not self.selected:
-            return
 
         if self.edit_mode:
             if self.cpt_selected:
                 cpt = self.selected
+                if self.ui.debug:
+                    print('Selected ' + cpt.cname)
                 self.cursors.remove()
                 self.draw_cursor(*cpt.nodes[0].position)
                 self.draw_cursor(*cpt.nodes[-1].position)
             else:
+                if self.ui.debug:
+                    print('Add node at (%s, %s)' % (x, y))
                 self.on_add_node(x, y)
             return
 
