@@ -255,7 +255,7 @@ class Editor(EditorBase):
 
         from .expr_dialog import ExprDialog
 
-        self.expr_dialog = ExprDialog(expr, title)
+        self.expr_dialog = ExprDialog(expr, self, title)
 
     def show_cpt_properties_dialog(self, cpt, on_changed):
 

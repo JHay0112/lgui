@@ -301,9 +301,7 @@ class UIModelMPH(UIModelBase):
 
     def on_analyze_key(self, key):
 
-        if key == 'ctrl+p':
-            self.on_plot()
-        elif key == 'v':
+        if key == 'v':
             self.on_inspect_voltage()
         elif key == 'i':
             self.on_inspect_current()
@@ -381,11 +379,6 @@ class UIModelMPH(UIModelBase):
             return
         self.load(filename)
         self.ui.refresh()
-
-    def on_plot(self):
-        if self.last_expr is None:
-            return
-        self.ui.show_plot_properties_dialog(self.last_expr)
 
     def on_cpt_changed(self, cpt):
 

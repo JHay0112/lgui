@@ -1,13 +1,15 @@
-from tkinter import Tk, StringVar, Label, OptionMenu
+from tkinter import Tk, StringVar, Label, OptionMenu, Button
 from lcapy.system import tmpfilename, LatexRunner, PDFConverter
 from PIL import Image, ImageTk
 
 
 class ExprDialog:
 
-    def __init__(self, expr, title=''):
+    def __init__(self, expr, ui, title=''):
 
         self.expr = expr
+        self.expr_tweak = expr
+        self.ui = ui
 
         domain_map = {'time': 'Time', 'laplace': 'Laplace',
                       'fourier': 'Fourier', 'frequency': 'Frequency',
@@ -59,6 +61,10 @@ class ExprDialog:
         expr_label2.grid(row=2, column=1)
 
         self.expr_label = expr_label2
+
+        button = Button(self.master, text="Plot", command=self.on_plot)
+        button.grid(row=3)
+
         self.update()
 
     def on_format(self, format):
@@ -80,9 +86,10 @@ class ExprDialog:
 
         globals = {'result': self.expr}
         try:
-            e = eval('result.%s().%s()' % (domain, format), globals)
+            self.expr_tweak = eval('result.%s().%s()' %
+                                   (domain, format), globals)
             # self.show_pretty(e)
-            self.show_img(e)
+            self.show_img(self.expr_tweak)
         except (AttributeError, ValueError) as e:
             self.expr_label.config(text=e)
 
@@ -118,3 +125,7 @@ class ExprDialog:
         img = self.make_img(e)
         self.expr_label.config(image=img)
         self.expr_label.photo = img
+
+    def on_plot(self):
+
+        self.ui.show_plot_properties_dialog(self.expr_tweak)
