@@ -38,7 +38,7 @@ class Resistor(Component):
         zig_orthog = ZIG_HEIGHT * self.orthog()
 
         # lead 1
-        centre = (LEAD_LENGTH - (ZIGS//2) * ZIG_WIDTH) * self.along() + mid
+        centre = (LEAD_LENGTH + (-ZIGS//2 - 1/2) * ZIG_WIDTH) * self.along() + mid
         layer.stroke_line(start[0], start[1], centre[0], centre[1])
         layer.stroke_line(
             centre[0], centre[1], 
@@ -46,7 +46,7 @@ class Resistor(Component):
         )
 
         # lead 2
-        centre = (LEAD_LENGTH + (ZIGS//2 + 1) * ZIG_WIDTH) * self.along() + mid
+        centre = (LEAD_LENGTH + (ZIGS//2 + 1/2) * ZIG_WIDTH) * self.along() + mid
         layer.stroke_line(centre[0], centre[1], end[0], end[1])
         layer.stroke_line(
             centre[0], centre[1], 
@@ -54,7 +54,7 @@ class Resistor(Component):
         )
 
         for z in range(-ZIGS//2, ZIGS//2):
-            centre = (LEAD_LENGTH + (z + 1/2) * ZIG_WIDTH) * self.along() + mid
+            centre = (LEAD_LENGTH + z * ZIG_WIDTH) * self.along() + mid
             if z % 2 == 0:
                 start = centre - zig_orthog
                 end = centre + zig_shift + zig_orthog

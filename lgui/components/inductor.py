@@ -39,11 +39,11 @@ class Inductor(Component):
         )
 
         # lead 1
-        shift = mid + 2 * (-LOOPS//2 - 0.5) * LOOP_RADIUS * self.along()
+        shift = mid + 2 * (-LOOPS//2) * LOOP_RADIUS * self.along()
         layer.stroke_line(start[0], start[1], shift[0], shift[1])
 
         # lead 2
-        shift = mid + 2 * (LOOPS//2 - 0.5) * LOOP_RADIUS * self.along()
+        shift = mid + 2 * (LOOPS//2) * LOOP_RADIUS * self.along()
         layer.stroke_line(shift[0], shift[1], end[0], end[1])
 
         # offset correction sign
@@ -52,7 +52,7 @@ class Inductor(Component):
 
         # loops
         for l in range(-LOOPS // 2, LOOPS // 2):
-            centre = 2 * l * LOOP_RADIUS * self.along() + mid
+            centre = (2 * l + 1) * LOOP_RADIUS * self.along() + mid
             layer.stroke_arc(
                 centre[0], centre[1], 
                 LOOP_RADIUS, 
