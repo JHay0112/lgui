@@ -25,6 +25,7 @@ class Editor(canvas.MultiCanvas):
     LAYERS = 4
     STEP = 24
     MOVE_DELAY = 0.05
+    HV_ONLY = True
 
     # capture user interactions
     output = widgets.Output()
@@ -56,8 +57,8 @@ class Editor(canvas.MultiCanvas):
                 Capacitor.NAME: Capacitor,
                 Inductor.NAME: Inductor,
                 Wire.NAME: Wire,
-                VoltageSupply.NAME: VoltageSupply,
-                CurrentSupply.NAME: CurrentSupply,
+                VoltageSource.NAME: VoltageSource,
+                CurrentSource.NAME: CurrentSource,
                 Ground.NAME: Ground
             },
             value = Wire
@@ -94,43 +95,36 @@ class Editor(canvas.MultiCanvas):
         with canvas.hold_canvas():
             # deal with active component rendering
             if self.active_component is not None:
-
-                dx, dy = (
-                    x - self.active_component.ports[0].position[0],
-                    y - self.active_component.ports[0].position[1]
-                )
-
-                if self.active_component.TYPE == Wire.TYPE:
-                    # permit variable wire length
-                    if abs(dx) > abs(dy):
-                        self.active_component.ports[1].position = (
-                            x - (round(x) % Editor.STEP), 
-                            self.active_component.ports[0].position[1]
+                if self.active_component.TYPE != Ground.TYPE:
+                    # update final port position
+                    if self.HV_ONLY:
+                        # locks the editor to only permit horizontal and vertical components
+                        dx, dy = (
+                            x - self.active_component.ports[0].position[0],
+                            y - self.active_component.ports[0].position[1]
                         )
+                        # permit variable wire length
+                        if abs(dx) > abs(dy):
+                            self.active_component.ports[1].position = (
+                                x - (round(x) % Editor.STEP), 
+                                self.active_component.ports[0].position[1]
+                            )
+                        else:
+                            self.active_component.ports[1].position = (
+                                self.active_component.ports[0].position[0], 
+                                y - (y % Editor.STEP)
+                            )
                     else:
                         self.active_component.ports[1].position = (
-                            self.active_component.ports[0].position[0], 
+                            x - (x % Editor.STEP),
                             y - (y % Editor.STEP)
-                        )
-                elif self.active_component.TYPE != Ground.TYPE:
-                    # limit other components to set heights
-                    if abs(dx) > abs(dy):
-                        self.active_component.ports[1].position = (
-                            self.active_component.ports[0].position[0] + np.sign(dx)*Editor.STEP*Component.HEIGHT,
-                            self.active_component.ports[0].position[1]
-                        )
-                    else:
-                        self.active_component.ports[1].position = (
-                            self.active_component.ports[0].position[0],
-                            self.active_component.ports[0].position[1] + np.sign(dy)*Editor.STEP*Component.HEIGHT
                         )
 
                 self.active_layer.clear()
                 self.active_component.draw_on(self, self.active_layer)
 
-            else:
-                if self.component_selector.value.TYPE == Ground.TYPE:
-                    self.active_component = Ground()
+            elif self.component_selector.value.TYPE == Ground.TYPE:
+                self.active_component = Ground()
 
             # draw a cursor for the user
             self.cursor_layer.clear()
