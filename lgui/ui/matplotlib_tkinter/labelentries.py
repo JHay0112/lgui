@@ -1,4 +1,5 @@
 from tkinter import StringVar, Label, Entry, OptionMenu
+from tkinter import StringVar, Label, Entry
 
 
 class LabelEntry:
@@ -18,6 +19,7 @@ class LabelEntries(dict):
 
         self.row = 0
         self.ui = ui
+
         for labelentry in entries:
 
             var = StringVar(master)
