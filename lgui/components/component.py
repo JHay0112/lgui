@@ -8,6 +8,7 @@ import ipycanvas as canvas
 from typing import Union
 from abc import ABC, abstractmethod
 
+
 class Node:
 
     """
@@ -21,6 +22,7 @@ class Node:
     def __eq__(self, other: 'Node') -> bool:
 
         return self.position == other.position
+
 
 class Component(ABC):
 
@@ -36,6 +38,7 @@ class Component(ABC):
     """
 
     next_id: int = 0
+    kinds = {}
 
     def __init__(self, value: Union[str, int, float]):
 
@@ -43,6 +46,8 @@ class Component(ABC):
         self.ports: list[Node] = [Node(), Node()]
         self.id = type(self).next_id
         type(self).next_id += 1
+        self.kind = None
+        self.initial_value = None
 
     @property
     @classmethod
@@ -63,6 +68,12 @@ class Component(ABC):
         E.g. Resistor
         """
         ...
+
+    def __str__(self) -> str:
+
+        return self.TYPE + ' ' + '(%s, %s) (%s, %s)' % \
+            (self.ports[0].position[0], self.ports[0].position[1],
+             self.ports[1].position[0], self.ports[1].position[1])
 
     @abstractmethod
     def __draw_on__(self, editor, layer: canvas.Canvas):
@@ -95,7 +106,8 @@ class Component(ABC):
         """
         delta = self.along()
         theta = np.pi/2
-        rot = np.array([[np.cos(theta), -np.sin(theta)], [np.sin(theta), np.cos(theta)]])
+        rot = np.array([[np.cos(theta), -np.sin(theta)],
+                       [np.sin(theta), np.cos(theta)]])
         return np.dot(rot, delta)
 
     def draw_on(self, editor, layer: canvas.Canvas):
@@ -119,4 +131,3 @@ class Component(ABC):
         end = self.ports[1].position
         layer.fill_arc(start[0], start[1], editor.STEP // 5, 0, 2 * np.pi)
         layer.fill_arc(end[0], end[1], editor.STEP // 5, 0, 2 * np.pi)
-        
