@@ -71,6 +71,7 @@ class Layer:
 
     def stroke_arc(self, x, y, r, theta1, theta2):
 
+        r *= 2
         patch = patches.Arc((x, y), r, r, 0, degrees(theta1), degrees(theta2))
         self.ax.add_patch(patch)
         return patch
@@ -112,6 +113,7 @@ class Editor(EditorBase):
 
     XSIZE = 30
     YSIZE = 20
+    SCALE = 0.01
 
     def __init__(self, filename=None, uimodel_class=None, debug=0):
 
