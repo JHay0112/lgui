@@ -30,8 +30,8 @@ class Capacitor(Component):
 
         mid = 0.5 * length * self.along() + start
         
-        PLATE_WIDTH = 2.4 * editor.STEP
-        PLATE_SEP = 0.4 * editor.STEP
+        PLATE_WIDTH = 2.4 * editor.STEP * editor.SCALE
+        PLATE_SEP = 0.4 * editor.STEP * editor.SCALE
 
         # lead 1
         shift = 0.5 * self.along() * PLATE_SEP

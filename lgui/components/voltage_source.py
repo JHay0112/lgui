@@ -5,6 +5,7 @@ from typing import Union
 
 from .component import Component
 
+
 class VoltageSource(Component):
     """
     VoltageSource
@@ -18,6 +19,7 @@ class VoltageSource(Component):
 
     TYPE = "V"
     NAME = "Voltage Supply"
+    kinds = {'DC': 'dc', 'AC': 'ac', 'Step': 'step'}
 
     def __init__(self, value: Union[str, int, float]):
 
@@ -30,9 +32,9 @@ class VoltageSource(Component):
         start = self.ports[0].position
         end = self.ports[1].position
         mid = 0.5 * self.along() * length + start
-        
-        RADIUS = 1.2 * editor.STEP
-        OFFSET = 0.5 * editor.STEP
+
+        RADIUS = 1.2 * editor.STEP * editor.SCALE
+        OFFSET = 0.5 * editor.STEP * editor.SCALE
 
         # lead 1
         shift = self.along() * RADIUS
@@ -43,14 +45,14 @@ class VoltageSource(Component):
 
         # lead 2
         layer.stroke_line(
-            mid[0] + shift[0], mid[1] + shift[1], 
+            mid[0] + shift[0], mid[1] + shift[1],
             end[0], end[1]
         )
 
         # circle
         layer.stroke_arc(
-            mid[0], mid[1], 
-            RADIUS, 
+            mid[0], mid[1],
+            RADIUS,
             0, 2 * np.pi
         )
 
@@ -61,16 +63,22 @@ class VoltageSource(Component):
 
         # plus
         layer.stroke_line(
-            mid[0] - offset[0] + v_shift[0]/2, mid[1] - offset[1] + v_shift[1]/2,
-            mid[0] - offset[0] - v_shift[0]/2, mid[1] - offset[1] - v_shift[1]/2
+            mid[0] - offset[0] + v_shift[0] /
+            2, mid[1] - offset[1] + v_shift[1]/2,
+            mid[0] - offset[0] - v_shift[0] /
+            2, mid[1] - offset[1] - v_shift[1]/2
         )
         layer.stroke_line(
-            mid[0] - offset[0] + h_shift[0]/2, mid[1] - offset[1] + h_shift[1]/2,
-            mid[0] - offset[0] - h_shift[0]/2, mid[1] - offset[1] - h_shift[1]/2
+            mid[0] - offset[0] + h_shift[0] /
+            2, mid[1] - offset[1] + h_shift[1]/2,
+            mid[0] - offset[0] - h_shift[0] /
+            2, mid[1] - offset[1] - h_shift[1]/2
         )
 
         # minus
         layer.stroke_line(
-            mid[0] + offset[0] + h_shift[0]/2, mid[1] + offset[1] + h_shift[1]/2,
-            mid[0] + offset[0] - h_shift[0]/2, mid[1] + offset[1] - h_shift[1]/2
+            mid[0] + offset[0] + h_shift[0] /
+            2, mid[1] + offset[1] + h_shift[1]/2,
+            mid[0] + offset[0] - h_shift[0] /
+            2, mid[1] + offset[1] - h_shift[1]/2
         )
