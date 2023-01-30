@@ -3,7 +3,6 @@ from typing import Union
 
 from .component import Component
 
-
 class Capacitor(Component):
     """
     Capacitor
@@ -30,14 +29,14 @@ class Capacitor(Component):
         end = self.ports[1].position
 
         mid = 0.5 * length * self.along() + start
-
+        
         PLATE_WIDTH = 2.4 * editor.STEP
         PLATE_SEP = 0.4 * editor.STEP
 
         # lead 1
         shift = 0.5 * self.along() * PLATE_SEP
         layer.stroke_line(
-            start[0], start[1],
+            start[0], start[1], 
             mid[0] - shift[0], mid[1] - shift[1]
         )
 

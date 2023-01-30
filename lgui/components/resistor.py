@@ -3,7 +3,6 @@ from typing import Union
 
 from .component import Component
 
-
 class Resistor(Component):
     """
     Resistor
@@ -29,7 +28,7 @@ class Resistor(Component):
         start = self.ports[0].position
         end = self.ports[1].position
         mid = 0.5 * self.along() * length + start
-
+        
         ZIGS = 6
         LEAD_LENGTH = 0.2
         ZIG_WIDTH = 0.4 * editor.STEP
@@ -39,23 +38,19 @@ class Resistor(Component):
         zig_orthog = ZIG_HEIGHT * self.orthog()
 
         # lead 1
-        centre = (LEAD_LENGTH + (-ZIGS//2 - 1/2)
-                  * ZIG_WIDTH) * self.along() + mid
+        centre = (LEAD_LENGTH + (-ZIGS//2 - 1/2) * ZIG_WIDTH) * self.along() + mid
         layer.stroke_line(start[0], start[1], centre[0], centre[1])
         layer.stroke_line(
-            centre[0], centre[1],
-            centre[0] + zig_shift[0]/2 + zig_orthog[0], centre[1] +
-            zig_shift[1]/2 + zig_orthog[1]
+            centre[0], centre[1], 
+            centre[0] + zig_shift[0]/2 + zig_orthog[0], centre[1] + zig_shift[1]/2 + zig_orthog[1]
         )
 
         # lead 2
-        centre = (LEAD_LENGTH + (ZIGS//2 + 1/2) *
-                  ZIG_WIDTH) * self.along() + mid
+        centre = (LEAD_LENGTH + (ZIGS//2 + 1/2) * ZIG_WIDTH) * self.along() + mid
         layer.stroke_line(centre[0], centre[1], end[0], end[1])
         layer.stroke_line(
-            centre[0], centre[1],
-            centre[0] - zig_shift[0]/2 + zig_orthog[0], centre[1] -
-            zig_shift[1]/2 + zig_orthog[1]
+            centre[0], centre[1], 
+            centre[0] - zig_shift[0]/2 + zig_orthog[0], centre[1] - zig_shift[1]/2 + zig_orthog[1]
         )
 
         for z in range(-ZIGS//2, ZIGS//2):

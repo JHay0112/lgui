@@ -1,5 +1,5 @@
-from ..components import Capacitor, Component, CurrentSupply, Inductor, \
-    Resistor, VoltageSupply, Wire
+from ..components import Capacitor, Component, CurrentSource, Inductor, \
+    Resistor, VoltageSource, Wire
 from math import sqrt, degrees, atan2
 
 
@@ -323,13 +323,13 @@ class UIModelBase:
         if cptname == 'C':
             cpt = Capacitor(None)
         elif cptname == 'I':
-            cpt = CurrentSupply(None)
+            cpt = CurrentSource(None)
         elif cptname == 'L':
             cpt = Inductor(None)
         elif cptname == 'R':
             cpt = Resistor(None)
         elif cptname == 'V':
-            cpt = VoltageSupply(None)
+            cpt = VoltageSource(None)
         elif cptname == 'W':
             cpt = Wire()
         else:

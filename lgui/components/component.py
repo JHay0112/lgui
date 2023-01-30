@@ -77,10 +77,9 @@ class Component(ABC):
 
     @abstractmethod
     def __draw_on__(self, editor, layer: canvas.Canvas):
-        """Handles drawing specific features of components.  Component end
-        nodes are handled by the draw_on method, which calls this
-        abstract method.
-
+        """
+        Handles drawing specific features of components.
+        Component end nodes are handled by the draw_on method, which calls this abstract method.
         """
         ...
 
