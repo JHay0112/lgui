@@ -319,8 +319,7 @@ class UIModelMPH(UIModelBase):
         else:
             if self.ui.debug:
                 print('Add node at (%s, %s)' % (x, y))
-                self.on_add_node(x, y)
-            return
+            self.on_add_node(x, y)
 
     def on_left_double_click(self, x, y):
 
