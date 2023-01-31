@@ -1,14 +1,5 @@
 from .uimodelbase import UIModelBase, Annotation
 
-# In analyze mode could interrogate node voltage with respect to
-# ground but need to define a ground node.  Otherwise, could specify a
-# pair of cursors (+ and -) and interrogate voltage between them.
-# This does not need a ground node defined.  However, would need to
-# move the cursors and press a key or button to find the voltage.
-# This is not as intuitive as say clicking on a node or clicking on a
-# component.  Perhaps clicking on a component would place the cursors
-# on its nodes with the positive one as defined in the netlist.
-
 
 class Cursor:
 
@@ -151,19 +142,6 @@ class UIModelMPH(UIModelBase):
 
         # TODO: annotate ground
 
-    def on_analyze(self):
-
-        if self.edit_mode:
-            self.edit_mode = False
-            self.cursors.remove()
-            # Indicate in analyze mode.
-            if self.components != []:
-                self.voltage_annotate(self.components[0])
-                self.select(self.components[0])
-            self.ui.refresh()
-
-        self.analyze()
-
     def on_close(self):
 
         self.ui.quit()
@@ -184,12 +162,6 @@ class UIModelMPH(UIModelBase):
         s += 'Selected.........\n'
         s += str(self.selected) + '\n'
         self.ui.show_message_dialog(s, 'Debug')
-
-    def on_edit(self):
-
-        self.edit_mode = True
-        self.voltage_annotations.remove()
-        self.ui.refresh()
 
     def on_export(self):
 
@@ -222,13 +194,6 @@ class UIModelMPH(UIModelBase):
             self.select(node)
         else:
             self.select(None)
-
-    def on_toggle_mode(self):
-
-        if self.edit_mode:
-            self.on_analyze()
-        else:
-            self.on_edit()
 
     def on_unselect(self):
         self.history.unselect()
@@ -308,17 +273,6 @@ class UIModelMPH(UIModelBase):
             return
         # TODO
 
-    def on_analyze_key(self, key):
-
-        if key == 'v':
-            self.on_inspect_voltage()
-        elif key == 'i':
-            self.on_inspect_current()
-        elif key == 'y':
-            self.on_inspect_admittance()
-        elif key == 'z':
-            self.on_inspect_impedance()
-
     def on_edit_key(self, key):
 
         if key == 'ctrl+z':
@@ -340,8 +294,6 @@ class UIModelMPH(UIModelBase):
             self.on_inspect()
         elif key == 'ctrl+l':
             self.on_load()
-        elif key == 'ctrl+m':
-            self.on_toggle_mode()
         elif key == 'ctrl+n':
             self.on_netlist()
         elif key == 'ctrl+s':
@@ -351,39 +303,24 @@ class UIModelMPH(UIModelBase):
         elif key == 'escape':
             self.on_unselect()
         else:
-            if self.edit_mode:
-                self.on_edit_key(key)
-            else:
-                self.on_analyze_key(key)
+            self.on_edit_key(key)
 
     def on_left_click(self, x, y):
 
         self.on_select(x, y)
 
-        if self.edit_mode:
-            if self.cpt_selected:
-                cpt = self.selected
-                if self.ui.debug:
-                    print('Selected ' + cpt.cname)
-                self.cursors.remove()
-                self.draw_cursor(*cpt.nodes[0].position)
-                self.draw_cursor(*cpt.nodes[-1].position)
-            else:
-                if self.ui.debug:
-                    print('Add node at (%s, %s)' % (x, y))
+        if self.cpt_selected:
+            cpt = self.selected
+            if self.ui.debug:
+                print('Selected ' + cpt.cname)
+            self.cursors.remove()
+            self.draw_cursor(*cpt.nodes[0].position)
+            self.draw_cursor(*cpt.nodes[-1].position)
+        else:
+            if self.ui.debug:
+                print('Add node at (%s, %s)' % (x, y))
                 self.on_add_node(x, y)
             return
-
-        # TODO: in future want to be able to edit node attributes as
-        # well as place cursor on node.  Perhaps have an inspect mode?
-        # The easiest option is to use a different mouse button but
-        # this not available in browser implementations.
-
-        if self.cpt_selected:
-            self.on_inspect_cpt_voltage()
-        else:
-            self.draw_node_select(x, y)
-            self.on_inspect_node_voltage()
 
     def on_left_double_click(self, x, y):
 
@@ -409,8 +346,7 @@ class UIModelMPH(UIModelBase):
 
     def on_cpt_changed(self, cpt):
 
-        if not self.edit_mode:
-            self.analyze()
+        self.analyze()
 
     def on_right_click(self, x, y):
 
@@ -450,9 +386,7 @@ class UIModelMPH(UIModelBase):
     def on_help(self):
 
         self.ui.show_message_dialog("""
-There are two modes: Edit mode and Analyze model.  The default is Edit mode.
-
-In edit mode, click on the grid to place a red positive cursor then
+Click on the grid to place a red positive cursor then
 click elsewhere to place a blue negative cursor.  Then enter c for a
 capacitor, i for a current source, l for an inductor, r for a
 resistor, v for a voltage source, etc.  The escape key will remove the
@@ -461,12 +395,11 @@ last defined cursor.
 The attributes of a component (name, value, etc.) can be edited by
 right clicking on a component.
 
-In analyze mode, left click on a component to display the voltage
-across the component.  The polarity is indicated by plus and minus
-symbols on the schematic.  The node voltages can be found by clicking
-on a node.  This will require a ground node to be defined.  This is
-defined in edit mode by typing the 0 key; the ground node is placed at
-the negative cursor.""", 'Help')
+Use Inspect to find the voltage across a component or the current
+through a component.
+
+A ground node to be defined by typing the 0 key; the ground node is
+placed at the negative cursor.""", 'Help')
 
     def on_inspect(self):
 

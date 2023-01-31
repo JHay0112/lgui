@@ -84,7 +84,6 @@ class UIModelBase:
         self.nodes = Nodes()
         self.history = History()
         self.ui = ui
-        self.edit_mode = True
         self._cct = None
         self.filename = ''
         self.voltage_annotations = Annotations()

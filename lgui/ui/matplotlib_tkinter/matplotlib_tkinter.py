@@ -17,16 +17,6 @@ class Tool(ToolBase):
         self.func()
 
 
-class AnalyzeTool(Tool):
-    # default_keymap = 'ctrl+a'
-    description = 'Analyze'
-
-
-class EditTool(Tool):
-    # default_keymap = 'ctrl+e'
-    description = 'Edit'
-
-
 class ExportTool(Tool):
     # default_keymap = 'ctrl+x'
     description = 'Export'
@@ -35,6 +25,11 @@ class ExportTool(Tool):
 class HelpTool(Tool):
     # default_keymap = 'ctrl+h'
     description = 'Help'
+
+
+class InspectTool(Tool):
+    # default_keymap = 'ctrl+i'
+    description = 'Inspect'
 
 
 class LoadTool(Tool):
@@ -155,8 +150,7 @@ class Editor(EditorBase):
             ['Save', SaveTool, self.model.on_save],
             ['Export', ExportTool, self.model.on_export],
             ['View', ViewTool, self.model.on_view],
-            ['Edit', EditTool, self.model.on_edit],
-            ['Analyze', AnalyzeTool, self.model.on_analyze],
+            ['Inspect', InspectTool, self.model.on_inspect],
             ['Help', ExportTool, self.model.on_help],
             ['Quit', QuitTool, self.quit]]
 
