@@ -287,11 +287,11 @@ class Editor(EditorBase):
         from tkinter.messagebox import showerror
         showerror('', message)
 
-    def show_message_dialog(self, message):
+    def show_message_dialog(self, message, title=''):
 
         from .message_dialog import MessageDialog
 
-        self.message_dialog = MessageDialog(message)
+        self.message_dialog = MessageDialog(message, title)
 
     def open_file_dialog(self, initialdir='.'):
 

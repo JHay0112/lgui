@@ -40,8 +40,10 @@ class Cursors(list):
 
     def debug(self):
 
+        s = ''
         for cursor in self:
-            print('%s, %s' % (cursor.x, cursor.y))
+            s += '%s, %s' % (cursor.x, cursor.y) + '\n'
+        return s
 
     def remove(self):
 
@@ -168,18 +170,20 @@ class UIModelMPH(UIModelBase):
 
     def on_debug(self):
 
-        print('Netlist.........')
-        print(self.components.as_sch(self.STEP))
-        print('Cursors.........')
-        self.cursors.debug()
-        print('Components......')
-        self.components.debug()
-        print('Nodes...........')
-        self.nodes.debug()
-        print('History.........')
-        self.history.debug()
-        print('Selected.........')
-        print(self.selected)
+        s = ''
+        s += 'Netlist.........\n'
+        s += self.components.as_sch(self.STEP) + '\n'
+        s += 'Cursors.........\n'
+        s += self.cursors.debug() + '\n'
+        s += 'Components......\n'
+        s += self.components.debug() + '\n'
+        s += 'Nodes...........\n'
+        s += self.nodes.debug() + '\n'
+        s += 'History.........\n'
+        s += self.history.debug() + '\n'
+        s += 'Selected.........\n'
+        s += str(self.selected) + '\n'
+        self.ui.show_message_dialog(s, 'Debug')
 
     def on_edit(self):
 
@@ -399,7 +403,7 @@ class UIModelMPH(UIModelBase):
             parts = line.split(';')
             netlist.append(parts[0].strip())
         s = '\n'.join(netlist)
-        self.ui.show_message_dialog(s)
+        self.ui.show_message_dialog(s, 'Netlist')
 
     def on_cpt_changed(self, cpt):
 
@@ -457,4 +461,4 @@ across the component.  The polarity is indicated by plus and minus
 symbols on the schematic.  The node voltages can be found by clicking
 on a node.  This will require a ground node to be defined.  This is
 defined in edit mode by typing the 0 key; the ground node is placed at
-the negative cursor.""")
+the negative cursor.""", 'Help')

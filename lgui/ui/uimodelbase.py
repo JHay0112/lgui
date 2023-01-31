@@ -107,8 +107,10 @@ class Nodes(list):
 
     def debug(self):
 
+        s = ''
         for node in self:
-            print(node)
+            s += str(node) + '\n'
+        return s
 
     def make(self, x, y, name=None):
 
@@ -166,9 +168,11 @@ class Components(list):
 
     def debug(self):
 
+        s = ''
         for cpt in self:
-            # Need to redow Component class to show node names as well.
-            print(cpt)
+            # Need to redo Component class to show node names as well.
+            s += str(cpt) + '\n'
+        return s
 
     def as_sch(self, step):
 
@@ -241,8 +245,10 @@ class History(list):
 
     def debug(self):
 
+        s = ''
         for elt in self:
-            print(elt)
+            s += str(elt) + '\n'
+        return s
 
     def load(self, filename):
 
