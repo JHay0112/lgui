@@ -336,6 +336,8 @@ class UIModelMPH(UIModelBase):
             self.on_debug()
         elif key == 'ctrl+h':
             self.on_help()
+        elif key == 'ctrl+i':
+            self.on_inspect()
         elif key == 'ctrl+l':
             self.on_load()
         elif key == 'ctrl+m':
@@ -419,11 +421,12 @@ class UIModelMPH(UIModelBase):
         if self.cpt_selected:
             self.ui.show_cpt_properties_dialog(self.selected,
                                                self.on_cpt_changed,
-                                               title=cpt.cname)
+                                               title=self.selected.cname)
         else:
             self.ui.show_node_properties_dialog(self.selected,
                                                 self.on_cpt_changed,
-                                                title='Node ' + node.name)
+                                                title='Node ' +
+                                                self.selected.name)
 
     def on_right_double_click(self, x, y):
         pass
@@ -464,3 +467,14 @@ symbols on the schematic.  The node voltages can be found by clicking
 on a node.  This will require a ground node to be defined.  This is
 defined in edit mode by typing the 0 key; the ground node is placed at
 the negative cursor.""", 'Help')
+
+    def on_inspect(self):
+
+        if not self.selected:
+            return
+
+        if not self.cpt_selected:
+            return
+
+        self.ui.show_inspect_dialog(self.selected,
+                                    title=self.selected.cname)

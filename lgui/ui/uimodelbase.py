@@ -85,11 +85,36 @@ class UIModelBase:
         self.history = History()
         self.ui = ui
         self.edit_mode = True
-        self.cct = None
+        self._cct = None
         self.filename = ''
         self.voltage_annotations = Annotations()
         self.selected = None
         self.last_expr = None
+
+    @property
+    def cct(self):
+
+        if self._cct is not None:
+            return self._cct
+
+        from lcapy import Circuit
+
+        if len(self.components) == 0:
+            self.exception('No circuit defined')
+
+        sch = self.components.as_sch(self.STEP)
+        if self.ground_node is None:
+            # Add dummy ground node
+            sch += 'W %s 0\n' % self.nodes[0].name
+
+        self._cct = Circuit(sch)
+
+        try:
+            self._cct[0]
+        except (AttributeError, ValueError, RuntimeError) as e:
+            self.exception(e)
+
+        return self._cct
 
     @property
     def cpt_selected(self):
@@ -145,22 +170,8 @@ class UIModelBase:
 
     def analyze(self):
 
-        from lcapy import Circuit
-
-        if len(self.components) == 0:
-            self.exception('No circuit defined')
-
-        sch = self.components.as_sch(self.STEP)
-        if self.ground_node is None:
-            # Add dummy ground node
-            sch += 'W %s 0\n' % self.nodes[0].name
-
-        self.cct = Circuit(sch)
-
-        try:
-            self.cct[0]
-        except (AttributeError, ValueError, RuntimeError) as e:
-            self.exception(e)
+        self._cct = None
+        self.cct
 
     def draw(self, cpt, **kwargs):
 
@@ -247,6 +258,15 @@ class UIModelBase:
         with open(filename, 'w') as fhandle:
             fhandle.write(s)
 
+    def show_cpt_admittance(self, cpt):
+
+        try:
+            self.last_expr = self.cct[cpt.cname].Y
+            self.ui.show_expr_dialog(self.last_expr,
+                                     '%s admittance' % cpt.cname)
+        except (AttributeError, ValueError, RuntimeError) as e:
+            self.exception(e)
+
     def show_cpt_current(self, cpt):
 
         # TODO: FIXME for wire current
@@ -254,6 +274,33 @@ class UIModelBase:
             self.last_expr = self.cct[cpt.cname].i
             self.ui.show_expr_dialog(self.last_expr,
                                      '%s current' % cpt.cname)
+        except (AttributeError, ValueError, RuntimeError) as e:
+            self.exception(e)
+
+    def show_cpt_impedance(self, cpt):
+
+        try:
+            self.last_expr = self.cct[cpt.cname].Z
+            self.ui.show_expr_dialog(self.last_expr,
+                                     '%s impe' % cpt.cname)
+        except (AttributeError, ValueError, RuntimeError) as e:
+            self.exception(e)
+
+    def show_cpt_norton_admittance(self, cpt):
+
+        try:
+            self.last_expr = self.cct[cpt.cname].dpY
+            self.ui.show_expr_dialog(self.last_expr,
+                                     '%s Norton admittance' % cpt.cname)
+        except (AttributeError, ValueError, RuntimeError) as e:
+            self.exception(e)
+
+    def show_cpt_thevenin_impedance(self, cpt):
+
+        try:
+            self.last_expr = self.cct[cpt.cname].dpZ
+            self.ui.show_expr_dialog(self.last_expr,
+                                     '%s Thevenin impedance' % cpt.cname)
         except (AttributeError, ValueError, RuntimeError) as e:
             self.exception(e)
 

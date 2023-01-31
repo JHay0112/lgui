@@ -259,6 +259,12 @@ class Editor(EditorBase):
 
         self.expr_dialog = ExprDialog(expr, self, title)
 
+    def show_inspect_dialog(self, cpt, title=''):
+
+        from .inspect_dialog import InspectDialog
+
+        self.inspect_dialog = InspectDialog(self.model, cpt, title)
+
     def show_cpt_properties_dialog(self, cpt, on_changed=None, title=''):
 
         from .cpt_properties_dialog import CptPropertiesDialog
