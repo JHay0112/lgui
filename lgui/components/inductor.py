@@ -32,7 +32,7 @@ class Inductor(Component):
         mid = 0.5 * self.along() * length + start
         
         LOOPS = 4
-        LOOP_RADIUS = 0.4 * editor.STEP
+        LOOP_RADIUS = 0.4 * editor.STEP * editor.SCALE
 
         angle_offset = np.arccos(
             np.dot(np.array([1, 0]), self.along())

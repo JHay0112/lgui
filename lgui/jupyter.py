@@ -39,12 +39,26 @@ class Editor(UserInterface, canvas.MultiCanvas, metaclass = MetaEditor):
     ```
     """
 
-    SCALE = 0.25
+    SCALE = 1
+    """
+    Determines the scale of components.
+    Larger values produce larger drawings of components.
+    """
+
     HEIGHT = 1000
     WIDTH = 2000
     LAYERS = 4
+
     STEP = 24
+    """
+    The pixel-step size between nodes.
+    """
+
     MOVE_DELAY = 0.05
+    """
+    Delay in seconds between refreshing the cursor.
+    """
+
     HV_ONLY = True
 
     # capture user interactions

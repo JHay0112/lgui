@@ -5,6 +5,7 @@ from typing import Union
 
 from .component import Component
 
+
 class CurrentSource(Component):
     """
     CurrentSource
@@ -18,6 +19,7 @@ class CurrentSource(Component):
 
     TYPE = "I"
     NAME = "Current Source"
+    kinds = {'DC': 'dc', 'AC': 'ac', 'Step': 'step'}
 
     def __init__(self, value: Union[str, int, float]):
 
@@ -30,9 +32,9 @@ class CurrentSource(Component):
         start = self.ports[0].position
         end = self.ports[1].position
         mid = 0.5 * self.along() * length + start
-        
-        RADIUS = 1.2 * editor.STEP
-        OFFSET = 0.25 * editor.STEP
+
+        RADIUS = 1.2 * editor.STEP * editor.SCALE
+        OFFSET = 0.25 * editor.STEP * editor.SCALE
 
         # lead 1
         shift = self.along() * RADIUS
@@ -43,14 +45,14 @@ class CurrentSource(Component):
 
         # lead 2
         layer.stroke_line(
-            mid[0] + shift[0], mid[1] + shift[1], 
+            mid[0] + shift[0], mid[1] + shift[1],
             end[0], end[1]
         )
 
         # circle
         layer.stroke_arc(
-            mid[0], mid[1], 
-            RADIUS, 
+            mid[0], mid[1],
+            RADIUS,
             0, 2 * np.pi
         )
 
@@ -68,9 +70,11 @@ class CurrentSource(Component):
         # arrow head
         layer.stroke_line(
             mid[0] - offset[0], mid[1] - offset[1],
-            mid[0] - offset[0] - h_shift[0] + v_shift[0], mid[1] - offset[1] - h_shift[1] + v_shift[1]
+            mid[0] - offset[0] - h_shift[0] + v_shift[0], mid[1] -
+            offset[1] - h_shift[1] + v_shift[1]
         )
         layer.stroke_line(
             mid[0] - offset[0], mid[1] - offset[1],
-            mid[0] - offset[0] + h_shift[0] + v_shift[0], mid[1] - offset[1] + h_shift[1] + v_shift[1]
+            mid[0] - offset[0] + h_shift[0] + v_shift[0], mid[1] -
+            offset[1] + h_shift[1] + v_shift[1]
         )
