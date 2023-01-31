@@ -26,9 +26,9 @@ class ExprDialog:
         self.format = 'Canonical'
 
         self.domains = {'Time': 'time', 'Laplace': 'laplace',
-                        'Fourier': 'fourier', 'Frequency': 'frequency',
+                        'Fourier': 'fourier', 'Frequency': 'frequency_response',
                         'Angular Fourier': 'angular_fourier',
-                        'Angular Frequency': 'angular_frequency'}
+                        'Angular Frequency': 'angular_frequency_response'}
 
         self.master = Tk()
         self.master.title(title)
