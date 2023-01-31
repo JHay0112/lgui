@@ -1,5 +1,3 @@
-
-
 from .uimodelbase import UIModelBase, Annotation
 
 # In analyze mode could interrogate node voltage with respect to
@@ -259,6 +257,9 @@ class UIModelMPH(UIModelBase):
             self.exception('No ground node defined')
 
         node = self.selected
+        if node is None or self.cpt_selected:
+            return
+
         self.voltage_annotations.remove()
 
         ann1 = Annotation(self.ui, *node.position, '+')
@@ -329,6 +330,8 @@ class UIModelMPH(UIModelBase):
             self.ui.quit()
         elif key == 'ctrl+d':
             self.on_debug()
+        elif key == 'ctrl+h':
+            self.on_help()
         elif key == 'ctrl+l':
             self.on_load()
         elif key == 'ctrl+m':
