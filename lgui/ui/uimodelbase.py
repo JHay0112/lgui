@@ -187,6 +187,7 @@ class UIModelBase:
         sch = cct.sch
 
         try:
+            # This will fail if have detached circuits.
             sch._positions_calculate()
         except (AttributeError, ValueError, RuntimeError) as e:
             self.exception(e)
@@ -204,11 +205,11 @@ class UIModelBase:
         elements = cct.elements
         for elt in elements.values():
             cpt = self.cpt_make(elt.type)
-            cpt.cname = elt.name
-            cpt.nodes = []
+            nodes = []
             for m, node in enumerate(elt.nodes):
                 node = self.node_find(node.name)
-                cpt.nodes.append(node)
+                nodes.append(node)
+                # Hack
                 cpt.ports[m].position = node.position
             if elt.type == 'R':
                 cpt.value = elt.args[0]
@@ -227,7 +228,7 @@ class UIModelBase:
             else:
                 self.exception('Unhandled component ' + elt)
 
-            self.components.add(cpt)
+            self.components.add(cpt, elt.name, *nodes)
             cpt.__draw_on__(self, self.ui.component_layer)
         self.ui.refresh()
 

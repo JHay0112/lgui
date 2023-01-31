@@ -24,7 +24,7 @@ class Cursor:
 
         return self.x, self.y
 
-    def draw(self, color='red', radius=0.5):
+    def draw(self, color='red', radius=0.3):
 
         self.patch = self.layer.stroke_filled_circle(self.x, self.y,
                                                      radius,

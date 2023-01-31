@@ -8,38 +8,48 @@ class Components(list):
         super(Components, self).__init__(self)
         self.kinds = {}
 
-    def add(self, cpt):
-
-        self.append(cpt)
-
-    def add_auto(self, cpt, *nodes):
+    def add(self, cpt, name, *nodes):
 
         if cpt.TYPE not in self.kinds:
-            self.kinds[cpt.TYPE] = 0
-        self.kinds[cpt.TYPE] += 1
+            self.kinds[cpt.TYPE] = []
+        self.kinds[cpt.TYPE].append(name)
 
         # Hack, update component class to have this attribute
-        cpt.cname = cpt.TYPE + '%d' % self.kinds[cpt.TYPE]
+        cpt.cname = name
 
         # Hack for drawing
         cpt.nodes = nodes
         cpt.ports[0].position = nodes[0].position
         cpt.ports[1].position = nodes[1].position
 
-        self.add(cpt)
+        self.append(cpt)
+
+    def add_auto(self, cpt, *nodes):
+        """Enumerate component before adding."""
+
+        if cpt.TYPE not in self.kinds:
+            name = cpt.TYPE + '1'
+        else:
+            num = 1
+            while True:
+                name = cpt.TYPE + str(num)
+                if name not in self.kinds[cpt.TYPE]:
+                    break
+                num += 1
+
+        self.add(cpt, name, *nodes)
 
     def clear(self):
 
         while self != []:
-            # TODO erase component
+            # TODO erase component?
             self.pop()
 
     def debug(self):
 
         s = ''
         for cpt in self:
-            # Need to redo Component class to show node names as well.
-            s += str(cpt) + '\n'
+            s += cpt.cname + ' ' + ' '.join([str(node) for node in self.nodes])
         return s
 
     def as_sch(self, step):
@@ -99,3 +109,14 @@ class Components(list):
             if rsq < 0.1 * ssq:
                 return cpt
         return None
+
+    def remove(self, cptname):
+
+        idx = self.index(cptname)
+        if idx is None:
+            raise ValueError('Unknown component ' + cptname)
+
+        cpt = self.pop(idx)
+
+        # Perhaps remove the associated nodes?
+        return cpt
