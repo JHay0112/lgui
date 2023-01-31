@@ -15,7 +15,10 @@ class ExprDialog:
                       'fourier': 'Fourier', 'frequency': 'Frequency',
                       'angular fourier': 'Angular Fourier',
                       'angular frequency': 'Angular Frequency'}
-        self.domain = domain_map[expr.domain]
+        domain = expr.domain
+        if expr.is_constant_domain:
+            domain = 'time'
+        self.domain = domain_map[domain]
 
         self.formats = {'Canonical': 'canonical',
                         'Standard': 'standard',
