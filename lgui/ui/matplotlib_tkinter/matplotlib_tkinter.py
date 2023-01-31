@@ -289,9 +289,9 @@ class Editor(EditorBase):
 
     def show_message_dialog(self, message):
 
-        # TODO, show wide messages...
-        from tkinter.messagebox import showinfo
-        showinfo('', message.replace('\n', ' '))
+        from .message_dialog import MessageDialog
+
+        self.message_dialog = MessageDialog(message)
 
     def open_file_dialog(self, initialdir='.'):
 

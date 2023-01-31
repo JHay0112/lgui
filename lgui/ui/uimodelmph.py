@@ -333,6 +333,8 @@ class UIModelMPH(UIModelBase):
             self.on_load()
         elif key == 'ctrl+m':
             self.on_toggle_mode()
+        elif key == 'ctrl+n':
+            self.on_netlist()
         elif key == 'ctrl+s':
             self.on_save()
         elif key == 'ctrl+v':
@@ -385,6 +387,16 @@ class UIModelMPH(UIModelBase):
             return
         self.load(filename)
         self.ui.refresh()
+
+    def on_netlist(self):
+
+        netlist = []
+        lines = self.circuit().netlist().split('\n')
+        for line in lines:
+            parts = line.split(';')
+            netlist.append(parts[0].strip())
+        s = '\n'.join(netlist)
+        self.ui.show_message_dialog(s)
 
     def on_cpt_changed(self, cpt):
 

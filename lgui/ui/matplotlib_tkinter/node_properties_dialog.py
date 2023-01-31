@@ -1,5 +1,4 @@
-from ...components import Capacitor, Inductor
-from tkinter import Tk, StringVar, Label, OptionMenu, Entry, Button
+from tkinter import Tk, StringVar, Label, Entry, Button
 
 
 class NodePropertiesDialog:
