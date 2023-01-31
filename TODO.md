@@ -52,3 +52,5 @@ xxtal for a crystal, xcpe for a CPE, etc.
 21. User levels to hide many options
 
 22. Plotting
+
+23. Export options for label_nodes etc.
