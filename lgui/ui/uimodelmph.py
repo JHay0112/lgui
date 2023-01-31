@@ -418,10 +418,12 @@ class UIModelMPH(UIModelBase):
 
         if self.cpt_selected:
             self.ui.show_cpt_properties_dialog(self.selected,
-                                               self.on_cpt_changed)
+                                               self.on_cpt_changed,
+                                               title=cpt.cname)
         else:
             self.ui.show_node_properties_dialog(self.selected,
-                                                self.on_cpt_changed)
+                                                self.on_cpt_changed,
+                                                title='Node ' + node.name)
 
     def on_right_double_click(self, x, y):
         pass

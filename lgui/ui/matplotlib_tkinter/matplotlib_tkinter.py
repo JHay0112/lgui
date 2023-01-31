@@ -259,17 +259,19 @@ class Editor(EditorBase):
 
         self.expr_dialog = ExprDialog(expr, self, title)
 
-    def show_cpt_properties_dialog(self, cpt, on_changed):
+    def show_cpt_properties_dialog(self, cpt, on_changed=None, title=''):
 
         from .cpt_properties_dialog import CptPropertiesDialog
 
-        self.cpt_properties_dialog = CptPropertiesDialog(cpt, on_changed)
+        self.cpt_properties_dialog = CptPropertiesDialog(cpt,
+                                                         on_changed, title)
 
-    def show_node_properties_dialog(self, node, on_changed):
+    def show_node_properties_dialog(self, node, on_changed=None, title=''):
 
         from .node_properties_dialog import NodePropertiesDialog
 
-        self.node_properties_dialog = NodePropertiesDialog(node, on_changed)
+        self.node_properties_dialog = NodePropertiesDialog(node,
+                                                           on_changed, title)
 
     def show_plot_properties_dialog(self, expr):
 

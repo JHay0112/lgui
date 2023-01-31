@@ -4,12 +4,13 @@ from tkinter import Tk, StringVar, Label, OptionMenu, Entry, Button
 
 class CptPropertiesDialog:
 
-    def __init__(self, cpt, update=None):
+    def __init__(self, cpt, update=None, title=''):
 
         self.cpt = cpt
         self.update = update
 
         self.master = Tk()
+        self.master.title(title)
 
         row = 0
 

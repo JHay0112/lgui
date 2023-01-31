@@ -3,12 +3,13 @@ from tkinter import Tk, StringVar, Label, Entry, Button
 
 class NodePropertiesDialog:
 
-    def __init__(self, node, update=None):
+    def __init__(self, node, update=None, title=''):
 
         self.node = node
         self.update = update
 
         self.master = Tk()
+        self.master.title(title)
 
         row = 0
 
