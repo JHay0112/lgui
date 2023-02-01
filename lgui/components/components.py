@@ -93,6 +93,11 @@ class Components(list):
             else:
                 angle = degrees(atan2(y2 - y1, x2 - x1))
                 attr = 'rotate=%s' % angle
+
+            # Add user defined attributes such as color=blue, thick, etc.
+            if cpt.attrs != '':
+                attr += ', ' + cpt.attrs
+
             parts.append('; ' + attr)
 
             elts.append(' '.join(parts))

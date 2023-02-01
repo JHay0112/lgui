@@ -66,6 +66,16 @@ class CptPropertiesDialog:
             initial_value_entry.grid(row=row, column=1)
             row += 1
 
+        self.attrs_var = StringVar(self.master)
+        self.attrs_var.set(cpt.attrs)
+
+        attrs_label = Label(self.master, text='Attributes: ')
+        attrs_entry = Entry(self.master, textvariable=self.attrs_var)
+
+        attrs_label.grid(row=row)
+        attrs_entry.grid(row=row, column=1)
+        row += 1
+
         button = Button(self.master, text="OK", command=self.on_update)
         button.grid(row=row)
 
@@ -89,6 +99,8 @@ class CptPropertiesDialog:
             if value == '':
                 value = None
             self.cpt.initial_value = value
+
+        self.cpt.attrs = self.attrs_var.get()
 
         self.master.destroy()
 

@@ -162,6 +162,10 @@ class UIModelBase:
 
         elements = cct.elements
         for elt in elements.values():
+            if elt.type == 'XX':
+                # Ignore directives
+                continue
+
             cpt = self.cpt_make(elt.type)
             nodes = []
             for m, node in enumerate(elt.nodes):
@@ -185,6 +189,19 @@ class UIModelBase:
                 pass
             else:
                 self.exception('Unhandled component ' + elt)
+
+            attrs = []
+            for opt, val in elt.opts.items():
+                if opt in ('left', 'right', 'up', 'down', 'rotate'):
+                    continue
+
+                def fmt(key, val):
+                    if val == '':
+                        return key
+                    return '%s=%s' % (key, val)
+
+                attrs.append(fmt(opt, val))
+            cpt.attrs = ', '.join(attrs)
 
             self.components.add(cpt, elt.name, *nodes)
             cpt.__draw_on__(self, self.ui.component_layer)

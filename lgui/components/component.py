@@ -48,6 +48,7 @@ class Component(ABC):
         type(self).next_id += 1
         self.kind = None
         self.initial_value = None
+        self.attrs = ''
 
     @property
     @classmethod
