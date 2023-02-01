@@ -13,28 +13,19 @@ class ExprDialog:
 
         self.operation = 'result'
 
-        self.formats = {'Plain': '',
+        self.format = ''
+
+        self.formats = {'': '',
                         'Canonical': 'canonical',
                         'Standard': 'standard',
                         'ZPK': 'ZPK',
                         'Partial fraction': 'partfrac',
                         'Time constant': 'timeconst'}
 
-        self.format = 'Plain'
+        self.domain = ''
 
-        domain_map = {'time': 'Time',
-                      'phasor': 'Phasor',
-                      'laplace': 'Laplace',
-                      'fourier': 'Fourier',
-                      'frequency': 'Frequency',
-                      'angular fourier': 'Angular Fourier',
-                      'angular frequency': 'Angular Frequency'}
-        domain = expr.domain
-        if expr.is_constant_domain:
-            domain = 'time'
-        self.domain = domain_map[domain]
-
-        self.domains = {'Time': 'time',
+        self.domains = {'': '',
+                        'Time': 'time',
                         'Phasor': 'phasor',
                         'Laplace': 'laplace',
                         'Fourier': 'fourier',
@@ -109,21 +100,21 @@ class ExprDialog:
     def update(self):
 
         operation = self.operation
-        format = self.formats[self.format]
-        domain = self.domains[self.domain]
+        format = self.format
+        domain = self.domain
 
         command = operation
         if format != '':
-            command += '.' + format + '()'
+            command += '.' + self.formats[format] + '()'
         if domain != '':
-            command += '.' + domain + '()'
+            command += '.' + self.domains[domain] + '()'
 
         globals = {'result': self.expr}
         try:
             self.expr_tweak = eval(command, globals)
             # self.show_pretty(e)
             self.show_img(self.expr_tweak)
-        except (AttributeError, ValueError) as e:
+        except Exception as e:
             self.expr_label.config(text=e)
 
     def show_pretty(self, e):
