@@ -11,8 +11,11 @@ class ExprDialog:
         self.expr_tweak = expr
         self.ui = ui
 
-        domain_map = {'time': 'Time', 'laplace': 'Laplace',
-                      'fourier': 'Fourier', 'frequency': 'Frequency',
+        domain_map = {'time': 'Time',
+                      'phasor': 'Phasor',
+                      'laplace': 'Laplace',
+                      'fourier': 'Fourier',
+                      'frequency': 'Frequency',
                       'angular fourier': 'Angular Fourier',
                       'angular frequency': 'Angular Frequency'}
         domain = expr.domain
@@ -28,8 +31,11 @@ class ExprDialog:
 
         self.format = 'Canonical'
 
-        self.domains = {'Time': 'time', 'Laplace': 'laplace',
-                        'Fourier': 'fourier', 'Frequency': 'frequency_response',
+        self.domains = {'Time': 'time',
+                        'Phasor': 'phasor',
+                        'Laplace': 'laplace',
+                        'Fourier': 'fourier',
+                        'Frequency': 'frequency_response',
                         'Angular Fourier': 'angular_fourier',
                         'Angular Frequency': 'angular_frequency_response'}
 
