@@ -47,11 +47,10 @@ class ExprDialog:
 
         operation_label = Label(self.master, text='Operation: ')
         operation_entry = Entry(self.master, textvariable=self.operation_var)
-        operation_apply = Button(self.master, text='Apply',
-                                 command=self.on_apply)
+        self.operation_vsr.add_trace('write', self.on_operation)
+
         operation_label.grid(row=0)
         operation_entry.grid(row=0, column=1)
-        operation_apply.grid(row=0, column=2)
 
         format_label = Label(self.master, text='Format: ')
         format_option = OptionMenu(self.master, format_var,
@@ -82,18 +81,21 @@ class ExprDialog:
         self.update()
 
     def on_format(self, format):
+
         if format == self.format:
             return
         self.format = format
         self.update()
 
     def on_domain(self, domain):
+
         if domain == self.domain:
             return
         self.domain = domain
         self.update()
 
-    def on_apply(self):
+    def on_operation(self):
+
         self.operation = self.operation_var.get()
         self.update()
 
