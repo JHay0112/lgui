@@ -110,7 +110,6 @@ class UIModelMPH(UIModelBase):
     def on_add_node(self, x, y):
 
         self.draw_cursor(x, y)
-        self.history.add_node(x, y)
 
     def on_add_cpt(self, cptname):
 
@@ -122,7 +121,6 @@ class UIModelMPH(UIModelBase):
         x2 = self.cursors[1].x
         y2 = self.cursors[1].y
 
-        self.history.add(cptname, x1, y1, x2, y2)
         self.cpt_add(cptname, x1, y1, x2, y2)
 
     def on_add_ground(self):
@@ -157,8 +155,6 @@ class UIModelMPH(UIModelBase):
         s += self.components.debug() + '\n'
         s += 'Nodes...........\n'
         s += self.nodes.debug() + '\n'
-        s += 'History.........\n'
-        s += self.history.debug() + '\n'
         s += 'Selected.........\n'
         s += str(self.selected) + '\n'
         self.ui.show_message_dialog(s, 'Debug')
@@ -171,11 +167,11 @@ class UIModelMPH(UIModelBase):
         self.export(filename)
 
     def on_move(self, xshift, yshift):
-        self.history.move(xshift, yshift)
+
         self.move(xshift, yshift)
 
     def on_rotate(self, angle):
-        self.history.rotate(angle)
+
         self.rotate(angle)
 
     def on_select(self, x, y):
@@ -196,7 +192,7 @@ class UIModelMPH(UIModelBase):
             self.select(None)
 
     def on_unselect(self):
-        self.history.unselect()
+
         self.unselect()
 
     def on_inspect_cpt_admittance(self):
@@ -273,15 +269,6 @@ class UIModelMPH(UIModelBase):
             return
         # TODO
 
-    def on_edit_key(self, key):
-
-        if key == 'ctrl+z':
-            self.on_undo()
-        elif key == '0':
-            self.on_add_ground()
-        elif key in ('c', 'i', 'l', 'r', 'v', 'w'):
-            self.on_add_cpt(key.upper())
-
     def on_key(self, key):
 
         if key == 'ctrl+c':
@@ -302,8 +289,14 @@ class UIModelMPH(UIModelBase):
             self.on_view()
         elif key == 'escape':
             self.on_unselect()
-        else:
-            self.on_edit_key(key)
+        elif key == 'ctrl+y':
+            self.on_redo()
+        elif key == 'ctrl+z':
+            self.on_undo()
+        elif key == '0':
+            self.on_add_ground()
+        elif key in ('c', 'i', 'l', 'r', 'v', 'w'):
+            self.on_add_cpt(key.upper())
 
     def on_left_click(self, x, y):
 
@@ -374,9 +367,12 @@ class UIModelMPH(UIModelBase):
         self.save(filename)
 
     def on_undo(self):
-        command = self.history.pop()
-        print(command)
-        # TODO, undo...
+
+        pass
+
+    def on_redo(self):
+
+        pass
 
     def on_view(self):
 
