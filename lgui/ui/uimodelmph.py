@@ -382,6 +382,11 @@ class UIModelMPH(UIModelBase):
 
         self.view()
 
+    def on_describe(self):
+
+        self.ui.show_message_dialog(self.cct.description(),
+                                    title='Description')
+
     def on_help(self):
 
         self.ui.show_message_dialog("""
@@ -394,8 +399,11 @@ last defined cursor.
 The attributes of a component (name, value, etc.) can be edited by
 right clicking on a component.
 
-Use Inspect to find the voltage across a component or the current
-through a component.
+The attributes of a node can be edited by right clicking on a
+node.
+
+Use Inspect (ctrl+i) to find the voltage across a component or the
+current through a component.
 
 A ground node to be defined by typing the 0 key; the ground node is
 placed at the negative cursor.""", 'Help')

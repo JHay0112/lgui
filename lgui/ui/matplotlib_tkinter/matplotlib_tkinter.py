@@ -17,6 +17,11 @@ class Tool(ToolBase):
         self.func()
 
 
+class DescribeTool(Tool):
+    # default_keymap = 'ctrl+?'
+    description = 'Describe'
+
+
 class ExportTool(Tool):
     # default_keymap = 'ctrl+x'
     description = 'Export'
@@ -151,6 +156,7 @@ class Editor(EditorBase):
             ['Export', ExportTool, self.model.on_export],
             ['View', ViewTool, self.model.on_view],
             ['Inspect', InspectTool, self.model.on_inspect],
+            ['Describe', DescribeTool, self.model.on_describe],
             ['Help', ExportTool, self.model.on_help],
             ['Quit', QuitTool, self.quit]]
 
