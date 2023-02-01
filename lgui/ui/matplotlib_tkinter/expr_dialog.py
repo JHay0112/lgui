@@ -39,18 +39,15 @@ class ExprDialog:
         self.operation_var = StringVar(self.master)
         self.operation_var.set(self.operation)
 
-        format_var = StringVar(self.master)
-        format_var.set(self.format)
-
-        domain_var = StringVar(self.master)
-        domain_var.set(self.domain)
-
         operation_label = Label(self.master, text='Operation: ')
         operation_entry = Entry(self.master, textvariable=self.operation_var)
-        self.operation_vsr.add_trace('write', self.on_operation)
+        self.operation_var.trace_add('write', self.on_operation)
 
         operation_label.grid(row=0)
         operation_entry.grid(row=0, column=1)
+
+        format_var = StringVar(self.master)
+        format_var.set(self.format)
 
         format_label = Label(self.master, text='Format: ')
         format_option = OptionMenu(self.master, format_var,
@@ -59,6 +56,9 @@ class ExprDialog:
 
         format_label.grid(row=1)
         format_option.grid(row=1, column=1)
+
+        domain_var = StringVar(self.master)
+        domain_var.set(self.domain)
 
         domain_label = Label(self.master, text='Domain: ')
         domain_option = OptionMenu(self.master, domain_var,
@@ -94,7 +94,7 @@ class ExprDialog:
         self.domain = domain
         self.update()
 
-    def on_operation(self):
+    def on_operation(self, *args):
 
         self.operation = self.operation_var.get()
         self.update()
