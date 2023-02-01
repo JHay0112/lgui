@@ -137,6 +137,7 @@ class UIModelBase:
             cpt = Wire()
         else:
             self.exception('Unhandled component ' + cptname)
+        self.invalidate()
         return cpt
 
     # Drawing commands
@@ -169,7 +170,7 @@ class UIModelBase:
 
     def analyze(self):
 
-        self._cct = None
+        self.invalidate()
         self.cct
 
     def draw(self, cpt, **kwargs):
@@ -182,6 +183,10 @@ class UIModelBase:
 
         cct = self.circuit()
         cct.draw(filename)
+
+    def invalidate(self):
+
+        self._cct = None
 
     def load(self, filename):
 

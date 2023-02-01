@@ -56,3 +56,5 @@ xxtal for a crystal, xcpe for a CPE, etc.
 23. Export options for label_nodes etc.
 
 24. Make resistors a little shorter
+
+25. Add numerical analysis

@@ -49,8 +49,8 @@ class Components(list):
 
         s = ''
         for cpt in self:
-            s += cpt.cname + ' ' + ' '.join([str(node) for node in self.nodes])
-        return s
+            s += cpt.cname + ' ' + ' '.join([str(node) for node in cpt.nodes])
+        return s + '\n'
 
     def as_sch(self, step):
 

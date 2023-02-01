@@ -24,6 +24,7 @@ class CurrentSource(Component):
     def __init__(self, value: Union[str, int, float]):
 
         super().__init__(value)
+        self.kind = 'DC'
 
     def __draw_on__(self, editor, layer):
 
