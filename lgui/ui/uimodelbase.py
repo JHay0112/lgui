@@ -5,73 +5,7 @@ from ..annotations import Annotations
 from ..nodes import Nodes
 from ..components import Components
 from .preferences import Preferences
-
-
-class History(list):
-
-    def add(self, cptname, x1, y1, x2, y2):
-
-        self.append('A %s %s %s %s %s' % (cptname, x1, y1, x2, y2))
-
-    def add_node(self, x, y):
-
-        self.append('N %s %s' % (x, y))
-
-    def debug(self):
-
-        s = ''
-        for elt in self:
-            s += str(elt) + '\n'
-        return s
-
-    def load(self, filename):
-
-        for _ in range(len(self)):
-            self.pop()
-
-        with open(filename, 'r') as fhandle:
-            lines = fhandle.read_lines(self)
-
-        for line in lines:
-            self.append(line)
-
-    def play(self, ui):
-
-        # for action in self:
-        #     parts = action.split(' ')
-        #     if parts[0] == 'A':
-        #         ui.add(parts[1], float(parts[2]), float(parts[3]),
-        #                float(parts[4]))
-        #     elif parts[0] == 'M':
-        #         ui.move(float(parts[1]), float(parts[2]))
-        #     elif parts[0] == 'R':
-        #         ui.rotate(float(parts[1]))
-        #     elif parts[0] == 'S':
-        #         ui.select(parts[1])   # FIXME, pass x, y
-        #     else:
-        #         raise RuntimeError('Unknown command ' + action)
-        pass
-
-    def move(self, xshift, yshift):
-
-        self.append('M %f %f' % (xshift, yshift))
-
-    def rotate(self, angle):
-
-        self.append('R %f' % angle)
-
-    def save(self, filename):
-
-        with open(filename, 'w') as fhandle:
-            fhandle.write_lines(self)
-
-    def select(self, thing):
-
-        self.append('S %s' % thing)
-
-    def unselect(self):
-
-        self.append('U')
+from lgui import __version__
 
 
 class UIModelBase:
@@ -83,7 +17,6 @@ class UIModelBase:
 
         self.components = Components()
         self.nodes = Nodes()
-        self.history = History()
         self.ui = ui
         self._cct = None
         self.filename = ''
@@ -162,9 +95,11 @@ class UIModelBase:
 
     def schematic(self):
 
-        s = self.components.as_sch(self.STEP)
+        s = '# Created by lcapy-gui ' + __version__ + '\n'
+        # TODO: save node positions
+        s += self.components.as_sch(self.STEP)
         # Note, need a newline so string treated as a netlist string
-        s += '\n;' + self.preferences.schematic_preferences() + '\n'
+        s += ';' + self.preferences.schematic_preferences() + '\n'
         return s
 
     def circuit(self):

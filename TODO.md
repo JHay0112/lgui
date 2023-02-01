@@ -51,10 +51,8 @@ xxtal for a crystal, xcpe for a CPE, etc.
 
 21. User levels to hide many options
 
-22. Plotting
+22. Make resistors a little shorter
 
-23. Export options for label_nodes etc.
+23. Add numerical analysis
 
-24. Make resistors a little shorter
-
-25. Add numerical analysis
+24. Add drawing attributes to components, blue, thick, etc.

@@ -148,13 +148,11 @@ class UIModelMPH(UIModelBase):
 
         s = ''
         s += 'Netlist.........\n'
-        s += self.components.as_sch(self.STEP) + '\n'
-        s += 'Cursors.........\n'
-        s += self.cursors.debug() + '\n'
-        s += 'Components......\n'
-        s += self.components.debug() + '\n'
+        s += self.schematic() + '\n'
         s += 'Nodes...........\n'
         s += self.nodes.debug() + '\n'
+        s += 'Cursors.........\n'
+        s += self.cursors.debug() + '\n'
         s += 'Selected.........\n'
         s += str(self.selected) + '\n'
         self.ui.show_message_dialog(s, 'Debug')
