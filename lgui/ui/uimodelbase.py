@@ -4,6 +4,7 @@ from ..annotation import Annotation
 from ..annotations import Annotations
 from ..nodes import Nodes
 from ..components import Components
+from .preferences import Preferences
 
 
 class History(list):
@@ -89,6 +90,7 @@ class UIModelBase:
         self.voltage_annotations = Annotations()
         self.selected = None
         self.last_expr = None
+        self.preferences = Preferences()
 
     @property
     def cct(self):
@@ -158,13 +160,19 @@ class UIModelBase:
 
         self.select(cpt)
 
+    def schematic(self):
+
+        s = self.components.as_sch(self.STEP)
+        # Note, need a newline so string treated as a netlist string
+        s += '\n;' + self.preferences.schematic_preferences() + '\n'
+        return s
+
     def circuit(self):
 
         from lcapy import Circuit
 
-        s = self.components.as_sch(self.STEP)
-        # Note, need a newline so string treated as a netlist string
-        s += '\n; draw_nodes=connections'
+        s = self.schematic()
+
         cct = Circuit(s)
         return cct
 
@@ -257,7 +265,7 @@ class UIModelBase:
 
     def save(self, filename):
 
-        s = self.components.as_sch(self.STEP)
+        s = self.schematic()
 
         with open(filename, 'w') as fhandle:
             fhandle.write(s)

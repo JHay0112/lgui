@@ -418,3 +418,7 @@ placed at the negative cursor.""", 'Help')
 
         self.ui.show_inspect_dialog(self.selected,
                                     title=self.selected.cname)
+
+    def on_preferences(self):
+
+        self.ui.show_preferences_dialog()

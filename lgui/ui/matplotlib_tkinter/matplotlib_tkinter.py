@@ -42,6 +42,11 @@ class LoadTool(Tool):
     description = 'Load'
 
 
+class PreferencesTool(Tool):
+    # default_keymap = 'ctrl+e'
+    description = 'Preferences'
+
+
 class QuitTool(Tool):
     # default_keymap = 'q'
     description = 'Quit'
@@ -157,6 +162,7 @@ class Editor(EditorBase):
             ['View', ViewTool, self.model.on_view],
             ['Inspect', InspectTool, self.model.on_inspect],
             ['Describe', DescribeTool, self.model.on_describe],
+            ['Preferences', ExportTool, self.model.on_preferences],
             ['Help', ExportTool, self.model.on_help],
             ['Quit', QuitTool, self.quit]]
 
@@ -284,6 +290,12 @@ class Editor(EditorBase):
         from .plot_properties_dialog import PlotPropertiesDialog
 
         self.plot_properties_dialog = PlotPropertiesDialog(expr, self)
+
+    def show_preferences_dialog(self):
+
+        from .preferences_dialog import PreferencesDialog
+
+        self.preferences_dialog = PreferencesDialog(self)
 
     def show_info_dialog(self, message):
 
