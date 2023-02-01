@@ -202,6 +202,7 @@ class UIModelBase:
 
                 attrs.append(fmt(opt, val))
             cpt.attrs = ', '.join(attrs)
+            cpt.opts = elt.opts
 
             self.components.add(cpt, elt.name, *nodes)
             cpt.__draw_on__(self, self.ui.component_layer)

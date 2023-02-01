@@ -1,4 +1,4 @@
-from tkinter import Tk, StringVar, Label, OptionMenu, Button
+from tkinter import Tk, StringVar, Label, OptionMenu, Button, Entry
 from lcapy.system import tmpfilename, LatexRunner, PDFConverter
 from PIL import Image, ImageTk
 
@@ -10,6 +10,17 @@ class ExprDialog:
         self.expr = expr
         self.expr_tweak = expr
         self.ui = ui
+
+        self.operation = 'result'
+
+        self.formats = {'Plain': '',
+                        'Canonical': 'canonical',
+                        'Standard': 'standard',
+                        'ZPK': 'ZPK',
+                        'Partial fraction': 'partfrac',
+                        'Time constant': 'timeconst'}
+
+        self.format = 'Plain'
 
         domain_map = {'time': 'Time',
                       'phasor': 'Phasor',
@@ -23,14 +34,6 @@ class ExprDialog:
             domain = 'time'
         self.domain = domain_map[domain]
 
-        self.formats = {'Canonical': 'canonical',
-                        'Standard': 'standard',
-                        'ZPK': 'ZPK',
-                        'Partial fraction': 'partfrac',
-                        'Time constant': 'timeconst'}
-
-        self.format = 'Canonical'
-
         self.domains = {'Time': 'time',
                         'Phasor': 'phasor',
                         'Laplace': 'laplace',
@@ -42,37 +45,48 @@ class ExprDialog:
         self.master = Tk()
         self.master.title(title)
 
+        self.operation_var = StringVar(self.master)
+        self.operation_var.set(self.operation)
+
         format_var = StringVar(self.master)
         format_var.set(self.format)
 
         domain_var = StringVar(self.master)
         domain_var.set(self.domain)
 
+        operation_label = Label(self.master, text='Operation: ')
+        operation_entry = Entry(self.master, textvariable=self.operation_var)
+        operation_apply = Button(self.master, text='Apply',
+                                 command=self.on_apply)
+        operation_label.grid(row=0)
+        operation_entry.grid(row=0, column=1)
+        operation_apply.grid(row=0, column=2)
+
         format_label = Label(self.master, text='Format: ')
         format_option = OptionMenu(self.master, format_var,
                                    *self.formats.keys(),
                                    command=self.on_format)
 
-        format_label.grid(row=0)
-        format_option.grid(row=0, column=1)
+        format_label.grid(row=1)
+        format_option.grid(row=1, column=1)
 
         domain_label = Label(self.master, text='Domain: ')
         domain_option = OptionMenu(self.master, domain_var,
                                    *self.domains.keys(),
                                    command=self.on_domain)
 
-        domain_label.grid(row=1)
-        domain_option.grid(row=1, column=1)
+        domain_label.grid(row=2)
+        domain_option.grid(row=2, column=1)
 
         expr_label1 = Label(self.master, text='Expr: ')
         expr_label2 = Label(self.master, text='')
-        expr_label1.grid(row=2, column=0)
-        expr_label2.grid(row=2, column=1)
+        expr_label1.grid(row=3, column=0)
+        expr_label2.grid(row=3, column=1)
 
         self.expr_label = expr_label2
 
         button = Button(self.master, text="Plot", command=self.on_plot)
-        button.grid(row=3)
+        button.grid(row=4)
 
         self.update()
 
@@ -88,15 +102,25 @@ class ExprDialog:
         self.domain = domain
         self.update()
 
+    def on_apply(self):
+        self.operation = self.operation_var.get()
+        self.update()
+
     def update(self):
 
-        domain = self.domains[self.domain]
+        operation = self.operation
         format = self.formats[self.format]
+        domain = self.domains[self.domain]
+
+        command = operation
+        if format != '':
+            command += '.' + format + '()'
+        if domain != '':
+            command += '.' + domain + '()'
 
         globals = {'result': self.expr}
         try:
-            self.expr_tweak = eval('result.%s().%s()' %
-                                   (domain, format), globals)
+            self.expr_tweak = eval(command, globals)
             # self.show_pretty(e)
             self.show_img(self.expr_tweak)
         except (AttributeError, ValueError) as e:

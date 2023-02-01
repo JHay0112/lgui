@@ -55,4 +55,4 @@ xxtal for a crystal, xcpe for a CPE, etc.
 
 23. Add numerical analysis
 
-24. Add drawing attributes to components, blue, thick, etc.
+24. Draw components in selected colours, etc.

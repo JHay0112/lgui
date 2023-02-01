@@ -49,6 +49,7 @@ class Component(ABC):
         self.kind = None
         self.initial_value = None
         self.attrs = ''
+        self.opts = []
 
     @property
     @classmethod
