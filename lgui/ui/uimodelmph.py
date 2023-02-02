@@ -169,7 +169,12 @@ class UIModelMPH(UIModelBase):
 
         self.select(None)
 
-        # Perhaps redraw cursors?
+        # TODO, tidy cursor drawing
+        if len(self.cursors) > 0:
+            self.cursors[0].draw('red')
+        if len(self.cursors) > 1:
+            self.cursors[1].draw('blue')
+
         self.ui.refresh()
 
     def on_export(self):
