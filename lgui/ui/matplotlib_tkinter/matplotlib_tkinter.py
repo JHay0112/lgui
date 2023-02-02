@@ -303,11 +303,11 @@ class Editor(EditorBase):
 
         self.plot_properties_dialog = PlotPropertiesDialog(expr, self)
 
-    def show_preferences_dialog(self):
+    def show_preferences_dialog(self, on_changed=None):
 
         from .preferences_dialog import PreferencesDialog
 
-        self.preferences_dialog = PreferencesDialog(self)
+        self.preferences_dialog = PreferencesDialog(self, on_changed)
 
     def show_info_dialog(self, message):
 

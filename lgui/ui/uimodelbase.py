@@ -59,6 +59,35 @@ class UIModelBase:
 
         return isinstance(self.selected, Component)
 
+    def cpt_draw(self, cpt):
+
+        cpt.__draw_on__(self, self.ui.component_layer)
+        if cpt.TYPE in ('O', 'P', 'W'):
+            return
+
+        label_values = self.preferences.label_values == 'true'
+        label_ids = self.preferences.label_ids == 'true'
+        name = cpt.cname
+        value = cpt.value
+        if value is None:
+            value = ''
+
+        label = ''
+        if label_values and label_ids:
+            if name != value:
+                label = name + '=' + value
+            else:
+                label = name
+        elif label_values:
+            if value != '':
+                label = value
+            else:
+                label = name
+
+        ann = Annotation(self.ui, *cpt.label_position, label)
+        ann.draw(fontsize=18)
+        cpt.annotations.append(ann)
+
     def cpt_make(self, cptname):
 
         # Create component from name
@@ -89,7 +118,7 @@ class UIModelBase:
 
         self.components.add_auto(cpt, node1, node2)
 
-        cpt.__draw_on__(self, self.ui.component_layer)
+        self.cpt_draw(cpt)
 
         self.select(cpt)
         self.dirty = True
@@ -119,6 +148,7 @@ class UIModelBase:
 
         redraw = True
         try:
+            # This should also delete the annotations.
             cpt.undraw()
             redraw = False
         except AttributeError:
@@ -218,7 +248,7 @@ class UIModelBase:
             cpt.opts = elt.opts
 
             self.components.add(cpt, elt.name, *nodes)
-            cpt.__draw_on__(self, self.ui.component_layer)
+            self.cpt_draw(cpt)
 
     def move(self, xshift, yshift):
         # TODO
@@ -365,7 +395,7 @@ class UIModelBase:
     def redraw(self):
 
         for cpt in self.components:
-            cpt.__draw_on__(self, self.ui.component_layer)
+            self.cpt_draw(cpt)
 
     def undo(self):
 
@@ -373,4 +403,4 @@ class UIModelBase:
             return
         cpt = self.discard_buffer.pop()
         self.components.add(cpt, cpt.cname, *cpt.nodes)
-        cpt.__draw_on__(self, self.ui.component_layer)
+        self.cpt_draw(cpt)

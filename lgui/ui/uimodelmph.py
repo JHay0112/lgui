@@ -378,11 +378,17 @@ placed at the negative cursor.""", 'Help')
 
     def on_preferences(self):
 
-        self.ui.show_preferences_dialog()
+        self.ui.show_preferences_dialog(self.on_redraw)
 
     def on_redo(self):
 
         self.redo()
+        self.ui.refresh()
+
+    def on_redraw(self):
+
+        self.ui.clear()
+        self.redraw()
         self.ui.refresh()
 
     def on_save(self):

@@ -4,9 +4,10 @@ from .labelentries import LabelEntry, LabelEntries
 
 class PreferencesDialog:
 
-    def __init__(self, ui):
+    def __init__(self, ui, update):
 
         self.model = ui.model
+        self.update = update
 
         self.master = Tk()
         self.master.title('Preferences')
@@ -38,3 +39,7 @@ class PreferencesDialog:
         self.model.preferences.style = self.labelentries.get('style')
 
         self.master.destroy()
+
+        if self.update:
+            # Could check for changes
+            self.update()
