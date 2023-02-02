@@ -122,6 +122,7 @@ class UIModelMPH(UIModelBase):
         y2 = self.cursors[1].y
 
         self.create(cptname, x1, y1, x2, y2)
+        self.ui.refresh()
 
     def on_add_ground(self):
 
@@ -139,6 +140,10 @@ class UIModelMPH(UIModelBase):
         node.name = '0'
 
         # TODO: annotate ground
+
+    def on_copy(self):
+
+        pass
 
     def on_close(self):
 
@@ -216,7 +221,7 @@ class UIModelMPH(UIModelBase):
     def on_key(self, key):
 
         if key == 'ctrl+c':
-            self.ui.quit()
+            self.on_copy()
         elif key == 'ctrl+d':
             self.on_debug()
         elif key == 'ctrl+h':
@@ -229,15 +234,21 @@ class UIModelMPH(UIModelBase):
             self.on_netlist()
         elif key == 'ctrl+s':
             self.on_save()
-        elif key == 'ctrl+v':
+        elif key == 'ctrl+u':
             self.on_view()
+        elif key == 'ctrl+v':
+            self.on_paste()
+        elif key == 'ctrl+w':
+            self.ui.quit()
+        elif key == 'ctrl+x':
+            self.on_delete()
         elif key == 'ctrl+y':
             self.on_redo()
         elif key == 'ctrl+z':
             self.on_undo()
         elif key == 'escape':
             self.on_unselect()
-        elif key == 'delete':
+        elif key in ('delete', 'backspace'):
             self.on_delete()
         elif key == '0':
             self.on_add_ground()
@@ -314,11 +325,13 @@ class UIModelMPH(UIModelBase):
 
     def on_undo(self):
 
-        pass
+        self.undo()
+        self.ui.refresh()
 
     def on_redo(self):
 
-        pass
+        self.redo()
+        self.ui.refresh()
 
     def on_view(self):
 

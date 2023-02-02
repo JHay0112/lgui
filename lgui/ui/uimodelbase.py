@@ -24,6 +24,8 @@ class UIModelBase:
         self.selected = None
         self.last_expr = None
         self.preferences = Preferences()
+        self.dirty = False
+        self.discard_buffer = []
 
     @property
     def cct(self):
@@ -88,9 +90,9 @@ class UIModelBase:
         self.components.add_auto(cpt, node1, node2)
 
         cpt.__draw_on__(self, self.ui.component_layer)
-        self.ui.refresh()
 
         self.select(cpt)
+        self.dirty = True
 
     def circuit(self):
 
@@ -111,6 +113,7 @@ class UIModelBase:
             pass
 
         self.components.remove(cpt)
+        self.discard_buffer.append(cpt)
 
         if redraw:
             self.ui.clear()
@@ -205,8 +208,6 @@ class UIModelBase:
             self.components.add(cpt, elt.name, *nodes)
             cpt.__draw_on__(self, self.ui.component_layer)
 
-        self.ui.refresh()
-
     def move(self, xshift, yshift):
         # TODO
         pass
@@ -221,6 +222,7 @@ class UIModelBase:
 
         with open(filename, 'w') as fhandle:
             fhandle.write(s)
+        self.dirty = False
 
     def schematic(self):
 
@@ -323,7 +325,6 @@ class UIModelBase:
         self.voltage_annotations.add(ann2)
         ann1.draw(color='red', fontsize=40)
         ann2.draw(color='blue', fontsize=40)
-        self.ui.refresh()
 
     @property
     def ground_node(self):
@@ -337,7 +338,20 @@ class UIModelBase:
                 return node
         return None
 
+    def redo(self):
+
+        # TODO
+        pass
+
     def redraw(self):
 
         for cpt in self.components:
             cpt.__draw_on__(self, self.ui.component_layer)
+
+    def undo(self):
+
+        if self.discard_buffer == []:
+            return
+        cpt = self.discard_buffer.pop()
+        self.components.add(cpt, cpt.cname, *cpt.nodes)
+        cpt.__draw_on__(self, self.ui.component_layer)
