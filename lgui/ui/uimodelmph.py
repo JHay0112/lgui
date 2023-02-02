@@ -141,13 +141,17 @@ class UIModelMPH(UIModelBase):
 
         # TODO: annotate ground
 
+    def on_close(self):
+
+        self.ui.quit()
+
     def on_copy(self):
 
         pass
 
-    def on_close(self):
+    def on_cpt_changed(self, cpt):
 
-        self.ui.quit()
+        self.invalidate()
 
     def on_debug(self):
 
@@ -182,6 +186,11 @@ class UIModelMPH(UIModelBase):
 
         self.ui.refresh()
 
+    def on_describe(self):
+
+        self.ui.show_message_dialog(self.cct.description(),
+                                    title='Description')
+
     def on_export(self):
 
         filename = self.ui.export_file_dialog(self.filename)
@@ -189,34 +198,37 @@ class UIModelMPH(UIModelBase):
             return
         self.export(filename)
 
-    def on_move(self, xshift, yshift):
+    def on_help(self):
 
-        self.move(xshift, yshift)
+        self.ui.show_message_dialog("""
+Click on the grid to place a red positive cursor then
+click elsewhere to place a blue negative cursor.  Then enter c for a
+capacitor, i for a current source, l for an inductor, r for a
+resistor, v for a voltage source, etc.  The escape key will remove the
+last defined cursor.
 
-    def on_rotate(self, angle):
+The attributes of a component (name, value, etc.) can be edited by
+right clicking on a component.
 
-        self.rotate(angle)
+The attributes of a node can be edited by right clicking on a
+node.
 
-    def on_select(self, x, y):
+Use Inspect (ctrl+i) to find the voltage across a component or the
+current through a component.
 
-        cpt = self.components.closest(x, y)
-        node = self.nodes.closest(x, y)
+A ground node to be defined by typing the 0 key; the ground node is
+placed at the negative cursor.""", 'Help')
 
-        if cpt and node:
-            self.ui.show_error(
-                'Selected both node %s and cpt %s' % (node, cpt))
+    def on_inspect(self):
+
+        if not self.selected:
             return
 
-        if cpt:
-            self.select(cpt)
-        elif node:
-            self.select(node)
-        else:
-            self.select(None)
+        if not self.cpt_selected:
+            return
 
-    def on_unselect(self):
-
-        self.unselect()
+        self.ui.show_inspect_dialog(self.selected,
+                                    title=self.selected.cname)
 
     def on_key(self, key):
 
@@ -283,6 +295,10 @@ class UIModelMPH(UIModelBase):
         self.load(filename)
         self.ui.refresh()
 
+    def on_move(self, xshift, yshift):
+
+        self.move(xshift, yshift)
+
     def on_netlist(self):
 
         netlist = []
@@ -292,10 +308,6 @@ class UIModelMPH(UIModelBase):
             netlist.append(parts[0].strip())
         s = '\n'.join(netlist)
         self.ui.show_message_dialog(s, 'Netlist')
-
-    def on_cpt_changed(self, cpt):
-
-        self.invalidate()
 
     def on_right_click(self, x, y):
 
@@ -316,6 +328,41 @@ class UIModelMPH(UIModelBase):
     def on_right_double_click(self, x, y):
         pass
 
+    def on_rotate(self, angle):
+
+        self.rotate(angle)
+
+    def on_select(self, x, y):
+
+        cpt = self.components.closest(x, y)
+        node = self.nodes.closest(x, y)
+
+        if cpt and node:
+            self.ui.show_error(
+                'Selected both node %s and cpt %s' % (node, cpt))
+            return
+
+        if cpt:
+            self.select(cpt)
+        elif node:
+            self.select(node)
+        else:
+            self.select(None)
+
+    def on_paste(self):
+
+        self.paste()
+        self.ui.refresh()
+
+    def on_preferences(self):
+
+        self.ui.show_preferences_dialog()
+
+    def on_redo(self):
+
+        self.redo()
+        self.ui.refresh()
+
     def on_save(self):
 
         filename = self.ui.save_file_dialog(self.filename)
@@ -328,52 +375,10 @@ class UIModelMPH(UIModelBase):
         self.undo()
         self.ui.refresh()
 
-    def on_redo(self):
+    def on_unselect(self):
 
-        self.redo()
-        self.ui.refresh()
+        self.unselect()
 
     def on_view(self):
 
         self.view()
-
-    def on_describe(self):
-
-        self.ui.show_message_dialog(self.cct.description(),
-                                    title='Description')
-
-    def on_help(self):
-
-        self.ui.show_message_dialog("""
-Click on the grid to place a red positive cursor then
-click elsewhere to place a blue negative cursor.  Then enter c for a
-capacitor, i for a current source, l for an inductor, r for a
-resistor, v for a voltage source, etc.  The escape key will remove the
-last defined cursor.
-
-The attributes of a component (name, value, etc.) can be edited by
-right clicking on a component.
-
-The attributes of a node can be edited by right clicking on a
-node.
-
-Use Inspect (ctrl+i) to find the voltage across a component or the
-current through a component.
-
-A ground node to be defined by typing the 0 key; the ground node is
-placed at the negative cursor.""", 'Help')
-
-    def on_inspect(self):
-
-        if not self.selected:
-            return
-
-        if not self.cpt_selected:
-            return
-
-        self.ui.show_inspect_dialog(self.selected,
-                                    title=self.selected.cname)
-
-    def on_preferences(self):
-
-        self.ui.show_preferences_dialog()

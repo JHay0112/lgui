@@ -26,6 +26,7 @@ class UIModelBase:
         self.preferences = Preferences()
         self.dirty = False
         self.discard_buffer = []
+        self.clip = None
 
     @property
     def cct(self):
@@ -114,6 +115,7 @@ class UIModelBase:
 
         self.components.remove(cpt)
         self.discard_buffer.append(cpt)
+        self.clip = cpt
 
         if redraw:
             self.ui.clear()
