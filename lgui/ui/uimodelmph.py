@@ -41,6 +41,13 @@ class Cursors(list):
         while self != []:
             self.pop().remove()
 
+    def draw(self):
+
+        if len(self) > 0:
+            self[0].draw('red')
+        if len(self) > 1:
+            self[1].draw('blue')
+
 
 class UIModelMPH(UIModelBase):
 
@@ -166,6 +173,19 @@ class UIModelMPH(UIModelBase):
         s += str(self.selected) + '\n'
         self.ui.show_message_dialog(s, 'Debug')
 
+    def on_cut(self):
+
+        if self.selected is None:
+            return
+        if not self.cpt_selected:
+            return
+
+        self.cut(self.selected)
+
+        self.cursors.draw()
+
+        self.ui.refresh()
+
     def on_delete(self):
 
         if self.selected is None:
@@ -176,13 +196,7 @@ class UIModelMPH(UIModelBase):
 
         self.delete(self.selected)
 
-        self.select(None)
-
-        # TODO, tidy cursor drawing
-        if len(self.cursors) > 0:
-            self.cursors[0].draw('red')
-        if len(self.cursors) > 1:
-            self.cursors[1].draw('blue')
+        self.cursors.draw()
 
         self.ui.refresh()
 
@@ -253,7 +267,7 @@ placed at the negative cursor.""", 'Help')
         elif key == 'ctrl+w':
             self.ui.quit()
         elif key == 'ctrl+x':
-            self.on_delete()
+            self.on_cut()
         elif key == 'ctrl+y':
             self.on_redo()
         elif key == 'ctrl+z':
@@ -351,7 +365,15 @@ placed at the negative cursor.""", 'Help')
 
     def on_paste(self):
 
-        self.paste()
+        if len(self.cursors) < 2:
+            # TODO, place cpt where mouse is...
+            return
+        x1 = self.cursors[0].x
+        y1 = self.cursors[0].y
+        x2 = self.cursors[1].x
+        y2 = self.cursors[1].y
+
+        self.paste(x1, y1, x2, y2)
         self.ui.refresh()
 
     def on_preferences(self):

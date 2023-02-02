@@ -6,6 +6,7 @@ from ..nodes import Nodes
 from ..components import Components
 from .preferences import Preferences
 from lgui import __version__
+from copy import copy
 
 
 class UIModelBase:
@@ -26,7 +27,7 @@ class UIModelBase:
         self.preferences = Preferences()
         self.dirty = False
         self.discard_buffer = []
-        self.clip = None
+        self.clipped = None
 
     @property
     def cct(self):
@@ -78,9 +79,7 @@ class UIModelBase:
         self.invalidate()
         return cpt
 
-    def create(self, cptname, x1, y1, x2, y2):
-
-        cpt = self.cpt_make(cptname)
+    def cpt_create(self, cpt, x1, y1, x2, y2):
 
         node1 = self.nodes.make(x1, y1)
         self.nodes.add(node1)
@@ -95,6 +94,11 @@ class UIModelBase:
         self.select(cpt)
         self.dirty = True
 
+    def create(self, cptname, x1, y1, x2, y2):
+
+        cpt = self.cpt_make(cptname)
+        self.cpt_create(cpt, x1, y1, x2, y2)
+
     def circuit(self):
 
         from lcapy import Circuit
@@ -104,7 +108,14 @@ class UIModelBase:
         cct = Circuit(s)
         return cct
 
+    def cut(self, cpt):
+
+        self.delete(cpt)
+        self.clipped = cpt
+
     def delete(self, cpt):
+
+        self.select(None)
 
         redraw = True
         try:
@@ -115,7 +126,6 @@ class UIModelBase:
 
         self.components.remove(cpt)
         self.discard_buffer.append(cpt)
-        self.clip = cpt
 
         if redraw:
             self.ui.clear()
@@ -213,6 +223,13 @@ class UIModelBase:
     def move(self, xshift, yshift):
         # TODO
         pass
+
+    def paste(self, x1, y1, x2, y2):
+
+        if self.clipped is None:
+            return
+        cpt = copy(self.clipped)
+        self.cpt_create(cpt, x1, y1, x2, y2)
 
     def rotate(self, angle):
         # TODO
