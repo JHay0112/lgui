@@ -75,8 +75,7 @@ class UIModelBase:
         self.invalidate()
         return cpt
 
-    # Drawing commands
-    def cpt_add(self, cptname, x1, y1, x2, y2):
+    def create(self, cptname, x1, y1, x2, y2):
 
         cpt = self.cpt_make(cptname)
 
@@ -93,15 +92,6 @@ class UIModelBase:
 
         self.select(cpt)
 
-    def schematic(self):
-
-        s = '# Created by lcapy-gui ' + __version__ + '\n'
-        # TODO: save node positions
-        s += self.components.as_sch(self.STEP)
-        # Note, need a newline so string treated as a netlist string
-        s += ';' + self.preferences.schematic_preferences() + '\n'
-        return s
-
     def circuit(self):
 
         from lcapy import Circuit
@@ -111,10 +101,20 @@ class UIModelBase:
         cct = Circuit(s)
         return cct
 
-    def analyze(self):
+    def delete(self, cpt):
 
-        self.invalidate()
-        self.cct
+        redraw = True
+        try:
+            cpt.undraw()
+            redraw = False
+        except AttributeError:
+            pass
+
+        self.components.remove(cpt)
+
+        if redraw:
+            self.ui.clear()
+            self.redraw()
 
     def draw(self, cpt, **kwargs):
 
@@ -137,8 +137,6 @@ class UIModelBase:
 
         self.filename = filename
 
-        # TODO: FIXME
-        # self.ui.component_layer.clear()
         self.components.clear()
 
         cct = Circuit(filename)
@@ -206,6 +204,7 @@ class UIModelBase:
 
             self.components.add(cpt, elt.name, *nodes)
             cpt.__draw_on__(self, self.ui.component_layer)
+
         self.ui.refresh()
 
     def move(self, xshift, yshift):
@@ -222,6 +221,15 @@ class UIModelBase:
 
         with open(filename, 'w') as fhandle:
             fhandle.write(s)
+
+    def schematic(self):
+
+        s = '# Created by lcapy-gui ' + __version__ + '\n'
+        # TODO: save node positions
+        s += self.components.as_sch(self.STEP)
+        # Note, need a newline so string treated as a netlist string
+        s += ';' + self.preferences.schematic_preferences() + '\n'
+        return s
 
     def show_cpt_admittance(self, cpt):
 
@@ -328,3 +336,8 @@ class UIModelBase:
             if node.name == nodename:
                 return node
         return None
+
+    def redraw(self):
+
+        for cpt in self.components:
+            cpt.__draw_on__(self, self.ui.component_layer)

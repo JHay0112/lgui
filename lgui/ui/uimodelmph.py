@@ -1,4 +1,4 @@
-from .uimodelbase import UIModelBase, Annotation
+from .uimodelbase import UIModelBase
 
 
 class Cursor:
@@ -121,7 +121,7 @@ class UIModelMPH(UIModelBase):
         x2 = self.cursors[1].x
         y2 = self.cursors[1].y
 
-        self.cpt_add(cptname, x1, y1, x2, y2)
+        self.create(cptname, x1, y1, x2, y2)
 
     def on_add_ground(self):
 
@@ -156,6 +156,21 @@ class UIModelMPH(UIModelBase):
         s += 'Selected.........\n'
         s += str(self.selected) + '\n'
         self.ui.show_message_dialog(s, 'Debug')
+
+    def on_delete(self):
+
+        if self.selected is None:
+            return
+        if not self.cpt_selected:
+            # Handle node deletion later
+            return
+
+        self.delete(self.selected)
+
+        self.select(None)
+
+        # Perhaps redraw cursors?
+        self.ui.refresh()
 
     def on_export(self):
 
@@ -211,12 +226,14 @@ class UIModelMPH(UIModelBase):
             self.on_save()
         elif key == 'ctrl+v':
             self.on_view()
-        elif key == 'escape':
-            self.on_unselect()
         elif key == 'ctrl+y':
             self.on_redo()
         elif key == 'ctrl+z':
             self.on_undo()
+        elif key == 'escape':
+            self.on_unselect()
+        elif key == 'delete':
+            self.on_delete()
         elif key == '0':
             self.on_add_ground()
         elif key in ('c', 'i', 'l', 'r', 'v', 'w'):
@@ -262,7 +279,7 @@ class UIModelMPH(UIModelBase):
 
     def on_cpt_changed(self, cpt):
 
-        self.analyze()
+        self.invalidate()
 
     def on_right_click(self, x, y):
 

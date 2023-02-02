@@ -174,15 +174,7 @@ class Editor(EditorBase):
 
         self.fig.canvas.mpl_connect('close_event', self.on_close)
 
-        xticks = arange(self.XSIZE)
-        yticks = arange(self.YSIZE)
-        self.ax.set_xlim(0, self.XSIZE)
-        self.ax.set_ylim(0, self.YSIZE)
-        self.ax.set_xticks(xticks)
-        self.ax.set_yticks(yticks)
-        self.ax.set_xticklabels([])
-        self.ax.set_yticklabels([])
-        self.ax.grid()
+        self.draw_grid()
 
         # TODO: matplotlib uses on layer
         layer = Layer(self.ax)
@@ -217,6 +209,23 @@ class Editor(EditorBase):
 
         show()
 
+    def draw_grid(self):
+
+        xticks = arange(self.XSIZE)
+        yticks = arange(self.YSIZE)
+        self.ax.set_xlim(0, self.XSIZE)
+        self.ax.set_ylim(0, self.YSIZE)
+        self.ax.set_xticks(xticks)
+        self.ax.set_yticks(yticks)
+        self.ax.set_xticklabels([])
+        self.ax.set_yticklabels([])
+        self.ax.grid()
+
+    def clear(self):
+
+        self.component_layer.clear()
+        self.draw_grid()
+
     def refresh(self):
 
         self.fig.canvas.draw()
@@ -228,6 +237,9 @@ class Editor(EditorBase):
             return
 
         key = event.key
+        if self.debug:
+            print(key)
+
         self.model.on_key(key)
 
     def on_click_event(self, event):
