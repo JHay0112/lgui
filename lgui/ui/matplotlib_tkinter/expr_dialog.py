@@ -46,17 +46,6 @@ class ExprDialog:
         operation_label.grid(row=0)
         operation_entry.grid(row=0, column=1)
 
-        format_var = StringVar(self.master)
-        format_var.set(self.format)
-
-        format_label = Label(self.master, text='Format: ')
-        format_option = OptionMenu(self.master, format_var,
-                                   *self.formats.keys(),
-                                   command=self.on_format)
-
-        format_label.grid(row=1)
-        format_option.grid(row=1, column=1)
-
         domain_var = StringVar(self.master)
         domain_var.set(self.domain)
 
@@ -65,8 +54,19 @@ class ExprDialog:
                                    *self.domains.keys(),
                                    command=self.on_domain)
 
-        domain_label.grid(row=2)
-        domain_option.grid(row=2, column=1)
+        domain_label.grid(row=1)
+        domain_option.grid(row=1, column=1)
+
+        format_var = StringVar(self.master)
+        format_var.set(self.format)
+
+        format_label = Label(self.master, text='Format: ')
+        format_option = OptionMenu(self.master, format_var,
+                                   *self.formats.keys(),
+                                   command=self.on_format)
+
+        format_label.grid(row=2)
+        format_option.grid(row=2, column=1)
 
         expr_label1 = Label(self.master, text='Expr: ')
         expr_label2 = Label(self.master, text='')
