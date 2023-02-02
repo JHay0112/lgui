@@ -16,10 +16,8 @@ class PreferencesDialog:
                               ('all', 'none', 'alpha', 'pins', 'primary')),
                    LabelEntry('draw_nodes', 'Nodes', 'connections',
                               ('all', 'none', 'connections', 'primary')),
-                   LabelEntry('label_ids', 'Component names', 'true',
-                              ('true', 'false')),
-                   LabelEntry('label_values', 'Component values', 'true',
-                              ('true', 'false')),
+                   LabelEntry('label_cpts', 'Component labels', 'name',
+                              ('none', 'name', 'value', 'name+value')),
                    LabelEntry('style', 'Style', 'american',
                               ('american', 'british', 'european'))]
 
@@ -33,9 +31,7 @@ class PreferencesDialog:
         self.model.preferences.label_nodes = self.labelentries.get(
             'label_nodes')
         self.model.preferences.draw_nodes = self.labelentries.get('draw_nodes')
-        self.model.preferences.label_ids = self.labelentries.get('label_ids')
-        self.model.preferences.label_values = self.labelentries.get(
-            'label_values')
+        self.model.preferences.label_cpts = self.labelentries.get('label_cpts')
         self.model.preferences.style = self.labelentries.get('style')
 
         self.master.destroy()

@@ -65,24 +65,29 @@ class UIModelBase:
         if cpt.TYPE in ('O', 'P', 'W'):
             return
 
-        label_values = self.preferences.label_values == 'true'
-        label_ids = self.preferences.label_ids == 'true'
+        label_cpts = self.preferences.label_cpts
+
         name = cpt.cname
         value = cpt.value
         if value is None:
             value = ''
 
-        label = ''
-        if label_values and label_ids:
+        if label_cpts == 'name+value':
             if name != value:
                 label = name + '=' + value
             else:
                 label = name
-        elif label_values:
+        elif label_cpts == 'value':
             if value != '':
                 label = value
             else:
                 label = name
+        elif label_cpts == 'name':
+            label = name
+        elif label_cpts == 'none':
+            label = ''
+        else:
+            raise RuntimeError('Unhandled label_cpts=' + label_cpts)
 
         ann = Annotation(self.ui, *cpt.label_position, label)
         ann.draw(fontsize=18)

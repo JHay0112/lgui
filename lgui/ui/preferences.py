@@ -4,8 +4,7 @@ class Preferences:
 
         self.label_nodes = 'none'
         self.draw_nodes = 'connections'
-        self.label_ids = 'true'
-        self.label_values = 'true'
+        self.label_cpts = 'name'
         self.style = 'american'
 
     def schematic_preferences(self):
