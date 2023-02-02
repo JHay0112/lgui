@@ -104,7 +104,7 @@ class ExprDialog:
         format = self.format
         domain = self.domain
 
-        command = operation
+        command = '(' + operation + ')'
         if domain != '':
             command += '.' + self.domains[domain] + '()'
         if format != '':
@@ -112,6 +112,8 @@ class ExprDialog:
 
         globals = {'result': self.expr}
         try:
+            # Perhaps evaluate domain and transform steps
+            # separately if operation is not an Lcapy Expr?
             self.expr_tweak = eval(command, globals)
             # self.show_pretty(e)
             self.show_img(self.expr_tweak)
