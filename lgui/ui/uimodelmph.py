@@ -58,6 +58,35 @@ class UIModelMPH(UIModelBase):
         self.cursors = Cursors()
         self.node_cursor = None
 
+        key_bindings = {
+            'ctrl+c': self.on_copy,
+            'ctrl+d': self.on_debug,
+            'ctrl+h': self.on_help,
+            'ctrl+i': self.on_inspect,
+            'ctrl+l': self.on_load,
+            'ctrl+n': self.on_netlist,
+            'ctrl+s': self.on_save,
+            'ctrl+u': self.on_view,
+            'ctrl+v': self.on_paste,
+            'ctrl+w': self.ui.quit,
+            'ctrl+x': self.on_cut,
+            'ctrl+y': self.on_redo,
+            'ctrl+z': self.on_undo,
+            'escape': self.on_unselect,
+            'delete': self.on_delete,
+            'backspace': self.on_delete,
+            '0': self.on_add_ground}
+
+        key_bindings_with_key = {
+            'c': self.on_add_cpt,
+            'i': self.on_add_cpt,
+            'l': self.on_add_cpt,
+            'r': self.on_add_cpt,
+            'v': self.on_add_cpt,
+            'w': self.on_add_cpt}
+
+        ui.set_key_bindings(key_bindings, key_bindings_with_key)
+
     def draw_cursor(self, x, y):
 
         x, y = self.snap(x, y)
@@ -119,6 +148,8 @@ class UIModelMPH(UIModelBase):
         self.draw_cursor(x, y)
 
     def on_add_cpt(self, cptname):
+
+        cptname = cptname.upper()
 
         if len(self.cursors) < 2:
             # TODO
@@ -243,43 +274,6 @@ placed at the negative cursor.""", 'Help')
 
         self.ui.show_inspect_dialog(self.selected,
                                     title=self.selected.cname)
-
-    def on_key(self, key):
-
-        if key == 'ctrl+c':
-            self.on_copy()
-        elif key == 'ctrl+d':
-            self.on_debug()
-        elif key == 'ctrl+h':
-            self.on_help()
-        elif key == 'ctrl+i':
-            self.on_inspect()
-        elif key == 'ctrl+l':
-            self.on_load()
-        elif key == 'ctrl+n':
-            self.on_netlist()
-        elif key == 'ctrl+s':
-            self.on_save()
-        elif key == 'ctrl+u':
-            self.on_view()
-        elif key == 'ctrl+v':
-            self.on_paste()
-        elif key == 'ctrl+w':
-            self.ui.quit()
-        elif key == 'ctrl+x':
-            self.on_cut()
-        elif key == 'ctrl+y':
-            self.on_redo()
-        elif key == 'ctrl+z':
-            self.on_undo()
-        elif key == 'escape':
-            self.on_unselect()
-        elif key in ('delete', 'backspace'):
-            self.on_delete()
-        elif key == '0':
-            self.on_add_ground()
-        elif key in ('c', 'i', 'l', 'r', 'v', 'w'):
-            self.on_add_cpt(key.upper())
 
     def on_left_click(self, x, y):
 

@@ -123,6 +123,8 @@ class Editor(EditorBase):
     def __init__(self, filename=None, uimodel_class=None, debug=0):
 
         self.debug = debug
+        self.key_bindings = {}
+        self.key_bindings_with_key = {}
 
         # Default Linux backend was TkAgg now QtAgg
         # Default Windows backend Qt4Agg
@@ -238,7 +240,10 @@ class Editor(EditorBase):
         if self.debug:
             print(key)
 
-        self.model.on_key(key)
+        if key in self.key_bindings:
+            self.key_bindings[key]()
+        elif key in self.key_bindings_with_key:
+            self.key_bindings_with_key[key](key)
 
     def on_click_event(self, event):
 
@@ -369,3 +374,8 @@ class Editor(EditorBase):
         options['title'] = "Export file"
 
         return asksaveasfilename(**options)
+
+    def set_key_bindings(self, key_bindings, key_bindings_with_key):
+
+        self.key_bindings = key_bindings
+        self.key_bindings_with_key = key_bindings_with_key
