@@ -15,3 +15,11 @@ class Node:
     def __str__(self):
 
         return '%s@(%s, %s)' % (self.name, self.x, self.y)
+
+    @property
+    def is_primary(self):
+
+        name = self.name
+        parts = name.split('_')
+        return (name[0] != '_' and len(parts) <= 2) \
+            and not (name[0].isdigit() and len(parts) != 1)

@@ -49,7 +49,7 @@ class Nodes(list):
 
         s = ''
         for node in self:
-            s += str(node) + '\n'
+            s += str(node) + ', count=%s' % node.count + '\n'
         return s
 
     def make(self, x, y, name=None):

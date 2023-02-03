@@ -63,10 +63,11 @@ class UIModelBase:
     def cpt_draw(self, cpt):
 
         cpt.__draw_on__(self, self.ui.component_layer)
-        if cpt.TYPE in ('O', 'P', 'W'):
-            return
 
         label_cpts = self.preferences.label_cpts
+
+        if cpt.TYPE in ('O', 'P', 'W'):
+            label_cpts = 'none'
 
         name = cpt.cname
         value = cpt.value
@@ -101,6 +102,8 @@ class UIModelBase:
                 if draw_nodes == 'connections' and node.count < 3:
                     continue
                 if draw_nodes == 'alpha' and not node.name[0].isalpha():
+                    continue
+                if draw_nodes == 'primary' and not node.is_primary:
                     continue
                 self.node_draw(node)
 
@@ -223,12 +226,6 @@ class UIModelBase:
         offsetx, offsety = self.snap((self.ui.XSIZE - width) / 2,
                                      (self.ui.YSIZE - height) / 2)
 
-        for node in sch.nodes.values():
-            x1 = node.pos.x + offsetx
-            y1 = node.pos.y + offsety
-            node1 = self.nodes.make(x1, y1, node.name)
-            self.nodes.add(node1)
-
         elements = cct.elements
         for elt in elements.values():
             if elt.type == 'XX':
@@ -237,8 +234,12 @@ class UIModelBase:
 
             cpt = self.cpt_make(elt.type)
             nodes = []
-            for m, node in enumerate(elt.nodes):
-                node = self.node_find(node.name)
+            for m, node1 in enumerate(elt.nodes):
+
+                x1 = sch.nodes[node1.name].pos.x + offsetx
+                y1 = sch.nodes[node1.name].pos.y + offsety
+                node = self.nodes.make(x1, y1, node1.name)
+                self.nodes.add(node)
                 nodes.append(node)
                 # Hack
                 cpt.ports[m].position = node.position
@@ -410,7 +411,7 @@ class UIModelBase:
 
         self.ui.component_layer.stroke_filled_circle(
             *node.position, self.preferences.node_size,
-            color=self.preferences.node_color)
+            color=self.preferences.node_color, alpha=1)
 
     def node_find(self, nodename):
 

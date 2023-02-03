@@ -11,11 +11,19 @@ class Preferences:
 
     def schematic_preferences(self):
 
-        opts = ('draw_nodes', 'label_nodes', 'label_ids',
-                'label_values', 'style')
+        opts = ('draw_nodes', 'label_nodes', 'style')
 
         foo = []
         for opt in opts:
             foo.append(opt + '=' + getattr(self, opt))
         s = ', '.join(foo)
+
+        if self.label_cpts == 'name':
+            s += ', label_ids=all'
+        elif self.label_cpts == 'value':
+            s += ', label_values=all'
+        elif self.label_cpts == 'value+name':
+            s += ', label_ids=all'
+            s += ', label_values=all'
+
         return s
