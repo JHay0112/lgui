@@ -27,7 +27,7 @@ class UIModelBase:
         self.last_expr = None
         self.preferences = Preferences()
         self.dirty = False
-        self.discard_buffer = []
+        self.history = []
         self.clipped = None
 
     @property
@@ -59,6 +59,24 @@ class UIModelBase:
     def cpt_selected(self):
 
         return isinstance(self.selected, Component)
+
+    def cpt_delete(self, cpt):
+
+        self.select(None)
+
+        redraw = True
+        try:
+            # This should also delete the annotations.
+            cpt.undraw()
+            redraw = False
+        except AttributeError:
+            pass
+
+        self.components.remove(cpt)
+
+        if redraw:
+            self.ui.clear()
+            self.redraw()
 
     def cpt_draw(self, cpt):
 
@@ -152,6 +170,8 @@ class UIModelBase:
         self.select(cpt)
         self.dirty = True
 
+        self.history.append((cpt, 'A'))
+
     def create(self, cptname, x1, y1, x2, y2):
 
         cpt = self.cpt_make(cptname)
@@ -173,22 +193,8 @@ class UIModelBase:
 
     def delete(self, cpt):
 
-        self.select(None)
-
-        redraw = True
-        try:
-            # This should also delete the annotations.
-            cpt.undraw()
-            redraw = False
-        except AttributeError:
-            pass
-
-        self.components.remove(cpt)
-        self.discard_buffer.append(cpt)
-
-        if redraw:
-            self.ui.clear()
-            self.redraw()
+        self.cpt_delete(cpt)
+        self.history.append((cpt, 'D'))
 
     def draw(self, cpt, **kwargs):
 
@@ -432,8 +438,12 @@ class UIModelBase:
 
     def undo(self):
 
-        if self.discard_buffer == []:
+        if self.history == []:
             return
-        cpt = self.discard_buffer.pop()
-        self.components.add(cpt, cpt.cname, *cpt.nodes)
-        self.cpt_draw(cpt)
+        cpt, op = self.history.pop()
+        if op == 'D':
+            self.components.add(cpt, cpt.cname, *cpt.nodes)
+            self.cpt_draw(cpt)
+            self.select(cpt)
+        else:
+            self.cpt_delete(cpt)
