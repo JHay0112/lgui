@@ -1,5 +1,6 @@
 from tkinter import Tk, StringVar, Label, OptionMenu, Button, Entry, Frame
 from lcapy.system import tmpfilename, LatexRunner, PDFConverter
+from lcapy import Expr
 from PIL import Image, ImageTk
 
 
@@ -154,5 +155,9 @@ class ExprDialog:
         self.expr_label.photo = img
 
     def on_plot(self):
+
+        if not isinstance(self.expr_tweak, Expr):
+            self.ui.info_dialog('Cannot plot expression')
+            return
 
         self.ui.show_plot_properties_dialog(self.expr_tweak)

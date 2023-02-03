@@ -19,11 +19,11 @@ class Preferences:
         s = ', '.join(foo)
 
         if self.label_cpts == 'name':
-            s += ', label_ids=all'
+            s += ', label_ids=true'
         elif self.label_cpts == 'value':
-            s += ', label_values=all'
+            s += ', label_values=true'
         elif self.label_cpts == 'value+name':
-            s += ', label_ids=all'
-            s += ', label_values=all'
+            s += ', label_ids=true'
+            s += ', label_values=true'
 
         return s
