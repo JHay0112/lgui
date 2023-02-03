@@ -111,7 +111,7 @@ class Layer:
         self.ax.remove(patch)
 
 
-class Editor(EditorBase):
+class LcapyTkM(EditorBase):
 
     FIG_WIDTH = 6
     FIG_HEIGHT = 4
@@ -134,7 +134,7 @@ class Editor(EditorBase):
         # Need TkAgg if using Tkinter file dialogs
         p.switch_backend('TkAgg')
 
-        super(Editor, self).__init__()
+        super(LcapyTkM, self).__init__()
 
         from ..uimodelmph import UIModelMPH
 

@@ -47,8 +47,8 @@ def main(argv=None):
     if args.pdb:
         sys.excepthook = schtex_exception
 
-    from lgui.ui.matplotlib_tkinter import Editor
-    e = Editor(args.filename, debug=args.debug)
+    from lgui.ui.tk.lcapytkm import LcapyTkM
+    e = LcapyTkM(args.filename, debug=args.debug)
     e.display()
 
     return 0
