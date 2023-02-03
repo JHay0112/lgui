@@ -1,4 +1,3 @@
-from ..editorbase import EditorBase
 from matplotlib.pyplot import subplots, rcParams, show
 import matplotlib.patches as patches
 from matplotlib.backend_tools import ToolBase
@@ -111,7 +110,7 @@ class Layer:
         self.ax.remove(patch)
 
 
-class LcapyTkM(EditorBase):
+class LcapyTkM:
 
     FIG_WIDTH = 6
     FIG_HEIGHT = 4
