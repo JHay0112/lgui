@@ -184,11 +184,6 @@ class Editor(EditorBase):
         self.component_layer = layer
         self.grid_layer = layer
 
-        # self.ax.spines['left'].set_color('none')
-        # self.ax.spines['right'].set_color('none')
-        # self.ax.spines['bottom'].set_color('none')
-        # self.ax.spines['top'].set_color('none')
-
         self.cid = self.fig.canvas.mpl_connect('button_press_event',
                                                self.on_click_event)
 
@@ -219,7 +214,10 @@ class Editor(EditorBase):
         self.ax.set_yticks(yticks)
         self.ax.set_xticklabels([])
         self.ax.set_yticklabels([])
-        self.ax.grid()
+        self.ax.grid(color='lightblue')
+
+        self.ax.tick_params(which='both', left=False, bottom=False,
+                            top=False, labelbottom=False)
 
     def clear(self):
 

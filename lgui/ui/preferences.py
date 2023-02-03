@@ -6,6 +6,8 @@ class Preferences:
         self.draw_nodes = 'connections'
         self.label_cpts = 'name'
         self.style = 'american'
+        self.node_size = 0.15
+        self.node_color = 'black'
 
     def schematic_preferences(self):
 

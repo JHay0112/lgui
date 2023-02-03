@@ -11,6 +11,7 @@ class Nodes(list):
 
         if not isinstance(node, Node):
             raise TypeError('Not a Node object')
+
         if node not in self:
             self.append(node)
 
@@ -58,6 +59,7 @@ class Nodes(list):
             if name is not None and node.name != name:
                 raise ValueError('Node name conflict %s and %s' %
                                  (node.name, name))
+            node.count += 1
             return node
 
         if name is None:
@@ -69,4 +71,5 @@ class Nodes(list):
                 num += 1
 
         node = Node(x, y, name)
+        node.count += 1
         return node

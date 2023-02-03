@@ -7,6 +7,7 @@ from ..components import Components
 from .preferences import Preferences
 from lgui import __version__
 from copy import copy
+from numpy import array
 
 
 class UIModelBase:
@@ -89,9 +90,29 @@ class UIModelBase:
         else:
             raise RuntimeError('Unhandled label_cpts=' + label_cpts)
 
-        ann = Annotation(self.ui, *cpt.label_position, label)
-        ann.draw(fontsize=18)
-        cpt.annotations.append(ann)
+        if label != '':
+            ann = Annotation(self.ui, *cpt.label_position, label)
+            ann.draw(fontsize=18)
+            cpt.annotations.append(ann)
+
+        draw_nodes = self.preferences.draw_nodes
+        if draw_nodes != 'none':
+            for node in cpt.nodes:
+                if draw_nodes == 'connections' and node.count < 3:
+                    continue
+                if draw_nodes == 'alpha' and not node.name[0].isalpha():
+                    continue
+                self.node_draw(node)
+
+        label_nodes = self.preferences.label_nodes
+        if label_nodes != 'none':
+            for node in cpt.nodes:
+                pos = array(node.position)
+                pos[0] += 0.3
+                pos[1] += 0.3
+                ann = Annotation(self.ui, *pos, node.name)
+                ann.draw(fontsize=18)
+                cpt.annotations.append(ann)
 
     def cpt_make(self, cptname):
 
@@ -384,6 +405,12 @@ class UIModelBase:
     def ground_node(self):
 
         return self.node_find('0')
+
+    def node_draw(self, node):
+
+        self.ui.component_layer.stroke_filled_circle(
+            *node.position, self.preferences.node_size,
+            color=self.preferences.node_color)
 
     def node_find(self, nodename):
 

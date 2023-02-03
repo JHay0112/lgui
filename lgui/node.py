@@ -5,6 +5,7 @@ class Node:
         self.x = x
         self.y = y
         self.name = name
+        self.count = 0
 
     @property
     def position(self):
