@@ -21,9 +21,7 @@ class LcapyTk(Tk):
 
         if uimodel_class is None:
             uimodel_class = UIModelMPH
-
-        self.model = uimodel_class(self)
-        model = self.model
+        self.uimodel_class = uimodel_class
 
         # Title and size of the window
         self.title('Lcapy-tk')
@@ -53,7 +51,7 @@ class LcapyTk(Tk):
                               bg='lightgrey', fg='black')
 
         self.edit_menu.add_command(label='Preferences',
-                                   command=model.on_preferences)
+                                   command=self.on_preferences)
 
         self.menu.add_cascade(label='Edit', menu=self.edit_menu)
 
@@ -61,10 +59,10 @@ class LcapyTk(Tk):
         self.view_menu = Menu(self.menu, tearoff=0,
                               bg='lightgrey', fg='black')
 
-        self.view_menu.add_command(label='Circuitikz', command=model.on_view)
+        self.view_menu.add_command(label='Circuitikz', command=self.on_view)
 
         self.view_menu.add_command(label='Netlist',
-                                   command=model.on_netlist)
+                                   command=self.on_netlist)
 
         self.menu.add_cascade(label='View', menu=self.view_menu)
 
@@ -73,10 +71,10 @@ class LcapyTk(Tk):
                                  bg='lightgrey', fg='black')
 
         self.inspect_menu.add_command(label='Voltage',
-                                      command=model.on_inspect_voltage)
+                                      command=self.on_inspect_voltage)
 
         self.inspect_menu.add_command(label='Current',
-                                      command=model.on_inspect_current)
+                                      command=self.on_inspect_current)
 
         self.menu.add_cascade(label='Inspect', menu=self.inspect_menu)
 
@@ -85,7 +83,7 @@ class LcapyTk(Tk):
                               bg='lightgrey', fg='black')
 
         self.help_menu.add_command(label='Help',
-                                   command=model.on_help)
+                                   command=self.on_help)
 
         self.menu.add_cascade(label='Help', menu=self.help_menu)
 
@@ -94,20 +92,15 @@ class LcapyTk(Tk):
         # Notebook tabs
         self.notebook = Notebook(self)
 
-        self.canvas = None
         self.canvases = []
+
+        self.canvas = None
+        self.model = self.uimodel_class(self)
 
         if filename is not None:
             self.model.load(filename)
         else:
             self.new_canvas('Untitled')
-
-        figure = self.canvas.drawing.fig
-        self.bp_id = figure.canvas.mpl_connect('button_press_event',
-                                               self.on_click_event)
-
-        self.kp_id = figure.canvas.mpl_connect('key_press_event',
-                                               self.on_key_press_event)
 
     def display(self):
 
@@ -116,6 +109,7 @@ class LcapyTk(Tk):
     def enter(self, canvas):
 
         self.canvas = canvas
+        self.model = canvas.model
 
         layer = Layer(canvas.drawing.ax)
 
@@ -129,7 +123,9 @@ class LcapyTk(Tk):
 
     def load(self, filename):
 
-        self.new_canvas(filename)
+        name = basename(filename)
+        self.model = self.uimodel_class(self)
+        self.new_canvas(name)
 
     def new_canvas(self, name):
 
@@ -149,14 +145,26 @@ class LcapyTk(Tk):
         drawing = Drawing(self, fig)
         canvas.drawing = drawing
         canvas.tab = tab
+        canvas.model = self.model
         self.canvases.append(canvas)
+
+        self.enter(canvas)
 
         tab.bind('<Enter>', self.on_enter)
 
-        self.enter(self.canvases[0])
+        figure = drawing.fig
+        canvas.bp_id = figure.canvas.mpl_connect('button_press_event',
+                                                 self.on_click_event)
+
+        canvas.kp_id = figure.canvas.mpl_connect('key_press_event',
+                                                 self.on_key_press_event)
+
+        self.notebook.select(len(self.canvases) - 1)
         return canvas
 
     def new(self):
+
+        self.model = self.uimodel_class(self)
         self.new_canvas('Untitled')
 
     def on_enter(self, event):
@@ -220,13 +228,33 @@ class LcapyTk(Tk):
 
         self.model.on_export()
 
+    def on_help(self, *args):
+
+        self.model.on_help()
+
+    def on_inspect_current(self, *args):
+
+        self.model.on_inspect_current()
+
+    def on_inspect_voltage(self, *args):
+
+        self.model.on_inspect_voltage()
+
     def on_load(self, *args):
 
         self.model.on_load()
 
+    def on_netlist(self, *args):
+
+        self.model.on_netlist()
+
     def on_new(self, *args):
 
         self.model.on_new()
+
+    def on_preferences(self, *args):
+
+        self.model.on_preferences()
 
     def on_quit(self, *args):
 
@@ -239,6 +267,10 @@ class LcapyTk(Tk):
         if self.debug:
             print('Save')
         self.model.on_save()
+
+    def on_view(self, *args):
+
+        self.model.on_view()
 
     def refresh(self):
 
