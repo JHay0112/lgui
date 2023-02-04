@@ -34,70 +34,83 @@ class LcapyTk(Tk):
         self.file_menu = Menu(self.menu, tearoff=0,
                               bg='lightgrey', fg='black')
 
-        self.file_menu.add_command(label='New', command=self.on_new)
+        self.file_menu.add_command(label='New', command=self.on_new,
+                                   underline=0, accelerator='Ctrl+n')
 
-        self.file_menu.add_command(label='Load', command=self.on_load)
+        self.file_menu.add_command(label='Open', command=self.on_load,
+                                   underline=0, accelerator='Ctrl+o')
 
-        self.file_menu.add_command(label='Save', command=self.on_save)
+        self.file_menu.add_command(label='Save', command=self.on_save,
+                                   underline=0, accelerator='Ctrl+s')
 
-        self.file_menu.add_command(label='Export', command=self.on_export)
+        self.file_menu.add_command(label='Export',
+                                   command=self.on_export, underline=0, accelerator='Ctrl+e')
 
-        self.file_menu.add_command(label='Quit', command=self.on_quit)
+        self.file_menu.add_command(label='Quit', command=self.on_quit,
+                                   underline=0, accelerator='Ctrl+q')
 
-        self.menu.add_cascade(label='File', menu=self.file_menu)
+        self.menu.add_cascade(
+            label='File', underline=0, menu=self.file_menu)
 
         # Edit menu
         self.edit_menu = Menu(self.menu, tearoff=0,
                               bg='lightgrey', fg='black')
 
         self.edit_menu.add_command(label='Preferences',
-                                   command=self.on_preferences)
+                                   command=self.on_preferences,
+                                   underline=0)
 
-        self.edit_menu.add_command(label='Undo',
-                                   command=self.on_undo)
+        self.edit_menu.add_command(label='Undo', command=self.on_undo,
+                                   accelerator='Ctrl+z')
 
         self.edit_menu.add_command(label='Cut',
-                                   command=self.on_cut)
+                                   command=self.on_cut,
+                                   accelerator='Ctrl+x')
 
         self.edit_menu.add_command(label='Copy',
-                                   command=self.on_copy)
+                                   command=self.on_copy,
+                                   accelerator='Ctrl+c')
 
         self.edit_menu.add_command(label='Paste',
-                                   command=self.on_paste)
+                                   command=self.on_paste,
+                                   accelerator='Ctrl+v')
 
-        self.menu.add_cascade(label='Edit', menu=self.edit_menu)
+        self.menu.add_cascade(label='Edit', underline=0, menu=self.edit_menu)
 
         # View menu
         self.view_menu = Menu(self.menu, tearoff=0,
                               bg='lightgrey', fg='black')
 
-        self.view_menu.add_command(label='Circuitikz', command=self.on_view)
+        self.view_menu.add_command(label='Circuitikz', command=self.on_view,
+                                   accelerator='Ctrl+u')
 
         self.view_menu.add_command(label='Netlist',
                                    command=self.on_netlist)
 
-        self.menu.add_cascade(label='View', menu=self.view_menu)
+        self.menu.add_cascade(label='View', underline=0, menu=self.view_menu)
 
         # Inspect menu
         self.inspect_menu = Menu(self.menu, tearoff=0,
                                  bg='lightgrey', fg='black')
 
-        self.inspect_menu.add_command(label='Voltage',
+        self.inspect_menu.add_command(label='Voltage', underline=0,
                                       command=self.on_inspect_voltage)
 
-        self.inspect_menu.add_command(label='Current',
+        self.inspect_menu.add_command(label='Current', underline=0,
                                       command=self.on_inspect_current)
 
-        self.menu.add_cascade(label='Inspect', menu=self.inspect_menu)
+        self.menu.add_cascade(label='Inspect', underline=0,
+                              menu=self.inspect_menu)
 
         # Help menu
         self.help_menu = Menu(self.menu, tearoff=0,
                               bg='lightgrey', fg='black')
 
         self.help_menu.add_command(label='Help',
-                                   command=self.on_help)
+                                   command=self.on_help, accelerator='Ctrl+h')
 
-        self.menu.add_cascade(label='Help', menu=self.help_menu)
+        self.menu.add_cascade(label='Help', underline=0,
+                              menu=self.help_menu)
 
         self.config(menu=self.menu)
 
