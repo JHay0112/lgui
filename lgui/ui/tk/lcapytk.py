@@ -99,6 +99,14 @@ class LcapyTk(Tk):
         self.inspect_menu.add_command(label='Current', underline=0,
                                       command=self.on_inspect_current)
 
+        self.inspect_menu.add_command(label='Thevenin impedance',
+                                      underline=0,
+                                      command=self.on_inspect_thevenin_impedance)
+
+        self.inspect_menu.add_command(label='Norton admittance',
+                                      underline=0,
+                                      command=self.on_inspect_norton_admittance)
+
         self.menu.add_cascade(label='Inspect', underline=0,
                               menu=self.inspect_menu)
 
@@ -275,6 +283,14 @@ class LcapyTk(Tk):
     def on_inspect_current(self, *args):
 
         self.model.on_inspect_current()
+
+    def on_inspect_norton_admittance(self, *args):
+
+        self.model.on_inspect_norton_admittance()
+
+    def on_inspect_thevenin_impedance(self, *args):
+
+        self.model.on_inspect_thevenin_impedance()
 
     def on_inspect_voltage(self, *args):
 

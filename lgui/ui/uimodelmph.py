@@ -64,8 +64,8 @@ class UIModelMPH(UIModelBase):
             'ctrl+e': self.on_export,
             'ctrl+h': self.on_help,
             'ctrl+i': self.on_inspect,
-            'ctrl+l': self.on_load,
-            'ctrl+n': self.on_netlist,
+            'ctrl+n': self.on_new,
+            'ctrl+o': self.on_load,
             'ctrl+s': self.on_save,
             'ctrl+u': self.on_view,
             'ctrl+v': self.on_paste,
@@ -285,6 +285,20 @@ placed at the negative cursor.""", 'Help')
             return
 
         self.inspect_current(self.selected)
+
+    def on_inspect_norton_admittance(self):
+
+        if not self.selected or not self.cpt_selected:
+            return
+
+        self.inspect_norton_admittance(self.selected)
+
+    def on_inspect_thevenin_impedance(self):
+
+        if not self.selected or not self.cpt_selected:
+            return
+
+        self.inspect_thevenin_impedance(self.selected)
 
     def on_inspect_voltage(self):
 
