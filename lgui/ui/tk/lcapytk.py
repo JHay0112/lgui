@@ -60,7 +60,10 @@ class LcapyTk(Tk):
         self.view_menu = Menu(self.menu, tearoff=0,
                               bg='lightgrey', fg='black')
 
-        self.view_menu.add_command(label='View', command=model.on_view)
+        self.view_menu.add_command(label='Circuitikz', command=model.on_view)
+
+        self.view_menu.add_command(label='Netlist',
+                                   command=model.on_netlist)
 
         self.menu.add_cascade(label='View', menu=self.view_menu)
 
