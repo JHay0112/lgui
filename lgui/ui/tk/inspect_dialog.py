@@ -23,24 +23,24 @@ class InspectDialog:
 
     def on_voltage(self):
 
-        self.uimodel.show_cpt_voltage(self.cpt)
+        self.uimodel.inspect_voltage(self.cpt)
 
     def on_current(self):
 
-        self.uimodel.show_cpt_current(self.cpt)
+        self.uimodel.inspect_current(self.cpt)
 
     def on_impedance(self):
 
-        self.uimodel.show_cpt_impedance(self.cpt)
+        self.uimodel.inspect_impedance(self.cpt)
 
     def on_admittance(self):
 
-        self.uimodel.show_cpt_admittance(self.cpt)
+        self.uimodel.inspect_admittance(self.cpt)
 
     def on_thevenin_impedance(self):
 
-        self.uimodel.show_cpt_thevenin_impedance(self.cpt)
+        self.uimodel.inspect_thevenin_impedance(self.cpt)
 
     def on_norton_admittance(self):
 
-        self.uimodel.show_cpt_norton_admittance(self.cpt)
+        self.uimodel.inspect_norton_admittance(self.cpt)

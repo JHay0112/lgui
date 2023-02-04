@@ -315,7 +315,7 @@ class UIModelBase:
         s += ';' + self.preferences.schematic_preferences() + '\n'
         return s
 
-    def show_cpt_admittance(self, cpt):
+    def inspect_admittance(self, cpt):
 
         try:
             self.last_expr = self.cct[cpt.cname].Y
@@ -324,7 +324,7 @@ class UIModelBase:
         except (AttributeError, ValueError, RuntimeError) as e:
             self.exception(e)
 
-    def show_cpt_current(self, cpt):
+    def inspect_current(self, cpt):
 
         # TODO: FIXME for wire current
         try:
@@ -334,7 +334,7 @@ class UIModelBase:
         except (AttributeError, ValueError, RuntimeError) as e:
             self.exception(e)
 
-    def show_cpt_impedance(self, cpt):
+    def inspect_impedance(self, cpt):
 
         try:
             self.last_expr = self.cct[cpt.cname].Z
@@ -343,7 +343,7 @@ class UIModelBase:
         except (AttributeError, ValueError, RuntimeError) as e:
             self.exception(e)
 
-    def show_cpt_norton_admittance(self, cpt):
+    def inspect_norton_admittance(self, cpt):
 
         try:
             self.last_expr = self.cct[cpt.cname].dpY
@@ -352,7 +352,7 @@ class UIModelBase:
         except (AttributeError, ValueError, RuntimeError) as e:
             self.exception(e)
 
-    def show_cpt_thevenin_impedance(self, cpt):
+    def inspect_thevenin_impedance(self, cpt):
 
         try:
             self.last_expr = self.cct[cpt.cname].dpZ
@@ -361,7 +361,7 @@ class UIModelBase:
         except (AttributeError, ValueError, RuntimeError) as e:
             self.exception(e)
 
-    def show_cpt_voltage(self, cpt):
+    def inspect_voltage(self, cpt):
 
         try:
             self.last_expr = self.cct[cpt.cname].v

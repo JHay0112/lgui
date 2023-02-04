@@ -7,6 +7,8 @@ Usage: glcapy [infile.sch]
 
 from argparse import ArgumentParser
 import sys
+from lgui.ui.tk.lcapytkm import LcapyTkM
+from lgui.ui.tk.lcapytk import LcapyTk
 
 
 def schtex_exception(type, value, tb):
@@ -41,14 +43,19 @@ def main(argv=None):
                         help="enable debugging")
     parser.add_argument('filename', type=str, nargs='?',
                         help='schematic filename', default=None)
+    parser.add_argument('--ui', type=str, default='tk',
+                        help="choose UI")
 
     args = parser.parse_args()
 
     if args.pdb:
         sys.excepthook = schtex_exception
 
-    from lgui.ui.tk.lcapytkm import LcapyTkM
-    e = LcapyTkM(args.filename, debug=args.debug)
+    if args.ui == 'tkm':
+        e = LcapyTkM(args.filename, debug=args.debug)
+    else:
+        e = LcapyTk(args.filename, debug=args.debug)
+
     e.display()
 
     return 0

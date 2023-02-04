@@ -58,9 +58,10 @@ class UIModelMPH(UIModelBase):
         self.cursors = Cursors()
         self.node_cursor = None
 
-        key_bindings = {
+        self.key_bindings = {
             'ctrl+c': self.on_copy,
             'ctrl+d': self.on_debug,
+            'ctrl+e': self.on_export,
             'ctrl+h': self.on_help,
             'ctrl+i': self.on_inspect,
             'ctrl+l': self.on_load,
@@ -68,7 +69,7 @@ class UIModelMPH(UIModelBase):
             'ctrl+s': self.on_save,
             'ctrl+u': self.on_view,
             'ctrl+v': self.on_paste,
-            'ctrl+w': self.ui.quit,
+            'ctrl+w': self.on_quit,
             'ctrl+x': self.on_cut,
             'ctrl+y': self.on_redo,
             'ctrl+z': self.on_undo,
@@ -77,15 +78,13 @@ class UIModelMPH(UIModelBase):
             'backspace': self.on_delete,
             '0': self.on_add_ground}
 
-        key_bindings_with_key = {
+        self.key_bindings_with_key = {
             'c': self.on_add_cpt,
             'i': self.on_add_cpt,
             'l': self.on_add_cpt,
             'r': self.on_add_cpt,
             'v': self.on_add_cpt,
             'w': self.on_add_cpt}
-
-        ui.set_key_bindings(key_bindings, key_bindings_with_key)
 
     def draw_cursor(self, x, y):
 
@@ -137,6 +136,11 @@ class UIModelMPH(UIModelBase):
 
     def exception(self, message):
         self.ui.show_info_dialog(message)
+
+    def load(self, filename):
+
+        self.ui.load(filename)
+        super(UIModelMPH, self).load(filename)
 
     def unselect(self):
 
@@ -275,6 +279,14 @@ placed at the negative cursor.""", 'Help')
         self.ui.show_inspect_dialog(self.selected,
                                     title=self.selected.cname)
 
+    def on_inspect_current(self):
+
+        self.inspect_current()
+
+    def on_inspect_voltage(self):
+
+        self.inspect_voltage()
+
     def on_left_click(self, x, y):
 
         self.on_select(x, y)
@@ -317,6 +329,10 @@ placed at the negative cursor.""", 'Help')
         s = '\n'.join(netlist)
         self.ui.show_message_dialog(s, 'Netlist')
 
+    def on_new(self):
+
+        self.ui.new()
+
     def on_right_click(self, x, y):
 
         self.on_select(x, y)
@@ -324,9 +340,9 @@ placed at the negative cursor.""", 'Help')
             return
 
         if self.cpt_selected:
-            self.ui.show_cpt_properties_dialog(self.selected,
-                                               self.on_cpt_changed,
-                                               title=self.selected.cname)
+            self.ui.inspect_properties_dialog(self.selected,
+                                              self.on_cpt_changed,
+                                              title=self.selected.cname)
         else:
             self.ui.show_node_properties_dialog(self.selected,
                                                 self.on_cpt_changed,
@@ -384,6 +400,11 @@ placed at the negative cursor.""", 'Help')
         self.ui.clear()
         self.redraw()
         self.ui.refresh()
+
+    def on_quit(self):
+
+        # TODO, check if schematic is dirty
+        self.ui.quit()
 
     def on_save(self):
 

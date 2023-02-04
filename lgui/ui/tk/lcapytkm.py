@@ -1,9 +1,8 @@
 from matplotlib.pyplot import subplots, rcParams, show
-import matplotlib.patches as patches
 from matplotlib.backend_tools import ToolBase
-from math import degrees
 from numpy import arange
 from sys import exit
+from .layer import Layer
 
 
 class Tool(ToolBase):
@@ -61,55 +60,6 @@ class ViewTool(Tool):
     description = 'View'
 
 
-class Layer:
-
-    def __init__(self, ax):
-
-        self.ax = ax
-        self.color = 'black'
-
-    def stroke_line(self, xstart, ystart, xend, yend):
-
-        return self.ax.plot((xstart, xend), (ystart, yend), '-',
-                            color=self.color)
-
-    def stroke_arc(self, x, y, r, theta1, theta2):
-
-        r *= 2
-        patch = patches.Arc((x, y), r, r, 0, degrees(theta1), degrees(theta2))
-        self.ax.add_patch(patch)
-        return patch
-
-    def clear(self):
-
-        self.ax.clear()
-
-    def stroke_rect(self, xstart, ystart, width, height):
-        # xstart, ystart top left corner
-
-        xend = xstart + width
-        yend = ystart + height
-
-        self.stroke_line(xstart, ystart, xstart, yend)
-        self.stroke_line(xstart, yend, xend, yend)
-        self.stroke_line(xend, yend, xend, ystart)
-        self.stroke_line(xend, ystart, xstart, ystart)
-
-    def stroke_filled_circle(self, x, y, radius=0.5, color='black', alpha=0.5):
-
-        patch = patches.Circle((x, y), radius, fc=color, alpha=alpha)
-        self.ax.add_patch(patch)
-        return patch
-
-    def text(self, x, y, text, **kwargs):
-
-        return self.ax.annotate(text, (x, y), **kwargs)
-
-    def remove(self, patch):
-
-        self.ax.remove(patch)
-
-
 class LcapyTkM:
 
     FIG_WIDTH = 6
@@ -122,8 +72,6 @@ class LcapyTkM:
     def __init__(self, filename=None, uimodel_class=None, debug=0):
 
         self.debug = debug
-        self.key_bindings = {}
-        self.key_bindings_with_key = {}
 
         # Default Linux backend was TkAgg now QtAgg
         # Default Windows backend Qt4Agg
@@ -177,7 +125,6 @@ class LcapyTkM:
 
         self.draw_grid()
 
-        # TODO: matplotlib uses on layer
         layer = Layer(self.ax)
 
         self.cursor_layer = layer
@@ -239,10 +186,10 @@ class LcapyTkM:
         if self.debug:
             print(key)
 
-        if key in self.key_bindings:
-            self.key_bindings[key]()
-        elif key in self.key_bindings_with_key:
-            self.key_bindings_with_key[key](key)
+        if key in self.model.key_bindings:
+            self.model.key_bindings[key]()
+        elif key in self.mmodel.key_bindings_with_key:
+            self.model.key_bindings_with_key[key](key)
 
     def on_click_event(self, event):
 
@@ -269,6 +216,10 @@ class LcapyTkM:
 
         self.model.on_close()
 
+    def new(self):
+
+        pass
+
     def quit(self):
 
         exit()
@@ -285,7 +236,7 @@ class LcapyTkM:
 
         self.inspect_dialog = InspectDialog(self.model, cpt, title)
 
-    def show_cpt_properties_dialog(self, cpt, on_changed=None, title=''):
+    def inspect_properties_dialog(self, cpt, on_changed=None, title=''):
 
         from .cpt_properties_dialog import CptPropertiesDialog
 
@@ -374,7 +325,5 @@ class LcapyTkM:
 
         return asksaveasfilename(**options)
 
-    def set_key_bindings(self, key_bindings, key_bindings_with_key):
-
-        self.key_bindings = key_bindings
-        self.key_bindings_with_key = key_bindings_with_key
+    def load(self, filename):
+        pass
