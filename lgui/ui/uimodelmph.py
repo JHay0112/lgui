@@ -281,11 +281,17 @@ placed at the negative cursor.""", 'Help')
 
     def on_inspect_current(self):
 
-        self.inspect_current()
+        if not self.selected or not self.cpt_selected:
+            return
+
+        self.inspect_current(self.selected)
 
     def on_inspect_voltage(self):
 
-        self.inspect_voltage()
+        if not self.selected or not self.cpt_selected:
+            return
+
+        self.inspect_voltage(self.selected)
 
     def on_left_click(self, x, y):
 
