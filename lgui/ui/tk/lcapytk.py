@@ -53,6 +53,18 @@ class LcapyTk(Tk):
         self.edit_menu.add_command(label='Preferences',
                                    command=self.on_preferences)
 
+        self.edit_menu.add_command(label='Undo',
+                                   command=self.on_undo)
+
+        self.edit_menu.add_command(label='Cut',
+                                   command=self.on_cut)
+
+        self.edit_menu.add_command(label='Copy',
+                                   command=self.on_copy)
+
+        self.edit_menu.add_command(label='Paste',
+                                   command=self.on_paste)
+
         self.menu.add_cascade(label='Edit', menu=self.edit_menu)
 
         # View menu
@@ -102,6 +114,11 @@ class LcapyTk(Tk):
         else:
             self.new_canvas('Untitled')
 
+    def clear(self):
+
+        self.component_layer.clear()
+        self.canvas.drawing.draw_grid()
+
     def display(self):
 
         self.mainloop()
@@ -110,13 +127,13 @@ class LcapyTk(Tk):
 
         self.canvas = canvas
         self.model = canvas.model
+        self.layer = canvas.layer
 
-        layer = Layer(canvas.drawing.ax)
-
-        self.cursor_layer = layer
-        self.active_layer = layer
-        self.component_layer = layer
-        self.grid_layer = layer
+        # TODO, resolve with JH
+        self.cursor_layer = self.layer
+        self.active_layer = self.layer
+        self.component_layer = self.layer
+        self.grid_layer = self.layer
 
         if self.debug:
             print(self.notebook.tab(self.notebook.select(), "text"))
@@ -146,6 +163,8 @@ class LcapyTk(Tk):
         canvas.drawing = drawing
         canvas.tab = tab
         canvas.model = self.model
+        canvas.layer = Layer(canvas.drawing.ax)
+
         self.canvases.append(canvas)
 
         self.enter(canvas)
@@ -195,6 +214,14 @@ class LcapyTk(Tk):
                 self.model.on_left_click(event.xdata, event.ydata)
             elif event.button == 3:
                 self.model.on_right_click(event.xdata, event.ydata)
+
+    def on_copy(self, *args):
+
+        self.model.on_copy()
+
+    def on_cut(self, *args):
+
+        self.model.on_cut()
 
     def on_key_press_event(self, event):
 
@@ -256,6 +283,10 @@ class LcapyTk(Tk):
 
         self.model.on_preferences()
 
+    def on_paste(self, *args):
+
+        self.model.on_paste()
+
     def on_quit(self, *args):
 
         if self.debug:
@@ -267,6 +298,10 @@ class LcapyTk(Tk):
         if self.debug:
             print('Save')
         self.model.on_save()
+
+    def on_undo(self, *args):
+
+        self.model.on_undo()
 
     def on_view(self, *args):
 
@@ -398,6 +433,10 @@ class Drawing():
         self.ui = ui
         self.fig = fig
         self.ax = self.fig.add_subplot(111)
+
+        self.draw_grid()
+
+    def draw_grid(self):
 
         xticks = arange(self.ui.XSIZE)
         yticks = arange(self.ui.YSIZE)
