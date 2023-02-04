@@ -3,6 +3,7 @@ from tkinter.ttk import Notebook
 from matplotlib.figure import Figure
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 from numpy import arange
+from os.path import basename
 from ..uimodelmph import UIModelMPH
 from .layer import Layer
 
@@ -123,6 +124,9 @@ class LcapyTk(Tk):
         self.component_layer = layer
         self.grid_layer = layer
 
+        if self.debug:
+            print(self.notebook.tab(self.notebook.select(), "text"))
+
     def load(self, filename):
 
         self.new_canvas(filename)
@@ -226,15 +230,15 @@ class LcapyTk(Tk):
 
     def on_quit(self, *args):
 
-        print('Quit')
+        if self.debug:
+            print('Quit')
         self.model.on_quit()
 
     def on_save(self, *args):
 
-        filename = self.model.on_save()
-        import pdb
-        pdb.set_trace()
-        self.canvas_set(filename)
+        if self.debug:
+            print('Save')
+        self.model.on_save()
 
     def refresh(self):
 
@@ -244,9 +248,14 @@ class LcapyTk(Tk):
 
         exit()
 
+    def save(self, filename):
+
+        name = basename(filename)
+        self.set_canvas_title(name)
+
     def set_canvas_title(self, name):
 
-        self.notebook.tabs('current', text=name)
+        self.notebook.tab('current', text=name)
 
     def show_expr_dialog(self, expr, title=''):
 

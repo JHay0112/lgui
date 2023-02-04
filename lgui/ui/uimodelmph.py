@@ -414,7 +414,7 @@ placed at the negative cursor.""", 'Help')
         if filename == '':
             return
         self.save(filename)
-        return filename
+        self.ui.save(filename)
 
     def on_undo(self):
 
