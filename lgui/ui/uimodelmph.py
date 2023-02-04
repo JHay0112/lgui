@@ -403,8 +403,10 @@ placed at the negative cursor.""", 'Help')
 
     def on_quit(self):
 
-        # TODO, check if schematic is dirty
-        self.ui.quit()
+        if self.dirty:
+            self.ui.show_info_dialog('Schematic not saved')
+        else:
+            self.ui.quit()
 
     def on_save(self):
 
