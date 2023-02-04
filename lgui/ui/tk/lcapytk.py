@@ -98,28 +98,12 @@ class LcapyTk(Tk):
         else:
             self.new_canvas('Untitled')
 
-        for key, val in self.model.key_bindings.items():
-            if key.startswith('ctrl+'):
-                key = '<Control-' + key[5:] + '>'
-            elif key in ('escape', 'delete'):
-                key = '<' + key[0].upper() + key[1:] + '>'
-            elif key == 'backspace':
-                key = '<BackSpace>'
-            print(key, val)
-            # self.bind(key, lambda arg: self.on_key2(arg, val))
-            self.bind(key, lambda arg: val())
+        figure = self.canvas.drawing.fig
+        self.bp_id = figure.canvas.mpl_connect('button_press_event',
+                                               self.on_click_event)
 
-        self.bind('<Control-a>', lambda arg: self.model.on_debug())
-
-        for key, val in self.model.key_bindings_with_key.items():
-            print(key, val)
-            self.bind(key, self.on_key)
-
-        # self.bind("<Button-1>", self.on_left_click)
-        # self.bind("<Button-3>", self.on_right_click)
-
-        self.canvas.drawing.fig.canvas.mpl_connect('button_press_event',
-                                                   self.on_click_event)
+        self.kp_id = figure.canvas.mpl_connect('key_press_event',
+                                               self.on_key_press_event)
 
     def display(self):
 
@@ -197,6 +181,17 @@ class LcapyTk(Tk):
             elif event.button == 3:
                 self.model.on_right_click(event.xdata, event.ydata)
 
+    def on_key_press_event(self, event):
+
+        key = event.key
+        if self.debug:
+            print(key)
+
+        if key in self.model.key_bindings:
+            self.model.key_bindings[key]()
+        elif key in self.model.key_bindings_with_key:
+            self.model.key_bindings_with_key[key](key)
+
     def on_key(self, event):
 
         key = event.char
@@ -237,7 +232,7 @@ class LcapyTk(Tk):
 
     def refresh(self):
 
-        self.canvas.drawing.fig.draw()
+        self.canvas.drawing.fig.canvas.draw()
 
     def set_tab_title(self, name):
 
