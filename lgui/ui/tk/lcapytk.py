@@ -228,13 +228,20 @@ class LcapyTk(Tk):
 
     def on_save(self, *args):
 
-        self.model.on_save()
+        filename = self.model.on_save()
+        import pdb
+        pdb.set_trace()
+        self.canvas_set(filename)
 
     def refresh(self):
 
         self.canvas.drawing.fig.canvas.draw()
 
-    def set_tab_title(self, name):
+    def quit(self):
+
+        exit()
+
+    def set_canvas_title(self, name):
 
         self.notebook.tabs('current', text=name)
 
