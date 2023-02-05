@@ -137,11 +137,6 @@ class UIModelMPH(UIModelBase):
     def exception(self, message):
         self.ui.show_info_dialog(message)
 
-    def load(self, filename):
-
-        self.ui.load(filename)
-        super(UIModelMPH, self).load(filename)
-
     def unselect(self):
 
         self.cursors.remove()
@@ -332,7 +327,10 @@ placed at the negative cursor.""", 'Help')
         filename = self.ui.open_file_dialog()
         if filename == '':
             return
-        self.load(filename)
+
+        model = self.ui.new()
+        model.load(filename)
+        self.ui.set_filename(filename)
         self.ui.refresh()
 
     def on_move(self, xshift, yshift):

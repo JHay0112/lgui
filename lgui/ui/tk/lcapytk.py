@@ -18,6 +18,8 @@ class LcapyTk(Tk):
 
         super().__init__()
         self.debug = debug
+        self.model = None
+        self.canvas = None
 
         if uimodel_class is None:
             uimodel_class = UIModelMPH
@@ -43,8 +45,8 @@ class LcapyTk(Tk):
         self.file_menu.add_command(label='Save', command=self.on_save,
                                    underline=0, accelerator='Ctrl+s')
 
-        self.file_menu.add_command(label='Export',
-                                   command=self.on_export, underline=0, accelerator='Ctrl+e')
+        self.file_menu.add_command(label='Export', command=self.on_export,
+                                   underline=0, accelerator='Ctrl+e')
 
         self.file_menu.add_command(label='Quit', command=self.on_quit,
                                    underline=0, accelerator='Ctrl+q')
@@ -92,20 +94,21 @@ class LcapyTk(Tk):
         # Inspect menu
         self.inspect_menu = Menu(self.menu, tearoff=0,
                                  bg='lightgrey', fg='black')
+        inspect_menu = self.inspect_menu
 
-        self.inspect_menu.add_command(label='Voltage', underline=0,
-                                      command=self.on_inspect_voltage)
+        inspect_menu.add_command(label='Voltage', underline=0,
+                                 command=self.on_inspect_voltage)
 
-        self.inspect_menu.add_command(label='Current', underline=0,
-                                      command=self.on_inspect_current)
+        inspect_menu.add_command(label='Current', underline=0,
+                                 command=self.on_inspect_current)
 
-        self.inspect_menu.add_command(label='Thevenin impedance',
-                                      underline=0,
-                                      command=self.on_inspect_thevenin_impedance)
+        inspect_menu.add_command(label='Thevenin impedance',
+                                 underline=0,
+                                 command=self.on_inspect_thevenin_impedance)
 
-        self.inspect_menu.add_command(label='Norton admittance',
-                                      underline=0,
-                                      command=self.on_inspect_norton_admittance)
+        inspect_menu.add_command(label='Norton admittance',
+                                 underline=0,
+                                 command=self.on_inspect_norton_admittance)
 
         self.menu.add_cascade(label='Inspect', underline=0,
                               menu=self.inspect_menu)
@@ -128,12 +131,8 @@ class LcapyTk(Tk):
         self.canvases = []
 
         self.canvas = None
-        self.model = self.uimodel_class(self)
 
-        if filename is not None:
-            self.model.load(filename)
-        else:
-            self.new_canvas('Untitled')
+        self.load(filename)
 
     def clear(self):
 
@@ -161,11 +160,20 @@ class LcapyTk(Tk):
 
     def load(self, filename):
 
-        name = basename(filename)
-        self.model = self.uimodel_class(self)
-        self.new_canvas(name)
+        model = self.new()
 
-    def new_canvas(self, name):
+        if filename is None:
+            return
+
+        model.load(filename)
+        self.loaded(filename)
+
+    def loaded(self, filename):
+
+        name = basename(filename)
+        self.set_canvas_title(name)
+
+    def create_canvas(self, name):
 
         tab = Frame(self.notebook)
 
@@ -183,29 +191,37 @@ class LcapyTk(Tk):
         drawing = Drawing(self, fig)
         canvas.drawing = drawing
         canvas.tab = tab
-        canvas.model = self.model
         canvas.layer = Layer(canvas.drawing.ax)
 
         self.canvases.append(canvas)
 
-        self.enter(canvas)
+        self.notebook.select(len(self.canvases) - 1)
+
+        return canvas
+
+    def bind_canvas(self, canvas, model):
+
+        canvas.model = model
+        tab = canvas.tab
 
         tab.bind('<Enter>', self.on_enter)
 
-        figure = drawing.fig
+        figure = canvas.drawing.fig
         canvas.bp_id = figure.canvas.mpl_connect('button_press_event',
                                                  self.on_click_event)
 
         canvas.kp_id = figure.canvas.mpl_connect('key_press_event',
                                                  self.on_key_press_event)
 
-        self.notebook.select(len(self.canvases) - 1)
-        return canvas
+        self.enter(canvas)
 
     def new(self):
 
-        self.model = self.uimodel_class(self)
-        self.new_canvas('Untitled')
+        model = self.uimodel_class(self)
+        canvas = self.create_canvas('Untitled')
+        self.bind_canvas(canvas, model)
+        self.model = model
+        return model
 
     def on_enter(self, event):
 
