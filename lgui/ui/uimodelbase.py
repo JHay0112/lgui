@@ -86,6 +86,8 @@ class UIModelBase:
             pass
 
         self.components.remove(cpt)
+        for node in cpt.nodes:
+            self.nodes.remove(node)
 
         if redraw:
             self.ui.clear()

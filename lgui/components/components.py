@@ -124,5 +124,4 @@ class Components(list):
 
         cpt = self.pop(idx)
 
-        # Perhaps remove the associated nodes?
         return cpt

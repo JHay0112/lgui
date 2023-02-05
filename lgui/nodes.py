@@ -73,3 +73,9 @@ class Nodes(list):
         node = Node(x, y, name)
         node.count += 1
         return node
+
+    def remove(self, node):
+
+        node.count -= 1
+        if node.count == 0:
+            self.pop(self.index(node))
