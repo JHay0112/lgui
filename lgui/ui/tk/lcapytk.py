@@ -106,7 +106,7 @@ class LcapyTk(Tk):
                                    bg='lightgrey', fg='black')
         component_menu = self.component_menu
 
-        for key, val in self.uimodel_class.components.items():
+        for key, val in self.uimodel_class.component_map.items():
             component_menu.add_command(label=val[0],
                                        command=lambda foo=key: self.on_add_cpt(
                                            foo),

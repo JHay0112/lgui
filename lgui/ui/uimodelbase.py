@@ -15,7 +15,7 @@ class UIModelBase:
     STEP = 2
     SCALE = 0.25
 
-    components = {
+    component_map = {
         'c': ('Capacitor', Capacitor),
         'i': ('Current source', CurrentSource),
         'l': ('Inductor', Inductor),
@@ -43,7 +43,7 @@ class UIModelBase:
         self.history = []
         self.clipped = None
 
-    @ property
+    @property
     def cct(self):
 
         if self._cct is not None:
@@ -68,7 +68,7 @@ class UIModelBase:
 
         return self._cct
 
-    @ property
+    @property
     def cpt_selected(self):
 
         return isinstance(self.selected, Component)
@@ -153,12 +153,17 @@ class UIModelBase:
         cptname = cptname.lower()
 
         try:
-            cpt_class = self.components[cptname]
+            cpt_class = self.component_map[cptname][1]
         except IndexError:
             self.exception('Unhandled component ' + cptname)
             return None
 
-        if cptname == 'W':
+        if cpt_class is None:
+            self.exception('Unimplemented component ' +
+                           self.component_map[cptname][0])
+            return None
+
+        if cptname == 'w':
             cpt = cpt_class()
         else:
             cpt = cpt_class(None)
@@ -185,6 +190,8 @@ class UIModelBase:
     def create(self, cptname, x1, y1, x2, y2):
 
         cpt = self.cpt_make(cptname)
+        if cpt is None:
+            return
         self.cpt_create(cpt, x1, y1, x2, y2)
 
     def circuit(self):
