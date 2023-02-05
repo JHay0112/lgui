@@ -86,7 +86,7 @@ class UIModelMPH(UIModelBase):
             'v': self.on_add_cpt,
             'w': self.on_add_cpt}
 
-    def draw_cursor(self, x, y):
+    def add_cursor(self, x, y):
 
         x, y = self.snap(x, y)
 
@@ -144,15 +144,21 @@ class UIModelMPH(UIModelBase):
 
     def on_add_node(self, x, y):
 
-        self.draw_cursor(x, y)
+        self.add_cursor(x, y)
 
     def on_add_cpt(self, cptname):
 
         cptname = cptname.upper()
 
-        if len(self.cursors) < 2:
-            # TODO
+        if len(self.cursors) == 0:
+            self.ui.show_info_dialog(
+                'To add component, first create nodes by clicking on grid')
             return
+        elif len(self.cursors) == 1:
+            self.ui.show_info_dialog(
+                'To add component, add negative node by clicking on grid')
+            return
+
         x1 = self.cursors[0].x
         y1 = self.cursors[0].y
         x2 = self.cursors[1].x
@@ -311,8 +317,8 @@ placed at the negative cursor.""", 'Help')
             if self.ui.debug:
                 print('Selected ' + cpt.cname)
             self.cursors.remove()
-            self.draw_cursor(*cpt.nodes[0].position)
-            self.draw_cursor(*cpt.nodes[-1].position)
+            self.add_cursor(*cpt.nodes[0].position)
+            self.add_cursor(*cpt.nodes[-1].position)
         else:
             if self.ui.debug:
                 print('Add node at (%s, %s)' % (x, y))

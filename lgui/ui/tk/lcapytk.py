@@ -38,16 +38,12 @@ class LcapyTk(Tk):
 
         self.file_menu.add_command(label='New', command=self.on_new,
                                    underline=0, accelerator='Ctrl+n')
-
         self.file_menu.add_command(label='Open', command=self.on_load,
                                    underline=0, accelerator='Ctrl+o')
-
         self.file_menu.add_command(label='Save', command=self.on_save,
                                    underline=0, accelerator='Ctrl+s')
-
         self.file_menu.add_command(label='Export', command=self.on_export,
                                    underline=0, accelerator='Ctrl+e')
-
         self.file_menu.add_command(label='Quit', command=self.on_quit,
                                    underline=0, accelerator='Ctrl+q')
 
@@ -61,18 +57,14 @@ class LcapyTk(Tk):
         self.edit_menu.add_command(label='Preferences',
                                    command=self.on_preferences,
                                    underline=0)
-
         self.edit_menu.add_command(label='Undo', command=self.on_undo,
                                    accelerator='Ctrl+z')
-
         self.edit_menu.add_command(label='Cut',
                                    command=self.on_cut,
                                    accelerator='Ctrl+x')
-
         self.edit_menu.add_command(label='Copy',
                                    command=self.on_copy,
                                    accelerator='Ctrl+c')
-
         self.edit_menu.add_command(label='Paste',
                                    command=self.on_paste,
                                    accelerator='Ctrl+v')
@@ -85,7 +77,6 @@ class LcapyTk(Tk):
 
         self.view_menu.add_command(label='Circuitikz', command=self.on_view,
                                    accelerator='Ctrl+u')
-
         self.view_menu.add_command(label='Netlist',
                                    command=self.on_netlist)
 
@@ -98,20 +89,36 @@ class LcapyTk(Tk):
 
         inspect_menu.add_command(label='Voltage', underline=0,
                                  command=self.on_inspect_voltage)
-
         inspect_menu.add_command(label='Current', underline=0,
                                  command=self.on_inspect_current)
-
         inspect_menu.add_command(label='Thevenin impedance',
                                  underline=0,
                                  command=self.on_inspect_thevenin_impedance)
-
         inspect_menu.add_command(label='Norton admittance',
                                  underline=0,
                                  command=self.on_inspect_norton_admittance)
 
         self.menu.add_cascade(label='Inspect', underline=0,
                               menu=self.inspect_menu)
+
+        # Component menu
+        self.component_menu = Menu(self.menu, tearoff=0,
+                                   bg='lightgrey', fg='black')
+        component_menu = self.component_menu
+
+        component_menu.add_command(label='Resistor', underline=0,
+                                   command=lambda: self.on_add_cpt('r'))
+        component_menu.add_command(label='Capacitor', underline=0,
+                                   command=lambda: self.on_add_cpt('c'))
+        component_menu.add_command(label='Voltage source', underline=0,
+                                   command=lambda: self.on_add_cpt('v'))
+        component_menu.add_command(label='Current source', underline=0,
+                                   command=lambda: self.on_add_cpt('i'))
+        component_menu.add_command(label='Wire', underline=0,
+                                   command=lambda: self.on_add_cpt('w'))
+
+        self.menu.add_cascade(label='Component', underline=0,
+                              menu=self.component_menu)
 
         # Help menu
         self.help_menu = Menu(self.menu, tearoff=0,
@@ -166,9 +173,9 @@ class LcapyTk(Tk):
             return
 
         model.load(filename)
-        self.loaded(filename)
+        self.set_filename(filename)
 
-    def loaded(self, filename):
+    def set_filename(self, filename):
 
         name = basename(filename)
         self.set_canvas_title(name)
@@ -193,18 +200,19 @@ class LcapyTk(Tk):
         canvas.tab = tab
         canvas.layer = Layer(canvas.drawing.ax)
 
+        tab.canvas = canvas
+
         self.canvases.append(canvas)
 
         self.notebook.select(len(self.canvases) - 1)
+
+        self.notebook.bind('<<NotebookTabChanged>>', self.on_tab_selected)
 
         return canvas
 
     def bind_canvas(self, canvas, model):
 
         canvas.model = model
-        tab = canvas.tab
-
-        tab.bind('<Enter>', self.on_enter)
 
         figure = canvas.drawing.fig
         canvas.bp_id = figure.canvas.mpl_connect('button_press_event',
@@ -223,13 +231,9 @@ class LcapyTk(Tk):
         self.model = model
         return model
 
-    def on_enter(self, event):
+    def on_add_cpt(self, cptname):
 
-        # TODO, determine tab from mouse x, y
-        if self.debug:
-            print('Enter %s, %s' % (event.x, event.y))
-
-        self.enter(self.canvases[0])
+        self.model.on_add_cpt(cptname)
 
     def on_click_event(self, event):
 
@@ -259,6 +263,14 @@ class LcapyTk(Tk):
     def on_cut(self, *args):
 
         self.model.on_cut()
+
+    def on_enter(self, event):
+
+        # TODO, determine tab from mouse x, y
+        if self.debug:
+            print('Enter %s, %s' % (event.x, event.y))
+
+        self.enter(self.canvases[0])
 
     def on_key_press_event(self, event):
 
@@ -343,6 +355,16 @@ class LcapyTk(Tk):
         if self.debug:
             print('Save')
         self.model.on_save()
+
+    def on_tab_selected(self, event):
+
+        notebook = event.widget
+        tab_id = notebook.select()
+        index = notebook.index(tab_id)
+
+        # TODO: rethink if destroy a tab/canvas
+        canvas = self.canvases[index]
+        self.enter(canvas)
 
     def on_undo(self, *args):
 
