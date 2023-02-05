@@ -15,6 +15,19 @@ class UIModelBase:
     STEP = 2
     SCALE = 0.25
 
+    components = {
+        'c': ('Capacitor', Capacitor),
+        'i': ('Current source', CurrentSource),
+        'l': ('Inductor', Inductor),
+        'r': ('Resistor', Resistor),
+        'v': ('Voltage source', VoltageSource),
+        'w': ('Wire', Wire),
+        'e': ('VCVS', None),
+        'f': ('CCCS', None),
+        'g': ('VCCS', None),
+        'h': ('CCVS', None)
+    }
+
     def __init__(self, ui):
 
         self.components = Components()
@@ -30,7 +43,7 @@ class UIModelBase:
         self.history = []
         self.clipped = None
 
-    @property
+    @ property
     def cct(self):
 
         if self._cct is not None:
@@ -55,7 +68,7 @@ class UIModelBase:
 
         return self._cct
 
-    @property
+    @ property
     def cpt_selected(self):
 
         return isinstance(self.selected, Component)
@@ -137,22 +150,18 @@ class UIModelBase:
 
     def cpt_make(self, cptname):
 
-        # Create component from name
-        if cptname == 'C':
-            cpt = Capacitor(None)
-        elif cptname == 'I':
-            cpt = CurrentSource(None)
-        elif cptname == 'L':
-            cpt = Inductor(None)
-        elif cptname == 'R':
-            cpt = Resistor(None)
-        elif cptname == 'V':
-            cpt = VoltageSource(None)
-        elif cptname == 'W':
-            cpt = Wire()
-        else:
+        cptname = cptname.lower()
+
+        try:
+            cpt_class = self.components[cptname]
+        except IndexError:
             self.exception('Unhandled component ' + cptname)
             return None
+
+        if cptname == 'W':
+            cpt = cpt_class()
+        else:
+            cpt = cpt_class(None)
         self.invalidate()
         return cpt
 
@@ -409,7 +418,7 @@ class UIModelBase:
         ann1.draw(color='red', fontsize=40)
         ann2.draw(color='blue', fontsize=40)
 
-    @property
+    @ property
     def ground_node(self):
 
         return self.node_find('0')
