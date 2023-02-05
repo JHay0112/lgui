@@ -10,9 +10,12 @@ from .layer import Layer
 
 class LcapyTk(Tk):
 
-    XSIZE = 30
-    YSIZE = 30
+    XSIZE = 36
+    YSIZE = 24
     SCALE = 0.01
+
+    GEOMETRY = '1200x800'
+    FIGSIZE = (12, 8)
 
     def __init__(self, filename=None, uimodel_class=None, debug=0):
 
@@ -27,7 +30,7 @@ class LcapyTk(Tk):
 
         # Title and size of the window
         self.title('Lcapy-tk')
-        self.geometry('1200x800')
+        self.geometry(self.GEOMETRY)
 
         # Create the drop down menus
         self.menu = Menu(self, bg='lightgrey', fg='black')
@@ -113,7 +116,7 @@ class LcapyTk(Tk):
                                        accelerator=key)
             # Callback called twice for some mysterious reason
             # self.component_menu.bind(key,
-            #                         lambda arg, foo=key: self.on_add_cpt(foo))
+            #            lambda arg, foo=key: self.on_add_cpt(foo))
 
         self.menu.add_cascade(label='Component', underline=0,
                               menu=self.component_menu)
@@ -189,9 +192,13 @@ class LcapyTk(Tk):
         self.notebook.pack(fill=BOTH, expand=1)
 
         # Add the figure to the graph tab
-        fig = Figure(figsize=(12, 8))
+        fig = Figure(figsize=self.FIGSIZE)
+        fig.subplots_adjust(left=0, bottom=0, right=1,
+                            top=1, wspace=0, hspace=0)
+
         graph = FigureCanvasTkAgg(fig, canvas)
-        graph.get_tk_widget().pack(side='top', fill='both', expand=True)
+        graph.get_tk_widget().pack(side='top', fill='both',
+                                   expand=True)
 
         drawing = Drawing(self, fig)
         canvas.drawing = drawing
