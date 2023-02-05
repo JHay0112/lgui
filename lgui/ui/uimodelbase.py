@@ -152,6 +152,7 @@ class UIModelBase:
             cpt = Wire()
         else:
             self.exception('Unhandled component ' + cptname)
+            return None
         self.invalidate()
         return cpt
 

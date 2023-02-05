@@ -51,6 +51,19 @@ class Cursors(list):
 
 class UIModelMPH(UIModelBase):
 
+    components = {
+        'c': 'Capacitor',
+        'i': 'Current source',
+        'l': 'Inductor',
+        'r': 'Resistor',
+        'v': 'Voltage source',
+        'w': 'Wire',
+        'e': 'VCVS',
+        'f': 'CCCS',
+        'g': 'VCCS',
+        'h': 'CCVS',
+    }
+
     def __init__(self, ui):
 
         super(UIModelMPH, self).__init__(ui)

@@ -106,16 +106,14 @@ class LcapyTk(Tk):
                                    bg='lightgrey', fg='black')
         component_menu = self.component_menu
 
-        component_menu.add_command(label='Resistor', underline=0,
-                                   command=lambda: self.on_add_cpt('r'))
-        component_menu.add_command(label='Capacitor', underline=0,
-                                   command=lambda: self.on_add_cpt('c'))
-        component_menu.add_command(label='Voltage source', underline=0,
-                                   command=lambda: self.on_add_cpt('v'))
-        component_menu.add_command(label='Current source', underline=0,
-                                   command=lambda: self.on_add_cpt('i'))
-        component_menu.add_command(label='Wire', underline=0,
-                                   command=lambda: self.on_add_cpt('w'))
+        for key, val in self.uimodel_class.components.items():
+            component_menu.add_command(label=val,
+                                       command=lambda foo=key: self.on_add_cpt(
+                                           foo),
+                                       accelerator=key)
+            # Callback called twice for some mysterious reason
+            # self.component_menu.bind(key,
+            #                         lambda arg, foo=key: self.on_add_cpt(foo))
 
         self.menu.add_cascade(label='Component', underline=0,
                               menu=self.component_menu)
@@ -232,6 +230,9 @@ class LcapyTk(Tk):
         return model
 
     def on_add_cpt(self, cptname):
+
+        if self.debug:
+            print('Adding component ' + cptname)
 
         self.model.on_add_cpt(cptname)
 
