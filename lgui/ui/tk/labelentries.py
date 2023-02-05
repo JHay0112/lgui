@@ -1,5 +1,4 @@
 from tkinter import StringVar, Label, Entry, OptionMenu
-from tkinter import StringVar, Label, Entry
 
 
 class LabelEntry:
@@ -26,13 +25,13 @@ class LabelEntries(dict):
             var.set(labelentry.default)
             self[labelentry.name] = (var, labelentry.cls)
 
-            label = Label(master, text=labelentry.text + ': ')
+            label = Label(master, text=labelentry.text + ': ', anchor='w')
             if isinstance(labelentry.options, (tuple, list)):
                 entry = OptionMenu(master, var, *labelentry.options)
             else:
                 entry = Entry(master, textvariable=var)
 
-            label.grid(row=self.row)
+            label.grid(row=self.row, sticky='w')
             entry.grid(row=self.row, column=1)
 
             self.row += 1

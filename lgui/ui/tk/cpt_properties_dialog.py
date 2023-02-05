@@ -1,10 +1,11 @@
-from ...components import Capacitor, Inductor
-from tkinter import Tk, StringVar, Label, OptionMenu, Entry, Button
+from ...components import Capacitor, Inductor, VCVS
+from tkinter import Tk, Button
+from .labelentries import LabelEntry, LabelEntries
 
 
 class CptPropertiesDialog:
 
-    def __init__(self, cpt, update=None, title=''):
+    def __init__(self, ui, cpt, update=None, title=''):
 
         self.cpt = cpt
         self.update = update
@@ -12,95 +13,53 @@ class CptPropertiesDialog:
         self.master = Tk()
         self.master.title(title)
 
-        row = 0
-
-        self.kind_var = None
+        entries = []
         if cpt.kind is not None:
-            self.kind_var = StringVar(self.master)
-            self.kind_var.set(cpt.kind)
+            entries.append(LabelEntry(
+                'kind', 'Kind', cpt.kind, *cpt.kinds.keys()))
 
-            kind_label = Label(self.master, text='Kind: ')
-            kind_option = OptionMenu(self.master, self.kind_var,
-                                     *cpt.kinds.keys())
+        entries.append(LabelEntry('name', 'Name', cpt.cname))
+        entries.append(LabelEntry('value', 'Value', cpt.value))
 
-            kind_label.grid(row=row)
-            kind_option.grid(row=row, column=1)
-            row += 1
+        if isinstance(cpt, Capacitor):
+            entries.append(LabelEntry(
+                'initial_value', 'v0', cpt.initial_value))
+        elif isinstance(cpt, Inductor):
+            entries.append(LabelEntry(
+                'initial_value', 'i0', cpt.initial_value))
+        elif isinstance(cpt, VCVS):
+            entries.append(LabelEntry('control_plus', 'Control + node',
+                                      cpt.control_plus))
+            entries.append(LabelEntry('control_minus', 'Control - node',
+                                      cpt.control_minus))
 
-        self.name_var = StringVar(self.master)
-        self.name_var.set(cpt.cname)
+        entries.append(LabelEntry('attrs', 'Attributes', cpt.attrs))
 
-        name_label = Label(self.master, text='Name: ')
-        name_entry = Entry(self.master, textvariable=self.name_var)
-
-        name_label.grid(row=row)
-        name_entry.grid(row=row, column=1)
-        row += 1
-
-        self.value_var = StringVar(self.master)
-        value = cpt.value
-        if value is None:
-            value = cpt.cname
-        self.value_var.set(value)
-
-        value_label = Label(self.master, text='Value: ')
-        value_entry = Entry(self.master, textvariable=self.value_var)
-
-        value_label.grid(row=row)
-        value_entry.grid(row=row, column=1)
-        row += 1
-
-        self.initial_value_var = None
-        if isinstance(cpt, (Capacitor, Inductor)):
-
-            ivlabel = 'v0'
-            if isinstance(cpt, Inductor):
-                ivlabel = 'i0'
-
-            self.initial_value_var = StringVar(self.master)
-
-            initial_value_label = Label(self.master, text=ivlabel + ': ')
-            initial_value_entry = Entry(
-                self.master, textvariable=self.initial_value_var)
-            initial_value_label.grid(row=row)
-            initial_value_entry.grid(row=row, column=1)
-            row += 1
-
-        self.attrs_var = StringVar(self.master)
-        self.attrs_var.set(cpt.attrs)
-
-        attrs_label = Label(self.master, text='Attributes: ')
-        attrs_entry = Entry(self.master, textvariable=self.attrs_var)
-
-        attrs_label.grid(row=row)
-        attrs_entry.grid(row=row, column=1)
-        row += 1
+        self.labelentries = LabelEntries(self.master, ui, entries)
 
         button = Button(self.master, text="OK", command=self.on_update)
-        button.grid(row=row)
+        button.grid(row=self.labelentries.row)
 
     def on_update(self):
 
-        if self.kind_var is not None:
-            kind = self.kind_var.get()
-            if kind == '':
-                kind = None
-            self.cpt.kind = kind
+        self.cpt.cname = self.labelentries.get('name')
+        self.cpt.value = self.labelentries.get('value')
+        try:
+            self.cpt.initial_value = self.labelentries.get('initial_value')
+        except KeyError:
+            pass
 
-        self.cpt.cname = self.name_var.get()
+        try:
+            self.cpt.control_plus = self.labelentries.get('control_plus')
+        except KeyError:
+            pass
 
-        value = self.value_var.get()
-        if value == '':
-            value = None
-        self.cpt.value = value
+        try:
+            self.cpt.control_minus = self.labelentries.get('control_minus')
+        except KeyError:
+            pass
 
-        if self.initial_value_var is not None:
-            value = self.initial_value_var.get()
-            if value == '':
-                value = None
-            self.cpt.initial_value = value
-
-        self.cpt.attrs = self.attrs_var.get()
+        self.cpt.attrs = self.labelentries.get('attrs')
 
         self.master.destroy()
 

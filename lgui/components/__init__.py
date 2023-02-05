@@ -17,4 +17,6 @@ from .ground import Ground
 
 from .wire import Wire
 
+from .vcvs import VCVS
+
 from .components import Components

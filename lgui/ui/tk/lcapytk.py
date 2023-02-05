@@ -415,7 +415,7 @@ class LcapyTk(Tk):
 
         from .cpt_properties_dialog import CptPropertiesDialog
 
-        self.cpt_properties_dialog = CptPropertiesDialog(cpt,
+        self.cpt_properties_dialog = CptPropertiesDialog(self, cpt,
                                                          on_changed, title)
 
     def show_node_properties_dialog(self, node, on_changed=None, title=''):

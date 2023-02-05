@@ -1,5 +1,5 @@
 from ..components import Capacitor, Component, CurrentSource, Inductor, \
-    Resistor, VoltageSource, Wire
+    Resistor, VoltageSource, Wire, VCVS
 from ..annotation import Annotation
 from ..annotations import Annotations
 from ..nodes import Nodes
@@ -22,7 +22,7 @@ class UIModelBase:
         'r': ('Resistor', Resistor),
         'v': ('Voltage source', VoltageSource),
         'w': ('Wire', Wire),
-        'e': ('VCVS', None),
+        'e': ('VCVS', VCVS),
         'f': ('CCCS', None),
         'g': ('VCCS', None),
         'h': ('CCVS', None)
@@ -259,7 +259,7 @@ class UIModelBase:
 
             cpt = self.cpt_make(elt.type)
             nodes = []
-            for m, node1 in enumerate(elt.nodes):
+            for m, node1 in enumerate(elt.nodes[0:2]):
 
                 x1 = sch.nodes[node1.name].pos.x + offsetx
                 y1 = sch.nodes[node1.name].pos.y + offsety
@@ -279,6 +279,14 @@ class UIModelBase:
                     for key, val in cpt.kinds.items():
                         if val == elt.keyword[1]:
                             cpt.kind = key
+            elif elt.type in ('E', 'G'):
+                # TODO, handle opamp keyword
+                cpt.value = elt.args[0]
+                cpt.control_plus = elt.nodes[2].name
+                cpt.control_minus = elt.nodes[3].name
+            elif elt.type in ('F', 'H'):
+                cpt.value = elt.args[0]
+                cpt.control_cpt = elt.args[1]
 
             elif elt.type in ('W', 'O', 'P'):
                 pass
