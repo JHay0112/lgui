@@ -91,7 +91,7 @@ class Components(list):
             if r == 1:
                 size = ''
             else:
-                size = '=%s' % r
+                size = '=' + str(r).rstrip('0').rstrip('.')
 
             if y1 == y2:
                 if x1 > x2:
@@ -107,13 +107,11 @@ class Components(list):
                 angle = degrees(atan2(y2 - y1, x2 - x1))
                 attr = 'rotate=%s' % angle
 
-            # Add user defined attributes such as color=blue, thick, etc.
+            # Add user defined attributes such as color=blu]e, thick, etc.
             if cpt.attrs != '':
                 attr += ', ' + cpt.attrs
 
-            parts.append('; ' + attr)
-
-            elts.append(' '.join(parts))
+            elts.append(' '.join(parts) + '; ' + attr)
         return '\n'.join(elts) + '\n'
 
     def closest(self, x, y):
