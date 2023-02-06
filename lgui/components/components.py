@@ -16,6 +16,7 @@ class Components(list):
 
         # Hack, update component class to have this attribute
         cpt.cname = name
+        cpt.value = name
 
         # Hack for drawing
         cpt.nodes = nodes
@@ -60,6 +61,15 @@ class Components(list):
             parts = [cpt.cname]
             for node in cpt.nodes:
                 parts.append(node.name)
+
+            if cpt.control_cpt is not None:
+                parts.append(cpt.control_cpt)
+
+            if cpt.control_plus is not None:
+                parts.append(cpt.control_plus)
+
+            if cpt.control_minus is not None:
+                parts.append(cpt.control_minus)
 
             # Later need to handle schematic kind attributes.
             if cpt.kind is not None:
