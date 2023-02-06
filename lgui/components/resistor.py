@@ -30,8 +30,8 @@ class Resistor(Component):
         mid = 0.5 * self.along() * length + start
         
         ZIGS = 6
-        ZIG_WIDTH = 0.4 * editor.STEP * editor.SCALE
-        ZIG_HEIGHT = 0.8 * editor.STEP * editor.SCALE
+        ZIG_WIDTH = 0.35 * editor.STEP * editor.SCALE
+        ZIG_HEIGHT = 0.7 * editor.STEP * editor.SCALE
 
         zig_shift = ZIG_WIDTH * self.along()
         zig_orthog = ZIG_HEIGHT * self.orthog()
