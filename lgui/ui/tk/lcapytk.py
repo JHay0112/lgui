@@ -11,7 +11,7 @@ from .layer import Layer
 class LcapyTk(Tk):
 
     XSIZE = 36
-    YSIZE = 24
+    YSIZE = 23
     SCALE = 0.01
 
     GEOMETRY = '1200x800'

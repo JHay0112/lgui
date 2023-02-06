@@ -42,6 +42,13 @@ class Layer:
         self.ax.add_patch(patch)
         return patch
 
+    def stroke_circle(self, x, y, radius=0.5, color='black', alpha=0.5):
+
+        patch = patches.Circle((x, y), radius, fc='white',
+                               color=color, alpha=alpha)
+        self.ax.add_patch(patch)
+        return patch
+
     def text(self, x, y, text, **kwargs):
 
         return self.ax.annotate(text, (x, y), **kwargs)

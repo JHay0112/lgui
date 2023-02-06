@@ -1,7 +1,8 @@
-from tkinter import Tk, StringVar, Label, OptionMenu, Button, Entry, Frame
+from tkinter import Tk, Button, Label
 from lcapy.system import tmpfilename, LatexRunner, PDFConverter
 from lcapy import Expr
 from PIL import Image, ImageTk
+from .labelentries import LabelEntry, LabelEntries
 
 
 class ExprDialog:
@@ -37,46 +38,20 @@ class ExprDialog:
         self.master = Tk()
         self.master.title(title)
 
-        frame = Frame(self.master)
-        frame.pack()
+        entries = [LabelEntry('operation', 'Operation', self.operation,
+                              None, self.on_operation),
+                   LabelEntry('domain', 'Domain', self.domain,
+                              self.domains.keys(), self.on_domain),
+                   LabelEntry('format', 'Format', self.format,
+                              self.formats.keys(), self.on_format)]
 
-        self.operation_var = StringVar(frame)
-        self.operation_var.set(self.operation)
-
-        operation_label = Label(frame, text='Operation: ')
-        operation_entry = Entry(frame, textvariable=self.operation_var)
-        self.operation_var.trace_add('write', self.on_operation)
-
-        operation_label.grid(row=0)
-        operation_entry.grid(row=0, column=1)
-
-        domain_var = StringVar(frame)
-        domain_var.set(self.domain)
-
-        domain_label = Label(frame, text='Domain: ')
-        domain_option = OptionMenu(frame, domain_var,
-                                   *self.domains.keys(),
-                                   command=self.on_domain)
-
-        domain_label.grid(row=1)
-        domain_option.grid(row=1, column=1)
-
-        format_var = StringVar(frame)
-        format_var.set(self.format)
-
-        format_label = Label(frame, text='Format: ')
-        format_option = OptionMenu(frame, format_var,
-                                   *self.formats.keys(),
-                                   command=self.on_format)
-
-        format_label.grid(row=2)
-        format_option.grid(row=2, column=1)
+        self.labelentries = LabelEntries(self.master, ui, entries)
 
         self.expr_label = Label(self.master, text='')
-        self.expr_label.pack()
+        self.expr_label.grid(row=self.labelentries.row)
 
         button = Button(self.master, text="Plot", command=self.on_plot)
-        button.pack()
+        button.grid(row=self.labelentries.row + 1)
 
         self.update()
 
