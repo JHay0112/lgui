@@ -104,7 +104,7 @@ class UIModelBase:
 
         label_cpts = self.preferences.label_cpts
 
-        if cpt.TYPE in ('O', 'P', 'W'):
+        if cpt.TYPE in ('O', 'W'):
             label_cpts = 'none'
 
         name = cpt.cname
