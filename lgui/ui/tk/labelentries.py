@@ -34,9 +34,11 @@ class LabelEntries(dict):
                     master, var, *labelentry.options,
                     command=labelentry.command)
             else:
-                if labelentry.command:
-                    var.trace_add('write', labelentry.command)
                 entry = Entry(master, textvariable=var)
+                # if labelentry.command:
+                #    var.trace_add('write', labelentry.command)
+                if labelentry.command:
+                    entry.bind('<Return>', labelentry.command)
 
             label.grid(row=self.row, sticky='w')
             entry.grid(row=self.row, column=1, sticky='w')
