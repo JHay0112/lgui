@@ -14,11 +14,11 @@ class VoltageSource(Component):
     ----------
 
     value: Union[str, int, float]
-        The value of the voltage supply.
+        The value of the voltage source.
     """
 
     TYPE = "V"
-    NAME = "Voltage Supply"
+    NAME = "Voltage Source"
     kinds = {'DC': 'dc', 'AC': 'ac', 'Step': 'step'}
 
     def __init__(self, value: Union[str, int, float]):

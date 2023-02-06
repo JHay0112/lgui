@@ -39,4 +39,6 @@ xxtal for a crystal, xcpe for a CPE, etc.
 
 17. Draw components in selected colours, etc.
 
-18. Draw and annotate nodes
+18. Draw port nodes
+
+19. Zoom/pan schematic

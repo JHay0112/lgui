@@ -62,21 +62,24 @@ class Components(list):
             for node in cpt.nodes:
                 parts.append(node.name)
 
-            if cpt.control_cpt is not None:
-                parts.append(cpt.control_cpt)
+            if cpt.TYPE in ('E', 'G'):
+                if cpt.control is None:
+                    raise ValueError(
+                        'Control component not defined for ' + cpt.cname)
 
-            if cpt.control_plus is not None:
-                parts.append(cpt.control_plus)
-
-            if cpt.control_minus is not None:
-                parts.append(cpt.control_minus)
+                idx = self.find_index(cpt.control)
+                parts.append(self[idx].nodes[0].name)
+                parts.append(self[idx].nodes[1].name)
+            elif cpt.TYPE in ('F', 'H'):
+                parts.append(cpt.control)
 
             # Later need to handle schematic kind attributes.
             if cpt.kind is not None:
                 parts.append(cpt.kinds[cpt.kind])
 
             if cpt.value is not None:
-                parts.append(cpt.value)
+                if cpt.initial_value is None and cpt.cname != cpt.value:
+                    parts.append(cpt.value)
 
             if cpt.initial_value is not None:
                 parts.append(cpt.initial_value)
@@ -126,11 +129,18 @@ class Components(list):
                 return cpt
         return None
 
-    def remove(self, cptname):
+    def find_index(self, cptname):
 
-        idx = self.index(cptname)
+        for m, cpt in enumerate(self):
+            if cpt.cname == cptname:
+                return m
+        raise ValueError('Unknown component ' + cptname)
+
+    def remove(self, cpt):
+
+        idx = self.index(cpt)
         if idx is None:
-            raise ValueError('Unknown component ' + cptname)
+            raise ValueError('Unknown component ' + cpt.cname)
 
         cpt = self.pop(idx)
 

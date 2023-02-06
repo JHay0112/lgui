@@ -48,9 +48,7 @@ class Component(ABC):
         type(self).next_id += 1
         self.kind = None
         self.initial_value = None
-        self.control_cpt = None
-        self.control_plus = None
-        self.control_minus = None
+        self.control = None
         self.attrs = ''
         self.opts = []
         self.annotations = []

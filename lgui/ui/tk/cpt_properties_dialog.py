@@ -28,10 +28,9 @@ class CptPropertiesDialog:
             entries.append(LabelEntry(
                 'initial_value', 'i0', cpt.initial_value))
         elif isinstance(cpt, VCVS):
-            entries.append(LabelEntry('control_plus', 'Control + node',
-                                      cpt.control_plus))
-            entries.append(LabelEntry('control_minus', 'Control - node',
-                                      cpt.control_minus))
+            names = [cpt.cname for cpt in ui.model.components]
+            entries.append(LabelEntry('control', 'Control',
+                                      cpt.control, names))
 
         entries.append(LabelEntry('attrs', 'Attributes', cpt.attrs))
 
@@ -50,12 +49,7 @@ class CptPropertiesDialog:
             pass
 
         try:
-            self.cpt.control_plus = self.labelentries.get('control_plus')
-        except KeyError:
-            pass
-
-        try:
-            self.cpt.control_minus = self.labelentries.get('control_minus')
+            self.cpt.control = self.labelentries.get('control')
         except KeyError:
             pass
 

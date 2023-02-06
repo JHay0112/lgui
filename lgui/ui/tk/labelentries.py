@@ -7,6 +7,8 @@ class LabelEntry:
 
         self.name = name
         self.text = text
+        if default is None:
+            default = 'None'
         self.default = default
         self.cls = default.__class__
         self.options = options
@@ -32,7 +34,7 @@ class LabelEntries(dict):
                 entry = Entry(master, textvariable=var)
 
             label.grid(row=self.row, sticky='w')
-            entry.grid(row=self.row, column=1)
+            entry.grid(row=self.row, column=1, sticky='w')
 
             self.row += 1
 

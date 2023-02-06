@@ -54,7 +54,11 @@ class UIModelBase:
         if len(self.components) == 0:
             self.exception('No circuit defined')
 
-        sch = self.components.as_sch(self.STEP)
+        try:
+            sch = self.components.as_sch(self.STEP)
+        except Exception as e:
+            self.exception(e)
+
         if self.ground_node is None:
             # Add dummy ground node
             sch += 'W %s 0\n' % self.nodes[0].name
@@ -189,6 +193,18 @@ class UIModelBase:
 
         self.history.append((cpt, 'A'))
 
+    def cpt_find(self, n1, n2):
+
+        cpt2 = None
+        for cpt in self.components:
+            if (cpt.nodes[0].name == n1 and cpt.nodes[1].name == n2):
+                cpt2 = cpt
+                break
+        if cpt2 is None:
+            self.exception(
+                'Cannot find a component with nodes %s and %s' % (n1, n2))
+        return cpt2
+
     def create(self, cptname, x1, y1, x2, y2):
 
         cpt = self.cpt_make(cptname)
@@ -251,6 +267,7 @@ class UIModelBase:
         offsetx, offsety = self.snap((self.ui.XSIZE - width) / 2,
                                      (self.ui.YSIZE - height) / 2)
 
+        vcs = []
         elements = cct.elements
         for elt in elements.values():
             if elt.type == 'XX':
@@ -282,11 +299,10 @@ class UIModelBase:
             elif elt.type in ('E', 'G'):
                 # TODO, handle opamp keyword
                 cpt.value = elt.args[0]
-                cpt.control_plus = elt.nodes[2].name
-                cpt.control_minus = elt.nodes[3].name
+                vcs.append((cpt, elt.nodes[2].name, elt.nodes[3].name))
             elif elt.type in ('F', 'H'):
                 cpt.value = elt.args[0]
-                cpt.control_cpt = elt.args[1]
+                cpt.control = elt.args[1]
 
             elif elt.type in ('W', 'O', 'P'):
                 pass
@@ -309,6 +325,9 @@ class UIModelBase:
 
             self.components.add(cpt, elt.name, *nodes)
             self.cpt_draw(cpt)
+
+        for cpt, n1, n2 in vcs:
+            cpt.control = self.cpt_find(n1, n2)
 
     def move(self, xshift, yshift):
         # TODO
@@ -337,7 +356,12 @@ class UIModelBase:
 
         s = '# Created by lcapy-gui ' + __version__ + '\n'
         # TODO: save node positions
-        s += self.components.as_sch(self.STEP)
+
+        try:
+            s += self.components.as_sch(self.STEP)
+        except Exception as e:
+            self.exception(e)
+
         # Note, need a newline so string treated as a netlist string
         s += ';' + self.preferences.schematic_preferences() + '\n'
         return s

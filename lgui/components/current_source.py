@@ -14,7 +14,7 @@ class CurrentSource(Component):
     ----------
 
     value: Union[str, int, float]
-        The value of the current supply.
+        The value of the current source.
     """
 
     TYPE = "I"
