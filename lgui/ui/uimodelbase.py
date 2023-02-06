@@ -1,5 +1,5 @@
 from ..components import Capacitor, Component, CurrentSource, Inductor, \
-    Resistor, VoltageSource, Wire, VCVS, CCVS, VCCS, CCCS
+    Port, Resistor, VoltageSource, Wire, VCVS, CCVS, VCCS, CCCS
 from ..annotation import Annotation
 from ..annotations import Annotations
 from ..nodes import Nodes
@@ -25,7 +25,8 @@ class UIModelBase:
         'e': ('VCVS', VCVS),
         'f': ('CCCS', CCCS),
         'g': ('VCCS', VCCS),
-        'h': ('CCVS', CCVS)
+        'h': ('CCVS', CCVS),
+        'p': ('Port', Port)
     }
 
     def __init__(self, ui):
@@ -91,7 +92,7 @@ class UIModelBase:
 
         self.components.remove(cpt)
         for node in cpt.nodes:
-            self.nodes.remove(node)
+            self.nodes.remove(node, cpt)
 
         if redraw:
             self.ui.clear()
@@ -136,6 +137,10 @@ class UIModelBase:
         draw_nodes = self.preferences.draw_nodes
         if draw_nodes != 'none':
             for node in cpt.nodes:
+                if node.port:
+                    self.node_draw(node)
+                    continue
+
                 if draw_nodes == 'connections' and node.count < 3:
                     continue
                 if draw_nodes == 'alpha' and not node.name[0].isalpha():
@@ -169,7 +174,7 @@ class UIModelBase:
                            self.component_map[cptname][0])
             return None
 
-        if cptname == 'w':
+        if cptname in ('p', 'w'):
             cpt = cpt_class()
         else:
             cpt = cpt_class(None)
@@ -178,10 +183,10 @@ class UIModelBase:
 
     def cpt_create(self, cpt, x1, y1, x2, y2):
 
-        node1 = self.nodes.make(x1, y1)
+        node1 = self.nodes.make(x1, y1, None, cpt)
         self.nodes.add(node1)
 
-        node2 = self.nodes.make(x2, y2)
+        node2 = self.nodes.make(x2, y2, None, cpt)
         self.nodes.add(node2)
 
         self.components.add_auto(cpt, node1, node2)
@@ -280,7 +285,7 @@ class UIModelBase:
 
                 x1 = sch.nodes[node1.name].pos.x + offsetx
                 y1 = sch.nodes[node1.name].pos.y + offsety
-                node = self.nodes.make(x1, y1, node1.name)
+                node = self.nodes.make(x1, y1, node1.name, cpt)
                 self.nodes.add(node)
                 nodes.append(node)
                 # Hack
@@ -466,9 +471,14 @@ class UIModelBase:
 
     def node_draw(self, node):
 
-        self.ui.component_layer.stroke_filled_circle(
-            *node.position, self.preferences.node_size,
-            color=self.preferences.node_color, alpha=1)
+        if node.port:
+            self.ui.component_layer.stroke_circle(
+                *node.position, self.preferences.node_size,
+                color=self.preferences.node_color, alpha=1)
+        else:
+            self.ui.component_layer.stroke_filled_circle(
+                *node.position, self.preferences.node_size,
+                color=self.preferences.node_color, alpha=1)
 
     def node_find(self, nodename):
 

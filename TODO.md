@@ -42,3 +42,9 @@ xxtal for a crystal, xcpe for a CPE, etc.
 18. Draw port nodes
 
 19. Zoom/pan schematic
+
+20. Add node in middle of wire?   Need to delete wire or split into two.
+
+21. Draw nodes after drawing cpts (for port nodes)
+
+22. Close/quit

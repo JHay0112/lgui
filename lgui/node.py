@@ -1,3 +1,6 @@
+from .components import Port
+
+
 class Node:
 
     def __init__(self, x, y, name):
@@ -6,6 +9,7 @@ class Node:
         self.y = y
         self.name = name
         self.count = 0
+        self.cpts = []
 
     @property
     def position(self):
@@ -23,3 +27,21 @@ class Node:
         parts = name.split('_')
         return (name[0] != '_' and len(parts) <= 2) \
             and not (name[0].isdigit() and len(parts) != 1)
+
+    @property
+    def port(self):
+
+        for cpt in self.cpts:
+            if isinstance(cpt, Port):
+                return True
+        return False
+
+    def debug(self):
+
+        s = str(self) + ', count=%s' % self.count
+
+        cnames = [cpt.cname for cpt in self.cpts]
+
+        s += ', cpts=[%s]' % ', '.join(cnames) + '\n'
+
+        return s

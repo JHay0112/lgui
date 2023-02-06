@@ -49,10 +49,10 @@ class Nodes(list):
 
         s = ''
         for node in self:
-            s += str(node) + ', count=%s' % node.count + '\n'
+            s += node.debug()
         return s
 
-    def make(self, x, y, name=None):
+    def make(self, x, y, name, cpt):
 
         node = self.by_position((x, y))
         if node is not None:
@@ -60,6 +60,7 @@ class Nodes(list):
                 raise ValueError('Node name conflict %s and %s' %
                                  (node.name, name))
             node.count += 1
+            node.cpts.append(cpt)
             return node
 
         if name is None:
@@ -72,10 +73,13 @@ class Nodes(list):
 
         node = Node(x, y, name)
         node.count += 1
+        node.cpts.append(cpt)
         return node
 
-    def remove(self, node):
+    def remove(self, node, cpt):
 
         node.count -= 1
         if node.count == 0:
             self.pop(self.index(node))
+
+        node.cpts.pop(node.cpts.index(cpt))
