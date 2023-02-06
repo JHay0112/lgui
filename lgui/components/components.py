@@ -62,11 +62,11 @@ class Components(list):
             for node in cpt.nodes:
                 parts.append(node.name)
 
-            if cpt.TYPE in ('E', 'G'):
-                if cpt.control is None:
-                    raise ValueError(
-                        'Control component not defined for ' + cpt.cname)
+            if cpt.TYPE in ('E', 'F', 'G', 'H') and cpt.control is None:
+                raise ValueError(
+                    'Control component not defined for ' + cpt.cname)
 
+            if cpt.TYPE in ('E', 'G'):
                 idx = self.find_index(cpt.control)
                 parts.append(self[idx].nodes[0].name)
                 parts.append(self[idx].nodes[1].name)
