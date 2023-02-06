@@ -18,5 +18,8 @@ from .ground import Ground
 from .wire import Wire
 
 from .vcvs import VCVS
+from .vccs import VCCS
+from .ccvs import CCVS
+from .cccs import CCCS
 
 from .components import Components

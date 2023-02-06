@@ -1,5 +1,5 @@
 from ..components import Capacitor, Component, CurrentSource, Inductor, \
-    Resistor, VoltageSource, Wire, VCVS
+    Resistor, VoltageSource, Wire, VCVS, CCVS, VCCS, CCCS
 from ..annotation import Annotation
 from ..annotations import Annotations
 from ..nodes import Nodes
@@ -23,9 +23,9 @@ class UIModelBase:
         'v': ('Voltage source', VoltageSource),
         'w': ('Wire', Wire),
         'e': ('VCVS', VCVS),
-        'f': ('CCCS', None),
-        'g': ('VCCS', None),
-        'h': ('CCVS', None)
+        'f': ('CCCS', CCCS),
+        'g': ('VCCS', VCCS),
+        'h': ('CCVS', CCVS)
     }
 
     def __init__(self, ui):
@@ -43,7 +43,7 @@ class UIModelBase:
         self.history = []
         self.clipped = None
 
-    @property
+    @ property
     def cct(self):
 
         if self._cct is not None:
@@ -72,7 +72,7 @@ class UIModelBase:
 
         return self._cct
 
-    @property
+    @ property
     def cpt_selected(self):
 
         return isinstance(self.selected, Component)

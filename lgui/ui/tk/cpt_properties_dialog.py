@@ -1,4 +1,4 @@
-from ...components import Capacitor, Inductor, VCVS
+from ...components import Capacitor, Inductor, VCVS, CCVS, VCCS, CCCS
 from tkinter import Tk, Button
 from .labelentries import LabelEntry, LabelEntries
 
@@ -27,8 +27,8 @@ class CptPropertiesDialog:
         elif isinstance(cpt, Inductor):
             entries.append(LabelEntry(
                 'initial_value', 'i0', cpt.initial_value))
-        elif isinstance(cpt, VCVS):
-            names = [cpt.cname for cpt in ui.model.components]
+        elif isinstance(cpt, (VCVS, VCCS, CCVS, CCCS)):
+            names = [c.cname for c in ui.model.components if c.cname[0] != 'W']
             entries.append(LabelEntry('control', 'Control',
                                       cpt.control, names))
 
