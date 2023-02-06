@@ -332,7 +332,7 @@ class UIModelBase:
             self.cpt_draw(cpt)
 
         for cpt, n1, n2 in vcs:
-            cpt.control = self.cpt_find(n1, n2)
+            cpt.control = self.cpt_find(n1, n2).cname
 
     def move(self, xshift, yshift):
         # TODO
