@@ -71,7 +71,7 @@ class ExprDialog:
 
     def on_operation(self, *args):
 
-        self.operation = self.operation_var.get()
+        self.operation = self.labelentries.get_text('operation')
         self.update()
 
     def update(self):

@@ -16,7 +16,7 @@ class CptPropertiesDialog:
         entries = []
         if cpt.kind is not None:
             entries.append(LabelEntry(
-                'kind', 'Kind', cpt.kind, *cpt.kinds.keys()))
+                'kind', 'Kind', cpt.kind, list(cpt.kinds.keys())))
 
         entries.append(LabelEntry('name', 'Name', cpt.cname))
         entries.append(LabelEntry('value', 'Value', cpt.value))
