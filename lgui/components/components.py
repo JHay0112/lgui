@@ -77,7 +77,7 @@ class Components(list):
             if cpt.kind is not None:
                 parts.append(cpt.kinds[cpt.kind])
 
-            if cpt.value is not None:
+            if cpt.TYPE not in ('W', 'P', 'O') and cpt.value is not None:
                 if cpt.initial_value is None and cpt.cname != cpt.value:
                     parts.append(cpt.value)
 
