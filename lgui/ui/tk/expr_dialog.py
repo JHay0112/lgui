@@ -41,17 +41,17 @@ class ExprDialog:
         entries = [LabelEntry('operation', 'Operation', self.operation,
                               None, self.on_operation),
                    LabelEntry('domain', 'Domain', self.domain,
-                              self.domains.keys(), self.on_domain),
+                              list(self.domains.keys()), self.on_domain),
                    LabelEntry('format', 'Format', self.format,
-                              self.formats.keys(), self.on_format)]
+                              list(self.formats.keys()), self.on_format)]
 
         self.labelentries = LabelEntries(self.master, ui, entries)
 
         self.expr_label = Label(self.master, text='')
-        self.expr_label.grid(row=self.labelentries.row)
+        self.expr_label.grid(row=self.labelentries.row, columnspan=4)
 
         button = Button(self.master, text="Plot", command=self.on_plot)
-        button.grid(row=self.labelentries.row + 1)
+        button.grid(row=self.labelentries.row + 1, sticky='w')
 
         self.update()
 
