@@ -5,6 +5,10 @@ from PIL import Image, ImageTk
 from .labelentries import LabelEntry, LabelEntries
 
 
+global_dict = {}
+exec('from lcapy import *', global_dict)
+
+
 class ExprDialog:
 
     def __init__(self, expr, ui, title=''):
@@ -12,6 +16,7 @@ class ExprDialog:
         self.expr = expr
         self.expr_tweak = expr
         self.ui = ui
+        self.labelentries = None
 
         self.operation = 'result'
 
@@ -86,11 +91,14 @@ class ExprDialog:
         if format != '':
             command += '.' + self.formats[format] + '()'
 
-        globals = {'result': self.expr}
+        if self.ui.debug:
+            print('Expression command: ' + command)
+
+        global_dict['result'] = self.expr
         try:
             # Perhaps evaluate domain and transform steps
             # separately if operation is not an Lcapy Expr?
-            self.expr_tweak = eval(command, globals)
+            self.expr_tweak = eval(command, global_dict)
             # self.show_pretty(e)
             self.show_img(self.expr_tweak)
         except Exception as e:
