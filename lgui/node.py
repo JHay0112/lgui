@@ -18,7 +18,10 @@ class Node:
 
     def __str__(self):
 
-        return '%s@(%s, %s)' % (self.name, self.x, self.y)
+        x = str(self.x).rstrip('0').rstrip('.')
+        y = str(self.y).rstrip('0').rstrip('.')
+
+        return '%s@(%s, %s)' % (self.name, x, y)
 
     @property
     def is_primary(self):
