@@ -69,15 +69,21 @@ class Components(list):
                 parts.append(cpt.control)
 
             # Later need to handle schematic kind attributes.
-            if cpt.kind is not None:
+            if cpt.kind is not None and cpt.kinds[cpt.kind] != '':
                 parts.append(cpt.kinds[cpt.kind])
 
             if cpt.TYPE not in ('W', 'P', 'O') and cpt.value is not None:
                 if cpt.initial_value is None and cpt.name != cpt.value:
-                    parts.append(cpt.value)
+                    if cpt.value.isalnum():
+                        parts.append(cpt.value)
+                    else:
+                        parts.append('{' + cpt.value + '}')
 
             if cpt.initial_value is not None:
-                parts.append(cpt.initial_value)
+                if cpt.initial_value.isalnum():
+                    parts.append(cpt.initial_value)
+                else:
+                    parts.append('{' + cpt.initial_value + '}')
 
             x1, y1 = cpt.nodes[0].position
             x2, y2 = cpt.nodes[1].position

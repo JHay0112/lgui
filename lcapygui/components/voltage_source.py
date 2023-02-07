@@ -16,7 +16,7 @@ class VoltageSource(Component):
 
     TYPE = "V"
     NAME = "Voltage Source"
-    kinds = {'DC': 'dc', 'AC': 'ac', 'Step': 'step'}
+    kinds = {'DC': 'dc', 'AC': 'ac', 'Step': 'step', 'Arbitrary': ''}
 
     def __init__(self, value: Union[str, int, float]):
 
