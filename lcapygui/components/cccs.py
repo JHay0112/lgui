@@ -48,11 +48,25 @@ class CCCS(Component):
             end[0], end[1]
         )
 
-        # circle
-        layer.stroke_arc(
-            mid[0], mid[1],
-            RADIUS,
-            0, 2 * np.pi
+        # diamond
+        h_shift = RADIUS * self.orthog()
+        v_shift = RADIUS * self.along()
+
+        layer.stroke_line(
+            mid[0] + v_shift[0], mid[1] + v_shift[1],
+            mid[0] + h_shift[0], mid[1] + h_shift[1]
+        )
+        layer.stroke_line(
+            mid[0] + h_shift[0], mid[1] + h_shift[1],
+            mid[0] - v_shift[0], mid[1] - v_shift[1]
+        )
+        layer.stroke_line(
+            mid[0] - v_shift[0], mid[1] - v_shift[1],
+            mid[0] - h_shift[0], mid[1] - h_shift[1]
+        )
+        layer.stroke_line(
+            mid[0] - h_shift[0], mid[1] - h_shift[1],
+            mid[0] + v_shift[0], mid[1] + v_shift[1]
         )
 
         # arrow
