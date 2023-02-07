@@ -1,5 +1,5 @@
-
 from .component import Component
+
 
 class Ground(Component):
     """
@@ -10,7 +10,7 @@ class Ground(Component):
     # the type field makes little sense!
     TYPE = "G"
     NAME = "Ground"
-    
+
     def __init__(self):
 
         super().__init__(None)
@@ -21,5 +21,3 @@ class Ground(Component):
     def draw_on(self, editor, layer):
         # no graphical representation
         pass
-
-    

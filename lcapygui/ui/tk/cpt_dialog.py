@@ -9,7 +9,7 @@ class CptDialog:
         self.update = update
 
         self.master = Tk()
-        self.master.title(cpt.cname)
+        self.master.title(cpt.name)
 
         row = 0
 
@@ -27,7 +27,7 @@ class CptDialog:
             row += 1
 
         self.name_var = StringVar(self.master)
-        self.name_var.set(cpt.cname)
+        self.name_var.set(cpt.name)
 
         name_label = Label(self.master, text='Name: ')
         name_entry = Entry(self.master, textvariable=self.name_var)
@@ -39,7 +39,7 @@ class CptDialog:
         self.value_var = StringVar(self.master)
         value = cpt.value
         if value is None:
-            value = cpt.cname
+            value = cpt.name
         self.value_var.set(value)
 
         value_label = Label(self.master, text='Value: ')
@@ -76,7 +76,7 @@ class CptDialog:
                 kind = None
             self.cpt.kind = kind
 
-        self.cpt.cname = self.name_var.get()
+        self.cpt.name = self.name_var.get()
 
         value = self.value_var.get()
         if value == '':

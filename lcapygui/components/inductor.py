@@ -1,9 +1,7 @@
-
 import numpy as np
-
 from typing import Union
-
 from .component import Component
+
 
 class Inductor(Component):
     """
@@ -30,7 +28,7 @@ class Inductor(Component):
         start = self.nodes[0].position
         end = self.nodes[1].position
         mid = 0.5 * self.along() * length + start
-        
+
         LOOPS = 4
         LOOP_RADIUS = 0.4 * editor.STEP * editor.SCALE
 
@@ -54,7 +52,7 @@ class Inductor(Component):
         for l in range(-LOOPS // 2, LOOPS // 2):
             centre = (2 * l + 1) * LOOP_RADIUS * self.along() + mid
             layer.stroke_arc(
-                centre[0], centre[1], 
-                LOOP_RADIUS, 
+                centre[0], centre[1],
+                LOOP_RADIUS,
                 np.pi + sign * angle_offset, sign * angle_offset
             )

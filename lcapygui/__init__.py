@@ -1,6 +1,6 @@
 """
-Root-level lgui objects.
-These can be imported directly from lgui.
+Root-level lcapy-gui objects.
+These can be imported directly from lcapy-gui.
 """
 
 import pkg_resources

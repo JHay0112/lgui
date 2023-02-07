@@ -1,5 +1,5 @@
 """
-Defines the components that lgui can simulate
+Defines the components that lcapy-gui can simulate
 """
 
 import numpy as np
@@ -27,7 +27,7 @@ class Node:
 class Component(ABC):
 
     """
-    Describes an lgui component.
+    Describes an lcapy-gui component.
     This is an abstract class, specific components are derived from here.
 
     Parameters
@@ -37,14 +37,12 @@ class Component(ABC):
         The value of the component.
     """
 
-    next_id: int = 0
     kinds = {}
 
     def __init__(self, value: Union[str, int, float]):
 
+        self.name = None
         self.value: str = value
-        self.id = type(self).next_id
-        type(self).next_id += 1
         self.kind = None
         self.nodes = []
         self.initial_value = None

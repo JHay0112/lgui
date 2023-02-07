@@ -5,20 +5,20 @@ with open("README.md", "r", encoding="utf-8") as fh:
     long_description = fh.read()
 
 setup(
-    name='lgui',
+    name='lcapy-gui',
     packages=find_packages(include=[
-        "lgui",
-        "lgui.*"
+        "lcapygui",
+        "lcapygui.*"
     ]),
     version="v0.1.0",
-    description="An IPython/Jupyter Interface for lcapy",
+    description="A GUI for lcapy",
     long_description=long_description,
     long_description_content_type="text/markdown",
-    author="Jordan Hay",
+    author="Michael Hayes, Jordan Hay",
     license="MIT",
-    url="https://github.com/JHay0112/lgui",
+    url="https://github.com/mph-/lcapy-gui",
     project_urls={
-        "Bug Tracker": "https://github.com/JHay0112/lgui",
+        "Bug Tracker": "https://github.com/mph-/lcapy-gui",
     },
     classifiers=[
         "Programming Language :: Python :: 3",
@@ -28,15 +28,14 @@ setup(
     install_requires=[
         "lcapy",
         "numpy",
-        "ipywidgets",
-        "IPython",
-        "ipycanvas",
+        "tk",
+        "pillow",
         "matplotlib"
     ],
     entry_points={
         'console_scripts': [
-            'lcapy-gui=lgui.scripts.glcapy:main',
-            'lcapy-tk=lgui.scripts.glcapy:main',
+            'lcapy-gui=lcapygui.scripts.glcapy:main',
+            'lcapy-tk=lcapygui.scripts.glcapy:main',
         ],
     },
     python_requires=">=3.7"  # matched with lcapy

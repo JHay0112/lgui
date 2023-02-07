@@ -1,5 +1,5 @@
 """
-Components submodule of lgui (lcapy-gui)
+Components submodule of lcapy-gui (lcapy-gui)
 
 Handles the component class and its various subclasses.
 """

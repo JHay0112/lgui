@@ -49,8 +49,8 @@ class Node:
 
         s = str(self) + ', count=%s' % self.count
 
-        cnames = [cpt.cname for cpt in self.cpts]
+        names = [cpt.name for cpt in self.cpts]
 
-        s += ', cpts=[%s]' % ', '.join(cnames) + '\n'
+        s += ', cpts=[%s]' % ', '.join(names) + '\n'
 
         return s

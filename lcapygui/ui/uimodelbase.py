@@ -106,7 +106,7 @@ class UIModelBase:
         if cpt.TYPE in ('O', 'W'):
             label_cpts = 'none'
 
-        name = cpt.cname
+        name = cpt.name
         value = cpt.value
         if value is None:
             value = ''
@@ -334,7 +334,7 @@ class UIModelBase:
             self.cpt_draw(cpt)
 
         for cpt, n1, n2 in vcs:
-            cpt.control = self.cpt_find(n1, n2).cname
+            cpt.control = self.cpt_find(n1, n2).name
 
     def move(self, xshift, yshift):
         # TODO
@@ -379,9 +379,9 @@ class UIModelBase:
     def inspect_admittance(self, cpt):
 
         try:
-            self.last_expr = self.cct[cpt.cname].Y
+            self.last_expr = self.cct[cpt.name].Y
             self.ui.show_expr_dialog(self.last_expr,
-                                     '%s admittance' % cpt.cname)
+                                     '%s admittance' % cpt.name)
         except (AttributeError, ValueError, RuntimeError) as e:
             self.exception(e)
 
@@ -389,45 +389,45 @@ class UIModelBase:
 
         # TODO: FIXME for wire current
         try:
-            self.last_expr = self.cct[cpt.cname].i
+            self.last_expr = self.cct[cpt.name].i
             self.ui.show_expr_dialog(self.last_expr,
-                                     '%s current' % cpt.cname)
+                                     '%s current' % cpt.name)
         except (AttributeError, ValueError, RuntimeError) as e:
             self.exception(e)
 
     def inspect_impedance(self, cpt):
 
         try:
-            self.last_expr = self.cct[cpt.cname].Z
+            self.last_expr = self.cct[cpt.name].Z
             self.ui.show_expr_dialog(self.last_expr,
-                                     '%s impe' % cpt.cname)
+                                     '%s impe' % cpt.name)
         except (AttributeError, ValueError, RuntimeError) as e:
             self.exception(e)
 
     def inspect_norton_admittance(self, cpt):
 
         try:
-            self.last_expr = self.cct[cpt.cname].dpY
+            self.last_expr = self.cct[cpt.name].dpY
             self.ui.show_expr_dialog(self.last_expr,
-                                     '%s Norton admittance' % cpt.cname)
+                                     '%s Norton admittance' % cpt.name)
         except (AttributeError, ValueError, RuntimeError) as e:
             self.exception(e)
 
     def inspect_thevenin_impedance(self, cpt):
 
         try:
-            self.last_expr = self.cct[cpt.cname].dpZ
+            self.last_expr = self.cct[cpt.name].dpZ
             self.ui.show_expr_dialog(self.last_expr,
-                                     '%s Thevenin impedance' % cpt.cname)
+                                     '%s Thevenin impedance' % cpt.name)
         except (AttributeError, ValueError, RuntimeError) as e:
             self.exception(e)
 
     def inspect_voltage(self, cpt):
 
         try:
-            self.last_expr = self.cct[cpt.cname].v
+            self.last_expr = self.cct[cpt.name].v
             self.ui.show_expr_dialog(self.last_expr,
-                                     '%s potential difference' % cpt.cname)
+                                     '%s potential difference' % cpt.name)
         except (AttributeError, ValueError, RuntimeError) as e:
             self.exception(e)
 
@@ -508,7 +508,7 @@ class UIModelBase:
             return
         cpt, op = self.history.pop()
         if op == 'D':
-            self.components.add(cpt, cpt.cname, *cpt.nodes)
+            self.components.add(cpt, cpt.name, *cpt.nodes)
             self.cpt_draw(cpt)
             self.select(cpt)
         else:

@@ -18,7 +18,7 @@ class CptPropertiesDialog:
             entries.append(LabelEntry(
                 'kind', 'Kind', cpt.kind, list(cpt.kinds.keys())))
 
-        entries.append(LabelEntry('name', 'Name', cpt.cname))
+        entries.append(LabelEntry('name', 'Name', cpt.name))
         entries.append(LabelEntry('value', 'Value', cpt.value))
 
         if isinstance(cpt, Capacitor):
@@ -28,7 +28,7 @@ class CptPropertiesDialog:
             entries.append(LabelEntry(
                 'initial_value', 'i0', cpt.initial_value))
         elif isinstance(cpt, (VCVS, VCCS, CCVS, CCCS)):
-            names = [c.cname for c in ui.model.components if c.cname[0] != 'W']
+            names = [c.name for c in ui.model.components if c.name[0] != 'W']
             entries.append(LabelEntry('control', 'Control',
                                       cpt.control, names))
 
@@ -44,7 +44,7 @@ class CptPropertiesDialog:
         if self.cpt.kind is not None:
             self.cpt.kind = self.labelentries.get('kind')
 
-        self.cpt.cname = self.labelentries.get('name')
+        self.cpt.name = self.labelentries.get('name')
         self.cpt.value = self.labelentries.get('value')
         try:
             self.cpt.initial_value = self.labelentries.get('initial_value')

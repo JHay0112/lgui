@@ -73,6 +73,7 @@ class UIModelMPH(UIModelBase):
             'ctrl+x': self.on_cut,
             'ctrl+y': self.on_redo,
             'ctrl+z': self.on_undo,
+            'ctrl+9': self.on_pdb,
             'escape': self.on_unselect,
             'delete': self.on_delete,
             'backspace': self.on_delete,
@@ -283,7 +284,7 @@ placed at the negative cursor.""", 'Help')
             return
 
         self.ui.show_inspect_dialog(self.selected,
-                                    title=self.selected.cname)
+                                    title=self.selected.name)
 
     def on_inspect_current(self):
 
@@ -320,7 +321,7 @@ placed at the negative cursor.""", 'Help')
         if self.cpt_selected:
             cpt = self.selected
             if self.ui.debug:
-                print('Selected ' + cpt.cname)
+                print('Selected ' + cpt.name)
             self.cursors.remove()
             self.add_cursor(*cpt.nodes[0].position)
             self.add_cursor(*cpt.nodes[-1].position)
@@ -371,7 +372,7 @@ placed at the negative cursor.""", 'Help')
         if self.cpt_selected:
             self.ui.inspect_properties_dialog(self.selected,
                                               self.on_cpt_changed,
-                                              title=self.selected.cname)
+                                              title=self.selected.name)
         else:
             self.ui.show_node_properties_dialog(self.selected,
                                                 self.on_cpt_changed,
@@ -414,6 +415,11 @@ placed at the negative cursor.""", 'Help')
 
         self.paste(x1, y1, x2, y2)
         self.ui.refresh()
+
+    def on_pdb(self):
+
+        import pdb
+        pdb.set_trace()
 
     def on_preferences(self):
 

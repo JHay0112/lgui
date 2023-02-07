@@ -7,8 +7,8 @@ Usage: glcapy [infile.sch]
 
 from argparse import ArgumentParser
 import sys
-from lgui.ui.tk.lcapytkm import LcapyTkM
-from lgui.ui.tk.lcapytk import LcapyTk
+from lcapygui.ui.tk.lcapytkm import LcapyTkM
+from lcapygui.ui.tk.lcapytk import LcapyTk
 
 
 def schtex_exception(type, value, tb):

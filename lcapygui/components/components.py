@@ -14,14 +14,9 @@ class Components(list):
             self.kinds[cpt.TYPE] = []
         self.kinds[cpt.TYPE].append(name)
 
-        # Hack, update component class to have this attribute
-        cpt.cname = name
+        cpt.name = name
         cpt.value = name
-
-        # Hack for drawing
         cpt.nodes = nodes
-        cpt.nodes[0].position = nodes[0].position
-        cpt.nodes[1].position = nodes[1].position
 
         self.append(cpt)
 
@@ -50,7 +45,7 @@ class Components(list):
 
         s = ''
         for cpt in self:
-            s += cpt.cname + ' ' + \
+            s += cpt.name + ' ' + \
                 ' '.join([str(node) for node in cpt.nodes]) + '\n'
         return s + '\n'
 
@@ -58,13 +53,13 @@ class Components(list):
 
         elts = []
         for cpt in self:
-            parts = [cpt.cname]
+            parts = [cpt.name]
             for node in cpt.nodes:
                 parts.append(node.name)
 
             if cpt.TYPE in ('E', 'F', 'G', 'H') and cpt.control is None:
                 raise ValueError(
-                    'Control component not defined for ' + cpt.cname)
+                    'Control component not defined for ' + cpt.name)
 
             if cpt.TYPE in ('E', 'G'):
                 idx = self.find_index(cpt.control)
@@ -78,7 +73,7 @@ class Components(list):
                 parts.append(cpt.kinds[cpt.kind])
 
             if cpt.TYPE not in ('W', 'P', 'O') and cpt.value is not None:
-                if cpt.initial_value is None and cpt.cname != cpt.value:
+                if cpt.initial_value is None and cpt.name != cpt.value:
                     parts.append(cpt.value)
 
             if cpt.initial_value is not None:
@@ -130,7 +125,7 @@ class Components(list):
     def find_index(self, cptname):
 
         for m, cpt in enumerate(self):
-            if cpt.cname == cptname:
+            if cpt.name == cptname:
                 return m
         raise ValueError('Unknown component ' + cptname)
 
@@ -138,7 +133,7 @@ class Components(list):
 
         idx = self.index(cpt)
         if idx is None:
-            raise ValueError('Unknown component ' + cpt.cname)
+            raise ValueError('Unknown component ' + cpt.name)
 
         cpt = self.pop(idx)
 
