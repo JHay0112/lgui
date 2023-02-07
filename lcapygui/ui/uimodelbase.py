@@ -15,17 +15,17 @@ class UIModelBase:
     SCALE = 0.25
 
     component_map = {
-        'c': ('Capacitor', Capacitor),
-        'i': ('Current source', CurrentSource),
-        'l': ('Inductor', Inductor),
-        'r': ('Resistor', Resistor),
-        'v': ('Voltage source', VoltageSource),
-        'w': ('Wire', Wire),
-        'e': ('VCVS', VCVS),
-        'f': ('CCCS', CCCS),
-        'g': ('VCCS', VCCS),
-        'h': ('CCVS', CCVS),
-        'p': ('Port', Port)
+        'C': ('Capacitor', Capacitor),
+        'I': ('Current source', CurrentSource),
+        'L': ('Inductor', Inductor),
+        'R': ('Resistor', Resistor),
+        'V': ('Voltage source', VoltageSource),
+        'W': ('Wire', Wire),
+        'E': ('VCVS', VCVS),
+        'F': ('CCCS', CCCS),
+        'G': ('VCCS', VCCS),
+        'H': ('CCVS', CCVS),
+        'P': ('Port', Port)
     }
 
     def __init__(self, ui):
@@ -158,22 +158,22 @@ class UIModelBase:
                 ann.draw(fontsize=18)
                 cpt.annotations.append(ann)
 
-    def cpt_make(self, cptname):
+    def cpt_make(self, cpt_type):
 
-        cptname = cptname.lower()
+        cpt_type = cpt_type.upper()
 
         try:
-            cpt_class = self.component_map[cptname][1]
+            cpt_class = self.component_map[cpt_type][1]
         except IndexError:
-            self.exception('Unhandled component ' + cptname)
+            self.exception('Unhandled component ' + cpt_type)
             return None
 
         if cpt_class is None:
             self.exception('Unimplemented component ' +
-                           self.component_map[cptname][0])
+                           self.component_map[cpt_type][0])
             return None
 
-        if cptname in ('p', 'w'):
+        if cpt_type in ('P', 'W'):
             cpt = cpt_class()
         else:
             cpt = cpt_class(None)
@@ -209,9 +209,9 @@ class UIModelBase:
                 'Cannot find a component with nodes %s and %s' % (n1, n2))
         return cpt2
 
-    def create(self, cptname, x1, y1, x2, y2):
+    def create(self, cpt_type, x1, y1, x2, y2):
 
-        cpt = self.cpt_make(cptname)
+        cpt = self.cpt_make(cpt_type)
         if cpt is None:
             return
         self.cpt_create(cpt, x1, y1, x2, y2)
@@ -271,6 +271,7 @@ class UIModelBase:
         width, height = sch.width * self.STEP,  sch.height * self.STEP
 
         if calculated:
+            # Centre the schematic.
             offsetx, offsety = self.snap((self.ui.XSIZE - width) / 2,
                                          (self.ui.YSIZE - height) / 2)
         else:

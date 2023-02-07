@@ -152,9 +152,9 @@ class UIModelMPH(UIModelBase):
 
         self.add_cursor(x, y)
 
-    def on_add_cpt(self, cptname):
+    def on_add_cpt(self, cpt_type):
 
-        cptname = cptname.upper()
+        cpt_type = cpt_type.upper()
 
         if len(self.cursors) == 0:
             self.ui.show_info_dialog(
@@ -170,7 +170,7 @@ class UIModelMPH(UIModelBase):
         x2 = self.cursors[1].x
         y2 = self.cursors[1].y
 
-        self.create(cptname, x1, y1, x2, y2)
+        self.create(cpt_type, x1, y1, x2, y2)
         self.ui.refresh()
 
     def on_add_ground(self):

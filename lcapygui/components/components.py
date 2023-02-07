@@ -122,12 +122,12 @@ class Components(list):
                 return cpt
         return None
 
-    def find_index(self, cptname):
+    def find_index(self, name):
 
         for m, cpt in enumerate(self):
-            if cpt.name == cptname:
+            if cpt.name == name:
                 return m
-        raise ValueError('Unknown component ' + cptname)
+        raise ValueError('Unknown component ' + name)
 
     def remove(self, cpt):
 
