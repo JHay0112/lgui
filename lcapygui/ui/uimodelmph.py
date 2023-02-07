@@ -181,7 +181,7 @@ class UIModelMPH(UIModelBase):
 
         if len(self.cursors) == 0:
             return
-        cursor = self.cursors[-1]
+        cursor = self.cursors[0]
         x, y = cursor.position
         node = self.nodes.closest(x, y)
         if node is None:
@@ -257,23 +257,32 @@ class UIModelMPH(UIModelBase):
     def on_help(self):
 
         self.ui.show_message_dialog("""
-Click on the grid to place a red positive cursor then
-click elsewhere to place a blue negative cursor.  Then enter c for a
-capacitor, i for a current source, l for an inductor, r for a
-resistor, v for a voltage source, etc.  The escape key will remove the
-last defined cursor.
+Editing
+-------
+
+Click on the grid to place a red positive cursor then click elsewhere
+to place a blue negative cursor.  Then enter c for a capacitor, i for
+a current source, l for an inductor, r for a resistor, v for a voltage
+source, etc.  Alternatively, use the Components menu.  The escape key
+will remove the cursors.
 
 The attributes of a component (name, value, etc.) can be edited by
-right clicking on a component.
+right clicking on a component.  Note, voltage and current sources
+default to DC.  Select kind as step for transient analysis or specify
+the value as a time domain function.
 
 The attributes of a node can be edited by right clicking on a
-node.
+node.  This is useful for defining a ground node.
+
+
+Analysis
+--------
 
 Use Inspect (ctrl+i) to find the voltage across a component or the
 current through a component.
 
-A ground node to be defined by typing the 0 key; the ground node is
-placed at the negative cursor.""", 'Help')
+
+""", 'Help')
 
     def on_inspect(self):
 
