@@ -4,8 +4,9 @@ __pycache__/
 .ipynb_checkpoints/
 
 # Library artifacts
-lgui.egg-info/
+lcapy_gui.egg-info/
 dist/
+build/
 
 # Local testing files
 test.py
