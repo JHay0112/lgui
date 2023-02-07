@@ -41,6 +41,9 @@ class CptPropertiesDialog:
 
     def on_update(self):
 
+        if self.cpt.kind is not None:
+            self.cpt.kind = self.labelentries.get('kind')
+
         self.cpt.cname = self.labelentries.get('name')
         self.cpt.value = self.labelentries.get('value')
         try:
