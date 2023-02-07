@@ -5,7 +5,6 @@ from ..annotations import Annotations
 from ..nodes import Nodes
 from ..components import Components
 from .preferences import Preferences
-from lgui import __version__
 from copy import copy
 from numpy import array
 
@@ -359,8 +358,11 @@ class UIModelBase:
 
     def schematic(self):
 
-        s = '# Created by lcapy-gui ' + __version__ + '\n'
-        # TODO: save node positions
+        s = '# Created by ' + self.ui.NAME + ' V' + self.ui.VERSION + '\n'
+
+        # Define node positions
+        foo = [str(node) for node in self.nodes]
+        s += '; nodes={' + ', '.join(foo) + '}' + '\n'
 
         try:
             s += self.components.as_sch(self.STEP)

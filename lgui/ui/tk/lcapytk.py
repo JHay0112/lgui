@@ -17,6 +17,9 @@ class LcapyTk(Tk):
     GEOMETRY = '1200x800'
     FIGSIZE = (12, 8)
 
+    NAME = 'lcapy-tk'
+    VERSION = '1.0'
+
     def __init__(self, filename=None, uimodel_class=None, debug=0):
 
         super().__init__()
