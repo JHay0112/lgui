@@ -262,14 +262,19 @@ class UIModelBase:
         sch = cct.sch
 
         try:
-            # This will fail if have detached circuits.
-            sch._positions_calculate()
+            # This will fail if have detached circuits unless nodes
+            # are defined in the file.
+            calculated = sch._positions_calculate()
         except (AttributeError, ValueError, RuntimeError) as e:
             self.exception(e)
 
         width, height = sch.width * self.STEP,  sch.height * self.STEP
-        offsetx, offsety = self.snap((self.ui.XSIZE - width) / 2,
-                                     (self.ui.YSIZE - height) / 2)
+
+        if calculated:
+            offsetx, offsety = self.snap((self.ui.XSIZE - width) / 2,
+                                         (self.ui.YSIZE - height) / 2)
+        else:
+            offsetx, offsety = 0, 0
 
         vcs = []
         elements = cct.elements
@@ -370,7 +375,7 @@ class UIModelBase:
             self.exception(e)
 
         # Note, need a newline so string treated as a netlist string
-        s += ';' + self.preferences.schematic_preferences() + '\n'
+        s += '; ' + self.preferences.schematic_preferences() + '\n'
         return s
 
     def inspect_admittance(self, cpt):
