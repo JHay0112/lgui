@@ -20,8 +20,8 @@ class Components(list):
 
         # Hack for drawing
         cpt.nodes = nodes
-        cpt.ports[0].position = nodes[0].position
-        cpt.ports[1].position = nodes[1].position
+        cpt.nodes[0].position = nodes[0].position
+        cpt.nodes[1].position = nodes[1].position
 
         self.append(cpt)
 

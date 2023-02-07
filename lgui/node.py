@@ -16,6 +16,12 @@ class Node:
 
         return self.x, self.y
 
+    @position.setter
+    def position(self, pos):
+
+        self.x = pos[0]
+        self.y = pos[1]
+
     def __str__(self):
 
         x = str(self.x).rstrip('0').rstrip('.')

@@ -292,8 +292,6 @@ class UIModelBase:
                 node = self.nodes.make(x1, y1, node1.name, cpt)
                 self.nodes.add(node)
                 nodes.append(node)
-                # Hack
-                cpt.ports[m].position = node.position
             if elt.type == 'R':
                 cpt.value = elt.args[0]
             elif elt.type in ('C', 'L'):

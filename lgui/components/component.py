@@ -43,10 +43,10 @@ class Component(ABC):
     def __init__(self, value: Union[str, int, float]):
 
         self.value: str = value
-        self.ports: list[Node] = [Node(), Node()]
         self.id = type(self).next_id
         type(self).next_id += 1
         self.kind = None
+        self.nodes = []
         self.initial_value = None
         self.control = None
         self.attrs = ''
@@ -76,8 +76,8 @@ class Component(ABC):
     def __str__(self) -> str:
 
         return self.TYPE + ' ' + '(%s, %s) (%s, %s)' % \
-            (self.ports[0].position[0], self.ports[0].position[1],
-             self.ports[1].position[0], self.ports[1].position[1])
+            (self.nodes[0].position[0], self.nodes[0].position[1],
+             self.nodes[1].position[0], self.nodes[1].position[1])
 
     @abstractmethod
     def __draw_on__(self, editor, layer: canvas.Canvas):
@@ -91,7 +91,7 @@ class Component(ABC):
         """
         Computes the length of the component.
         """
-        return np.linalg.norm(np.abs(np.array(self.ports[1].position) - np.array(self.ports[0].position)))
+        return np.linalg.norm(np.abs(np.array(self.nodes[1].position) - np.array(self.nodes[0].position)))
 
     @property
     def midpoint(self) -> np.array:
@@ -99,7 +99,7 @@ class Component(ABC):
         Computes the midpoint of the component.
         """
 
-        return (np.array(self.ports[0].position) + np.array(self.ports[1].position)) / 2
+        return (np.array(self.nodes[0].position) + np.array(self.nodes[1].position)) / 2
 
     def along(self) -> np.array:
         """
@@ -110,7 +110,7 @@ class Component(ABC):
         if length == 0:
             return np.array((0, 0))
         else:
-            return (np.array(self.ports[1].position) - np.array(self.ports[0].position))/length
+            return (np.array(self.nodes[1].position) - np.array(self.nodes[0].position))/length
 
     def orthog(self) -> np.array:
         """
@@ -139,8 +139,8 @@ class Component(ABC):
         self.__draw_on__(editor, layer)
 
         # node dots
-        start = self.ports[0].position
-        end = self.ports[1].position
+        start = self.nodes[0].position
+        end = self.nodes[1].position
         layer.fill_arc(start[0], start[1], editor.STEP // 5, 0, 2 * np.pi)
         layer.fill_arc(end[0], end[1], editor.STEP // 5, 0, 2 * np.pi)
 
@@ -150,8 +150,8 @@ class Component(ABC):
         Returns true if component essentially vertical.
         """
 
-        x1, y1 = self.ports[0].position
-        x2, y2 = self.ports[1].position
+        x1, y1 = self.nodes[0].position
+        x2, y2 = self.nodes[1].position
         return abs(y2 - y1) > abs(x2 - x1)
 
     @property

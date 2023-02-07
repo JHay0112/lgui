@@ -28,8 +28,8 @@ class VCVS(Component):
 
         length = self.length()
 
-        start = self.ports[0].position
-        end = self.ports[1].position
+        start = self.nodes[0].position
+        end = self.nodes[1].position
         mid = 0.5 * self.along() * length + start
 
         RADIUS = 1.2 * editor.STEP * editor.SCALE
